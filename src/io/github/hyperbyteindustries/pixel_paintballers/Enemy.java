@@ -25,8 +25,7 @@ public class Enemy extends GameObject {
 	private Random random;
 	
 	private int attack = 0;
-	private long timer;
-	private int shootTime = 7;
+	private int shootTime = 420;
 	
 	/**
 	 * Creates a new enemy.
@@ -40,8 +39,6 @@ public class Enemy extends GameObject {
 		
 		this.handler = handler;
 		random = new Random();
-		
-		timer = System.currentTimeMillis();
 		
 		for (int i = 0; i < handler.objects.size(); i++) {
 			GameObject tempObject = handler.objects.get(i);
@@ -66,10 +63,10 @@ public class Enemy extends GameObject {
 		y += velY;
 		
 		if (id == ID.MOVINGENEMY) {
-			float diffX = x-(Game.player.getX()+4), diffY = y-(Game.player.getY()+4),
-					distance = (float) Math.sqrt((x-Game.player.getX())*
-							(x-Game.player.getX()) + (y-Game.player.getY())*
-							(y-Game.player.getY()));
+			float diffX = x-(Game.player.getX()+4), diffY = y-(Game.player.getY()+
+					4), distance = (float) Math.sqrt((x-Game.player.getX())*(x-
+							Game.player.getX()) + (y-Game.player.getY())*(y-
+									Game.player.getY()));
 			
 			velX = (float) ((-1.0/distance)*diffX);
 			velY = (float) ((-1.0/distance)*diffY);
@@ -83,37 +80,38 @@ public class Enemy extends GameObject {
 			}
 		}
 		
-		if (System.currentTimeMillis() - timer > 1000) {
-			timer += 1000;
-			shootTime--;
+		shootTime--;
+		
+		if (shootTime == 0) {
+			shootTime = 420;
 			
-			if (shootTime == 0) {
-				Paintball paintball = null;
-				
-				if (id == ID.ENEMY || id == ID.MOVINGENEMY) paintball =
-						new Paintball(x+8, y+8, ID.PAINTBALL, handler, this);
-				else if (id == ID.BOUNCYENEMY) paintball = new Paintball(x+8, y+8,
-						ID.BOUNCYPAINTBALL, handler, this);
-				else if (id == ID.HOMINGENEMY) paintball = new Paintball(x+8, y+8,
-						ID.HOMINGPAINTBALL, handler, this);
-				
-				handler.addObject(paintball);
-				
-				float diffX = x-Game.player.getX(), diffY = y-Game.player.getY(),
-						distance = (float) Math.sqrt((x-Game.player.getX())*(x-
-								Game.player.getX()) + (y-Game.player.getY())*(y-
-										Game.player.getY()));
-				
-				paintball.setVelX((float) (((-1.0/distance)*diffX)*7));
-				paintball.setVelY((float) (((-1.0/distance)*diffY)*7));
-				
-				shootTime = 7;
-			}
+			Paintball paintball = null;
+			
+			if (id == ID.ENEMY || id == ID.MOVINGENEMY) paintball =
+					new Paintball(x+8, y+8, ID.PAINTBALL, handler, this);
+			else if (id == ID.BOUNCYENEMY) paintball = new Paintball(x+8, y+8,
+					ID.BOUNCYPAINTBALL, handler, this);
+			else if (id == ID.HOMINGENEMY) paintball = new Paintball(x+8, y+8,
+					ID.HOMINGPAINTBALL, handler, this);
+			
+			handler.addObject(paintball);
+			
+			float diffX = x-Game.player.getX(), diffY = y-Game.player.getY(),
+					distance = (float) Math.sqrt((x-Game.player.getX())*(x-
+							Game.player.getX()) + (y-Game.player.getY())*(y-
+									Game.player.getY()));
+			
+			paintball.setVelX((float) (((-1.0/distance)*diffX)*7));
+			paintball.setVelY((float) (((-1.0/distance)*diffY)*7));
 		}
 	}
 
 	// See render(Graphics2D graphics2d) in GameObject.
 	public void render(Graphics2D graphics2d) {
+		Font font = new Font("Pixel EX", Font.PLAIN, 10);
+		int shootTime = (int) ((double) ((double) this.shootTime/(double) 420)*10);
+		String shootTimePrompt = "Shooting in " + shootTime;
+		
 		if (id == ID.ENEMY) {
 			graphics2d.setColor(GREEN);
 		} else if (id == ID.MOVINGENEMY) {
@@ -127,9 +125,10 @@ public class Enemy extends GameObject {
 		graphics2d.fill(getBounds());
 		graphics2d.setColor(WHITE);
 		graphics2d.draw(getBounds());
-		graphics2d.setFont(new Font("Pixel EX", Font.PLAIN, 10));
 		graphics2d.setColor(GRAY);
-		graphics2d.drawString("Shooting in " + shootTime, x, y);
+		graphics2d.setFont(font);
+		graphics2d.drawString(shootTimePrompt, x-((shootTimePrompt.length()-1)/2*
+				5), y);
 	}
 
 	private void respawn() {

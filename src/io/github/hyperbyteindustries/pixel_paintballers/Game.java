@@ -37,13 +37,14 @@ public class Game extends Canvas implements Runnable {
 	public static State gameState = State.LOGO;
 	
 	public static Player player = new Player(XBOUND/2-16, YBOUND/2-16, ID.PLAYER);
+	public static boolean paused = false;
 	
 	private Thread thread;
 	private boolean running = false;
 	
 	private Handler handler;
-	private KeyInput keyInput;
 	private Menu menu;
+	private KeyInput keyInput;
 	private HeadsUpDisplay headsUpDisplay;
 	private Spawner spawner;
 
@@ -52,13 +53,13 @@ public class Game extends Canvas implements Runnable {
 	 */
 	public Game() {
 		handler = new Handler();
-		keyInput = new KeyInput(handler);
 		menu = new Menu(handler);
+		keyInput = new KeyInput(handler);
 		headsUpDisplay = new HeadsUpDisplay();
 		spawner = new Spawner(handler);
-		
-		addKeyListener(keyInput);
+
 		addMouseListener(menu);
+		addKeyListener(keyInput);
 		
 		new Window(TITLE, WIDTH, HEIGHT, this);
 	}
@@ -123,12 +124,17 @@ public class Game extends Canvas implements Runnable {
 	 * Updates the logic of the game.
 	 */
 	private void tick() {
+		 if (!(paused)) handler.tick();
+		
 		menu.tick();
-		handler.tick();
 		
 		if (gameState == State.GAME) {
-			headsUpDisplay.tick();
-			spawner.tick();
+			if (!(hasFocus())) paused = true;
+			
+			if (!(paused)) {
+				headsUpDisplay.tick();
+				spawner.tick();
+			}
 		}
 	}
 	
@@ -147,11 +153,13 @@ public class Game extends Canvas implements Runnable {
 		
 		graphics2d.setColor(BLACK);
 		graphics2d.fillRect(0, 0, XBOUND, YBOUND);
-		
+
+		if (!(paused)) handler.render(graphics2d);
 		menu.render(graphics2d);
-		handler.render(graphics2d);
 		
-		if (gameState == State.GAME) headsUpDisplay.render(graphics2d);
+		if (gameState == State.GAME) {
+			if (!(paused)) headsUpDisplay.render(graphics2d);
+		}
 		
 		graphics2d.dispose();
 		strategy.show();
@@ -199,7 +207,7 @@ public class Game extends Canvas implements Runnable {
 		
 		try {
 			Thread.sleep(5000);
-			Game.gameState = State.TITLESCREEN;
+			gameState = State.TITLESCREEN;
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}

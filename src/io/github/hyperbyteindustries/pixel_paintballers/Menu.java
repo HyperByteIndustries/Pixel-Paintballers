@@ -1,6 +1,7 @@
 package io.github.hyperbyteindustries.pixel_paintballers;
 
 import static java.awt.Color.*;
+import static java.awt.Font.*;
 
 import java.awt.Font;
 import java.awt.Graphics2D;
@@ -39,10 +40,10 @@ public class Menu extends MouseAdapter {
 		
 		companyLogo = new ImageIcon("res/Company logo.png").getImage();
 		gameLogo = new ImageIcon("res/Game logo.png").getImage();
-		titleSelect = new Font("Pixel EX", Font.PLAIN, 32);
-		menuHeader = new Font("Pixel EX", Font.BOLD, 72);
-		menuSelect = new Font("Pixel EX", Font.PLAIN, 20);
-		menuText = new Font("Pixel EX", Font.ITALIC, 15);
+		titleSelect = new Font("Pixel EX", PLAIN, 32);
+		menuHeader = new Font("Pixel EX", BOLD, 40);
+		menuSelect = new Font("Pixel EX", PLAIN, 20);
+		menuText = new Font("Pixel EX", ITALIC, 15);
 	}
 	
 	/**
@@ -66,8 +67,8 @@ public class Menu extends MouseAdapter {
 				null);
 		else if (Game.gameState == State.TITLESCREEN) {
 			graphics2d.drawImage(gameLogo, 0, 0, null);
-			graphics2d.setFont(titleSelect);
 			
+			graphics2d.setFont(titleSelect);
 			graphics2d.setColor(RED);
 			graphics2d.fillRect((Game.XBOUND/2)-64, (Game.YBOUND/2)-96, 128, 64);
 			graphics2d.setColor(WHITE);
@@ -81,10 +82,35 @@ public class Menu extends MouseAdapter {
 			graphics2d.drawRect((Game.XBOUND/2)-64, (Game.YBOUND/2)+32, 128, 64);
 			graphics2d.setColor(BLUE);
 			graphics2d.drawString("Quit", (Game.XBOUND/2)-45, (Game.YBOUND/2)+78);
+		} if (Game.gameState == State.GAME) {
+			if (Game.paused) {
+				graphics2d.setFont(menuHeader);
+				graphics2d.setColor(WHITE);
+				graphics2d.drawString("Paused", Game.XBOUND/2-(("Paused".length()-1)
+						/2*53), 40);
+				
+				graphics2d.setFont(menuSelect);
+				graphics2d.setColor(RED);
+				graphics2d.fillRect(Game.XBOUND/2-96, Game.YBOUND/2-96, 192, 64);
+				graphics2d.setColor(WHITE);
+				graphics2d.drawRect(Game.XBOUND/2-96, Game.YBOUND/2-96, 192, 64);
+				graphics2d.setColor(BLUE);
+				graphics2d.drawString("Resume", Game.XBOUND/2-(("Resume".length()-1)
+						/2*25), Game.YBOUND/2-55);
+				
+				graphics2d.setColor(RED);
+				graphics2d.fillRect(Game.XBOUND/2-96, Game.YBOUND/2+32, 192, 64);
+				graphics2d.setColor(WHITE);
+				graphics2d.drawRect(Game.XBOUND/2-96, Game.YBOUND/2+32, 192, 64);
+				graphics2d.setColor(BLUE);
+				graphics2d.drawString("Quit", Game.XBOUND/2-(("Quit".length()-1)/2*
+						30), Game.YBOUND/2+72);
+			}
 		} else if (Game.gameState == State.GAMEOVER) {
 			graphics2d.setFont(menuHeader);
 			graphics2d.setColor(WHITE);
-			graphics2d.drawString("Game Over!", (Game.XBOUND/2)-280, 75);
+			graphics2d.drawString("Game Over!", Game.XBOUND/2-(("Quit".length()-1)/
+					2*150), 40);
 			
 			graphics2d.setFont(menuText);
 			graphics2d.drawString("Your final score was: " + HeadsUpDisplay.score,
@@ -122,18 +148,30 @@ public class Menu extends MouseAdapter {
 			} else if (mouseOver(mouseX, mouseY, (Game.XBOUND/2)-64, (Game.YBOUND/2)
 					+32, 128, 64)) System.exit(1);
 		} else if (Game.gameState == State.GAME) {
-			Paintball paintball = new Paintball(Game.player.getX()+12,
-					Game.player.getY()+12, ID.PAINTBALL, handler, Game.player);
-			
-			handler.addObject(paintball);
-			
-			float diffX = paintball.getX()-(mouseX-4), diffY = paintball.getY()-
-					(mouseY-4), distance = (float) Math.sqrt((paintball.getX()-
-							mouseX)*(paintball.getX()-mouseX) + (paintball.getY()-
-									mouseY)*(paintball.getY()-mouseY));
-			
-			paintball.setVelX((float) ((-1.0/distance) * diffX)*7);
-			paintball.setVelY((float) ((-1.0/distance) * diffY)*7);
+			if (!(Game.paused)) {
+				Paintball paintball = new Paintball(Game.player.getX()+12,
+						Game.player.getY()+12, ID.PAINTBALL, handler, Game.player);
+				
+				handler.addObject(paintball);
+				
+				float diffX = paintball.getX()-(mouseX-4), diffY = paintball.getY()-
+						(mouseY-4), distance = (float) Math.sqrt((paintball.getX()-
+								mouseX)*(paintball.getX()-mouseX) +
+								(paintball.getY()-mouseY)*(paintball.getY()-
+										mouseY));
+				
+				paintball.setVelX((float) ((-1.0/distance) * diffX)*7);
+				paintball.setVelY((float) ((-1.0/distance) * diffY)*7);
+			} else {
+				if (mouseOver(mouseX, mouseY, Game.XBOUND/2-96, Game.YBOUND/2-96,
+						192, 64)) Game.paused = false;
+				else if (mouseOver(mouseX, mouseY, Game.XBOUND/2-96, Game.YBOUND/2+
+						32, 192, 64)) {
+					Game.paused = false;
+					handler.objects.clear();
+					Game.gameState = State.TITLESCREEN;
+				}
+			}
 		} else if (Game.gameState == State.GAMEOVER) {
 			if (mouseOver(mouseX, mouseY, (Game.XBOUND/2)-92, Game.YBOUND-135, 192,
 					64)) {
