@@ -1,37 +1,22 @@
-## Welcome to GitHub Pages
+# Pixel Paintballers
+Pixel Paintballers is a simple action shooter game currently in stage Alpha of development.
 
-You can use the [editor on GitHub](https://github.com/HyperByteIndustries/Pixel-Paintballers/edit/gh-pages/README.md) to maintain and preview the content for your website in Markdown files.
+## Development
+### Development staff
+In its current stage, Pixel Paintballers is being developed by:
+- ExaltedPower412 as General Director
+- Sweetboy13735 on programming
+- B-Clark7698 on game mechanics and ideas
 
-Whenever you commit to this repository, GitHub Pages will run [Jekyll](https://jekyllrb.com/) to rebuild the pages in your site, from the content in your Markdown files.
+### Issue reporting
+As this Pixel Paintballers is still in development, we ask that you report any issue regarding the software to us [here](mailto:ramonegraham@gmail.com).
 
-### Markdown
+### Current running platforms
+Pixel Paintballers is currently able to run on devices with Java version 8, although we recommend that you run it on the latest update to avoid any issues related to the JRE.
 
-Markdown is a lightweight and easy-to-use syntax for styling your writing. It includes conventions for
+## Software downloads
+### Download agreement
+**PLEASE READ THIS BEFORE DOWNLOADING OUR SOFTWARE.** By downloading our software, you agree and acknowledge that HyperByte Industries and its memebers are **not** liable for any external damage caused to your device unless our software is the direct cause of the damage.
 
-```markdown
-Syntax highlighted code block
-
-# Header 1
-## Header 2
-### Header 3
-
-- Bulleted
-- List
-
-1. Numbered
-2. List
-
-**Bold** and _Italic_ and `Code` text
-
-[Link](url) and ![Image](src)
-```
-
-For more details see [GitHub Flavored Markdown](https://guides.github.com/features/mastering-markdown/).
-
-### Jekyll Themes
-
-Your Pages site will use the layout and styles from the Jekyll theme you have selected in your [repository settings](https://github.com/HyperByteIndustries/Pixel-Paintballers/settings). The name of this theme is saved in the Jekyll `_config.yml` configuration file.
-
-### Support or Contact
-
-Having trouble with Pages? Check out our [documentation](https://help.github.com/categories/github-pages-basics/) or [contact support](https://github.com/contact) and we’ll help you sort it out.
+### Download instructions
+Our download service is currently in development. Hold tight, it'll be up and running soon.
