@@ -1,4 +1,4 @@
-# Welcome!
+# Pixel Paintballers
 Pixel Paintballers is a simple action shooter game currently in stage Alpha of development.
 
 ## Development
