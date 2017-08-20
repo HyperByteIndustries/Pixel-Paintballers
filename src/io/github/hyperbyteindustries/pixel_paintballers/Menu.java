@@ -11,6 +11,7 @@ import java.awt.event.MouseEvent;
 
 import javax.swing.ImageIcon;
 
+import io.github.hyperbyteindustries.pixel_paintballers.Game.Difficulty;
 import io.github.hyperbyteindustries.pixel_paintballers.Game.State;
 
 /**
@@ -82,6 +83,72 @@ public class Menu extends MouseAdapter {
 			graphics2d.drawRect((Game.XBOUND/2)-64, (Game.YBOUND/2)+32, 128, 64);
 			graphics2d.setColor(BLUE);
 			graphics2d.drawString("Quit", (Game.XBOUND/2)-45, (Game.YBOUND/2)+78);
+		} else if (Game.gameState == State.DIFFICULTYSELECT) {
+			graphics2d.setFont(menuHeader);
+			graphics2d.setColor(WHITE);
+			graphics2d.drawString("Select Difficulty", Game.XBOUND/2-
+					(("Select Difficulty".length()-1)/2*35), 40);
+			
+			graphics2d.setFont(menuSelect);
+			graphics2d.setColor(RED);
+			graphics2d.fillRect(5, 125, 192, 64);
+			graphics2d.setColor(WHITE);
+			graphics2d.drawRect(5, 125, 192, 64);
+			graphics2d.setColor(BLUE);
+			graphics2d.drawString("Easy", 101-(("Easy".length()-1)/2*35), 165);
+			graphics2d.setFont(menuText);
+			graphics2d.setColor(YELLOW);
+			graphics2d.drawString("Initial ammo: Infinite (No reloads)", 205, 140);
+			graphics2d.drawString("Enemy fire rate: 7 secs", 205, 155);
+
+			graphics2d.setFont(menuSelect);
+			graphics2d.setColor(RED);
+			graphics2d.fillRect(5, 200, 192, 64);
+			graphics2d.setColor(WHITE);
+			graphics2d.drawRect(5, 200, 192, 64);
+			graphics2d.setColor(BLUE);
+			graphics2d.drawString("Normal", 101-(("Normal".length()-1)/2*25), 240);
+			graphics2d.setFont(menuText);
+			graphics2d.setColor(YELLOW);
+			graphics2d.drawString("Initial ammo: 30", 205, 215);
+			graphics2d.drawString("Reload ammo: 15", 205, 230);
+			graphics2d.drawString("Enemy fire rate: 5 secs", 205, 245);
+
+			graphics2d.setFont(menuSelect);
+			graphics2d.setColor(RED);
+			graphics2d.fillRect(5, 275, 192, 64);
+			graphics2d.setColor(WHITE);
+			graphics2d.drawRect(5, 275, 192, 64);
+			graphics2d.setColor(BLUE);
+			graphics2d.drawString("Hard", 101-(("Hard".length()-1)/2*35), 315);
+			graphics2d.setFont(menuText);
+			graphics2d.setColor(YELLOW);
+			graphics2d.drawString("Initial ammo: 20", 205, 290);
+			graphics2d.drawString("Reload ammo: 10", 205, 305);
+			graphics2d.drawString("Enemy fire rate: 3 secs", 205, 320);
+
+			graphics2d.setFont(menuSelect);
+			graphics2d.setColor(RED);
+			graphics2d.fillRect(5, 350, 192, 64);
+			graphics2d.setColor(WHITE);
+			graphics2d.drawRect(5, 350, 192, 64);
+			graphics2d.setColor(BLUE);
+			graphics2d.drawString("Extreme", 101-(("Extreme".length()-1)/2*20),
+					390);
+			graphics2d.setFont(menuText);
+			graphics2d.setColor(YELLOW);
+			graphics2d.drawString("Initial ammo: 10", 205, 365);
+			graphics2d.drawString("Reload ammo: 5", 205, 380);
+			graphics2d.drawString("Enemy fire rate: 2 secs", 205, 395);
+			
+			graphics2d.setFont(menuSelect);
+			graphics2d.setColor(RED);
+			graphics2d.fillRect((Game.XBOUND/2)-96, 450, 192, 64);
+			graphics2d.setColor(WHITE);
+			graphics2d.drawRect((Game.XBOUND/2)-96, 450, 192, 64);
+			graphics2d.setColor(BLUE);
+			graphics2d.drawString("Back", Game.XBOUND/2-(("Back".length()-1)/2*35),
+					490);
 		} if (Game.gameState == State.GAME) {
 			if (Game.paused) {
 				graphics2d.setFont(menuHeader);
@@ -142,26 +209,56 @@ public class Menu extends MouseAdapter {
 		if (Game.gameState == State.TITLESCREEN) {
 			if (mouseOver(mouseX, mouseY, (Game.XBOUND/2)-64, (Game.YBOUND/2)-96,
 					128, 64)) {
+				Game.gameState = State.DIFFICULTYSELECT;
+				
+			} else if (mouseOver(mouseX, mouseY, (Game.XBOUND/2)-64, (Game.YBOUND/2)
+					+32, 128, 64)) System.exit(1);
+		} else if (Game.gameState == State.DIFFICULTYSELECT) {
+			if (mouseOver(mouseX, mouseY, 5, 125, 192, 64)) {
+				Game.gameDifficulty = Difficulty.EASY;
 				Game.gameState = State.GAME;
 				
 				handler.startGame();
-			} else if (mouseOver(mouseX, mouseY, (Game.XBOUND/2)-64, (Game.YBOUND/2)
-					+32, 128, 64)) System.exit(1);
+			} else if (mouseOver(mouseX, mouseY, 5, 200, 192, 64)) {
+				Game.gameDifficulty = Difficulty.NORMAL;
+				Game.gameState = State.GAME;
+				
+				handler.startGame();
+			} else if (mouseOver(mouseX, mouseY, 5, 275, 192, 64)) {
+				Game.gameDifficulty = Difficulty.HARD;
+				Game.gameState = State.GAME;
+				
+				handler.startGame();
+			} else if (mouseOver(mouseX, mouseY, 5, 350, 192, 64)) {
+				Game.gameDifficulty = Difficulty.EXTREME;
+				Game.gameState = State.GAME;
+				
+				handler.startGame();
+			} else if (mouseOver(mouseX, mouseY, (Game.XBOUND/2)-96, 450, 192,
+					64)) {
+				Game.gameState = State.TITLESCREEN;
+			}
 		} else if (Game.gameState == State.GAME) {
 			if (!(Game.paused)) {
-				Paintball paintball = new Paintball(Game.player.getX()+12,
-						Game.player.getY()+12, ID.PAINTBALL, handler, Game.player);
-				
-				handler.addObject(paintball);
-				
-				float diffX = paintball.getX()-(mouseX-4), diffY = paintball.getY()-
-						(mouseY-4), distance = (float) Math.sqrt((paintball.getX()-
-								mouseX)*(paintball.getX()-mouseX) +
-								(paintball.getY()-mouseY)*(paintball.getY()-
-										mouseY));
-				
-				paintball.setVelX((float) ((-1.0/distance) * diffX)*7);
-				paintball.setVelY((float) ((-1.0/distance) * diffY)*7);
+				if (HeadsUpDisplay.ammo != 0) {
+					Paintball paintball = new Paintball(Game.player.getX()+12,
+							Game.player.getY()+12, ID.PAINTBALL, handler,
+							Game.player);
+					
+					handler.addObject(paintball);
+					
+					float diffX = paintball.getX()-(mouseX-4), diffY =
+							paintball.getY()-(mouseY-4), distance = (float)
+							Math.sqrt((paintball.getX()-mouseX)*(paintball.getX()-
+									mouseX) + (paintball.getY()-mouseY)*
+									(paintball.getY()-mouseY));
+					
+					paintball.setVelX((float) ((-1.0/distance) * diffX)*7);
+					paintball.setVelY((float) ((-1.0/distance) * diffY)*7);
+					
+					if (Game.gameDifficulty != Difficulty.EASY) 
+						HeadsUpDisplay.ammo--;
+				}
 			} else {
 				if (mouseOver(mouseX, mouseY, Game.XBOUND/2-96, Game.YBOUND/2-96,
 						192, 64)) Game.paused = false;

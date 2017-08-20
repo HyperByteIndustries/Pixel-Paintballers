@@ -31,13 +31,19 @@ public class Game extends Canvas implements Runnable {
 	 *
 	 */
 	public enum State {
-		LOGO(), TITLESCREEN(), GAME(), GAMEOVER();
+		LOGO(), TITLESCREEN(), DIFFICULTYSELECT(), GAME(), GAMEOVER();
+	}
+	
+	public enum Difficulty {
+		EASY(), NORMAL(), HARD(), EXTREME();
 	}
 	
 	public static State gameState = State.LOGO;
+	public static Difficulty gameDifficulty = null;
+
+	public static boolean paused = false;
 	
 	public static Player player = new Player(XBOUND/2-16, YBOUND/2-16, ID.PLAYER);
-	public static boolean paused = false;
 	
 	private Thread thread;
 	private boolean running = false;
@@ -129,7 +135,7 @@ public class Game extends Canvas implements Runnable {
 		menu.tick();
 		
 		if (gameState == State.GAME) {
-			if (!(hasFocus())) paused = true;
+			if (!(isFocusOwner())) paused = true;
 			
 			if (!(paused)) {
 				headsUpDisplay.tick();

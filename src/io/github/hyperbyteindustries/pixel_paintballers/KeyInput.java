@@ -5,6 +5,7 @@ import static java.awt.event.KeyEvent.*;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 
+import io.github.hyperbyteindustries.pixel_paintballers.Game.Difficulty;
 import io.github.hyperbyteindustries.pixel_paintballers.Game.State;
 
 /**
@@ -65,6 +66,17 @@ public class KeyInput extends KeyAdapter {
 								tempObject.setVelX(5);
 								keyDown[3] = true;
 							}
+						}
+					}
+					
+					if (key == VK_R) {
+						if (HeadsUpDisplay.ammo == 0) {
+							if (Game.gameDifficulty == Difficulty.NORMAL)
+								HeadsUpDisplay.ammo = 15;
+							else if (Game.gameDifficulty == Difficulty.HARD)
+								HeadsUpDisplay.ammo = 10;
+							else if (Game.gameDifficulty == Difficulty.EXTREME)
+								HeadsUpDisplay.ammo = 5;
 						}
 					}
 				}

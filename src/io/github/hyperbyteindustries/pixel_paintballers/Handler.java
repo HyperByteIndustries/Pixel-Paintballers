@@ -3,6 +3,8 @@ package io.github.hyperbyteindustries.pixel_paintballers;
 import java.awt.Graphics2D;
 import java.util.LinkedList;
 
+import io.github.hyperbyteindustries.pixel_paintballers.Game.Difficulty;
+
 /**
  * Represents the game object handler of the game.
  * When constructed, this class is responsible for the management of the tick and
@@ -66,5 +68,10 @@ public class Handler {
 		HeadsUpDisplay.health = 100;
 		HeadsUpDisplay.score = 0;
 		HeadsUpDisplay.level = 0;
+		
+		if (Game.gameDifficulty == Difficulty.EASY) HeadsUpDisplay.ammo = -1;
+		else if (Game.gameDifficulty == Difficulty.NORMAL) HeadsUpDisplay.ammo = 30;
+		else if (Game.gameDifficulty == Difficulty.HARD) HeadsUpDisplay.ammo = 20;
+		else if (Game.gameDifficulty == Difficulty.EXTREME) HeadsUpDisplay.ammo = 10;
 	}
 }

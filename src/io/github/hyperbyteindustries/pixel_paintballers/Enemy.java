@@ -12,6 +12,8 @@ import java.awt.Graphics2D;
 import java.awt.Font;
 import java.util.Random;
 
+import io.github.hyperbyteindustries.pixel_paintballers.Game.Difficulty;
+
 /**
  * Represents the enemy AI of the game.
  * When constructed, this class is responsible for the management of the enemy.
@@ -25,7 +27,7 @@ public class Enemy extends GameObject {
 	private Random random;
 	
 	private int attack = 0;
-	private int shootTime = 420;
+	private int shootTime = 0 /*420 = 7 secs*/;
 	
 	/**
 	 * Creates a new enemy.
@@ -50,6 +52,11 @@ public class Enemy extends GameObject {
 				if (getBounds().intersects(tempObject.getBounds())) respawn();
 			}
 		}
+		
+		if (Game.gameDifficulty == Difficulty.EASY) shootTime = 420;
+		else if (Game.gameDifficulty == Difficulty.NORMAL) shootTime = 300;
+		else if (Game.gameDifficulty == Difficulty.HARD) shootTime = 180;
+		else if (Game.gameDifficulty == Difficulty.EXTREME) shootTime = 120;
 	}
 
 	// See getBounds() in GameObject.
@@ -83,7 +90,10 @@ public class Enemy extends GameObject {
 		shootTime--;
 		
 		if (shootTime == 0) {
-			shootTime = 420;
+			if (Game.gameDifficulty == Difficulty.EASY) shootTime = 420;
+			else if (Game.gameDifficulty == Difficulty.NORMAL) shootTime = 300;
+			else if (Game.gameDifficulty == Difficulty.HARD) shootTime = 180;
+			else if (Game.gameDifficulty == Difficulty.EXTREME) shootTime = 120;
 			
 			Paintball paintball = null;
 			

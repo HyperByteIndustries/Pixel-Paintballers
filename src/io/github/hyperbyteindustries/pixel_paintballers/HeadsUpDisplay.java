@@ -7,6 +7,8 @@ import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics2D;
 
+import io.github.hyperbyteindustries.pixel_paintballers.Game.Difficulty;
+
 /**
  * Represents the heads up display of the game.
  * When constructed, this class is responsible for the display of health, score, and
@@ -18,7 +20,7 @@ public class HeadsUpDisplay {
 
 	private Color healthColour;
 	
-	public static int maxHealth = 100, health = 100, score = 0, level = 0;
+	public static int maxHealth = 100, health = 100, score = 0, level = 0, ammo = 0;
 	
 	/**
 	 * Updates the logic of the display.
@@ -44,6 +46,9 @@ public class HeadsUpDisplay {
 		graphics2d.setFont(new Font("Pixel EX", Font.PLAIN, 10));
 		graphics2d.drawString("Health: " + health, 15, 22);
 		graphics2d.drawString("Score: " + score, 5, 45);
-		graphics2d.drawString("Level: " + level, 5, 60);
+		graphics2d.drawString("Level: " + level, 5, 55);
+		
+		if (Game.gameDifficulty != Difficulty.EASY)
+			graphics2d.drawString("Ammo: " + ammo, 5, 65);
 	}
 }
