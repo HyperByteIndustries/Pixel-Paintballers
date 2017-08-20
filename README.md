@@ -24,3 +24,5 @@ Pixel Paintballers is currently able to run on devices with Java version 8, alth
 3. Run the game jar and enjoy!
 
 *For other releases, see [here](https://github.com/HyperByteIndustries/Pixel-Paintballers/commits/Alpha-releases), and select the corresponding commit. Select the .zip file and click download.
+
+*To gain FPS readings, simply run the jar file using your terminal, and the FPS rate will be printed in the terminal.*
