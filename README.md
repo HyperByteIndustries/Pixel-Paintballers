@@ -19,7 +19,7 @@ Pixel Paintballers is currently able to run on devices with Java version 8, alth
 **PLEASE READ THIS BEFORE DOWNLOADING OUR SOFTWARE.** By downloading our software, you agree and acknowledge that HyperByte Industries and its memebers are **not** liable for any external damage caused to your device unless our software is the direct cause of the damage.
 
 ### Download instructions
-1. Download the latest alpha release [here](https://github.com/HyperByteIndustries/Pixel-Paintballers/raw/Alpha-releases/Pixel_Paintballers.zip).*
+1. Download the latest alpha release [here](https://github.com/HyperByteIndustries/Pixel-Paintballers/raw/Alpha-releases/Pixel_Paintballers_v1.2-alpha.zip).*
 2. Extract the game jar and res folder into your desired location (**NOTE: The res folder must be beside the game jar in order for the game to operate.**).
 3. Run the game jar and enjoy!
 
