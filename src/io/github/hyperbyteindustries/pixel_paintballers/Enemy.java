@@ -27,7 +27,7 @@ public class Enemy extends GameObject {
 	private Random random;
 	
 	private int attack = 0;
-	private int shootTime = 0 /*420 = 7 secs*/;
+	private int shootTime = 0;
 	
 	/**
 	 * Creates a new enemy.
@@ -118,9 +118,8 @@ public class Enemy extends GameObject {
 
 	// See render(Graphics2D graphics2d) in GameObject.
 	public void render(Graphics2D graphics2d) {
-		Font font = new Font("Pixel EX", Font.PLAIN, 10);
-		int shootTime = (int) ((double) ((double) this.shootTime/(double) 420)*10);
-		String shootTimePrompt = "Shooting in " + shootTime;
+		int shootTime = (int) (((double) ((double) this.shootTime/(double) 600)*10)+
+				1);
 		
 		if (id == ID.ENEMY) {
 			graphics2d.setColor(GREEN);
@@ -136,9 +135,8 @@ public class Enemy extends GameObject {
 		graphics2d.setColor(WHITE);
 		graphics2d.draw(getBounds());
 		graphics2d.setColor(GRAY);
-		graphics2d.setFont(font);
-		graphics2d.drawString(shootTimePrompt, x-((shootTimePrompt.length()-1)/2*
-				5), y);
+		graphics2d.setFont(new Font("Pixel EX", Font.PLAIN, 10));
+		graphics2d.drawString(String.valueOf(shootTime), x+8, y+15);
 	}
 
 	private void respawn() {

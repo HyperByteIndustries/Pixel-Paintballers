@@ -17,10 +17,12 @@ import io.github.hyperbyteindustries.pixel_paintballers.Game.Difficulty;
  *
  */
 public class HeadsUpDisplay {
+	
+	public static int maxHealth = 100, health = 100, score = 0, level = 0, ammo = 0,
+			reloadTime = 120;
+	public static boolean shoot = true;
 
 	private Color healthColour;
-	
-	public static int maxHealth = 100, health = 100, score = 0, level = 0, ammo = 0;
 	
 	/**
 	 * Updates the logic of the display.
@@ -30,6 +32,16 @@ public class HeadsUpDisplay {
 		int healthpercentage = (int) (((double) health/(double) maxHealth)*100);
 		
 		healthColour = new Color(75, healthpercentage*2, 0);
+		
+		if (!(shoot)) {
+			reloadTime--;
+			
+			if (reloadTime == 0) {
+				reloadTime = 120;
+				
+				reloadAmmo();
+			}
+		}
 	}
 	
 	/**
@@ -48,7 +60,21 @@ public class HeadsUpDisplay {
 		graphics2d.drawString("Score: " + score, 5, 45);
 		graphics2d.drawString("Level: " + level, 5, 55);
 		
-		if (Game.gameDifficulty != Difficulty.EASY)
-			graphics2d.drawString("Ammo: " + ammo, 5, 65);
+		if (Game.gameDifficulty != Difficulty.EASY) {
+			if (!(shoot)) graphics2d.drawString("Ammo: Reloading...", 5, 65);
+			else if (ammo == 0) graphics2d.drawString("Ammo: Out of ammo!", 5, 65);
+			else graphics2d.drawString("Ammo: " + ammo, 5, 65);
+		}
+	}
+
+	/**
+	 * Reloads the player's paintball ammunition.
+	 */
+	public static void reloadAmmo() {
+		if (Game.gameDifficulty == Difficulty.NORMAL) HeadsUpDisplay.ammo = 15;
+		else if (Game.gameDifficulty == Difficulty.HARD) HeadsUpDisplay.ammo = 10;
+		else if (Game.gameDifficulty == Difficulty.EXTREME) HeadsUpDisplay.ammo = 5;
+		
+		shoot = true;
 	}
 }

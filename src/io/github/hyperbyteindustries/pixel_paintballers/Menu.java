@@ -184,20 +184,31 @@ public class Menu extends MouseAdapter {
 					10, 175);
 			graphics2d.drawString("Your final level was: " + HeadsUpDisplay.level,
 					10, 195);
+			graphics2d.drawString("Your chosen difficulty: " + 
+					Game.gameDifficulty.name(), 10, 215);
 			
-			graphics2d.setFont(menuSelect);graphics2d.setColor(RED);
-			graphics2d.fillRect((Game.XBOUND/2)-92, Game.YBOUND-135, 192, 64);
+			graphics2d.setFont(menuSelect);
+			graphics2d.setColor(RED);
+			graphics2d.fillRect((Game.XBOUND/2)-92, 250, 192, 64);
 			graphics2d.setColor(WHITE);
-			graphics2d.drawRect((Game.XBOUND/2)-92, Game.YBOUND-135, 192, 64);
+			graphics2d.drawRect((Game.XBOUND/2)-92, 250, 192, 64);
 			graphics2d.setColor(BLUE);
-			graphics2d.drawString("Play again", (Game.XBOUND/2)-67, Game.YBOUND-95);
+			graphics2d.drawString("Change", (Game.XBOUND/2)-45, 280);
+			graphics2d.drawString("difficulty", (Game.XBOUND/2)-67, 300);
 			
 			graphics2d.setColor(RED);
-			graphics2d.fillRect((Game.XBOUND/2)-92, Game.YBOUND-65, 192, 64);
+			graphics2d.fillRect((Game.XBOUND/2)-92, 350, 192, 64);
 			graphics2d.setColor(WHITE);
-			graphics2d.drawRect((Game.XBOUND/2)-92, Game.YBOUND-65, 192, 64);
+			graphics2d.drawRect((Game.XBOUND/2)-92, 350, 192, 64);
 			graphics2d.setColor(BLUE);
-			graphics2d.drawString("Quit", (Game.XBOUND/2)-25, Game.YBOUND-23);
+			graphics2d.drawString("Play again", (Game.XBOUND/2)-67, 390);
+			
+			graphics2d.setColor(RED);
+			graphics2d.fillRect((Game.XBOUND/2)-92, 450, 192, 64);
+			graphics2d.setColor(WHITE);
+			graphics2d.drawRect((Game.XBOUND/2)-92, 450, 192, 64);
+			graphics2d.setColor(BLUE);
+			graphics2d.drawString("Quit", (Game.XBOUND/2)-25, 490);
 		}
 	}
 	
@@ -240,7 +251,7 @@ public class Menu extends MouseAdapter {
 			}
 		} else if (Game.gameState == State.GAME) {
 			if (!(Game.paused)) {
-				if (HeadsUpDisplay.ammo != 0) {
+				if (HeadsUpDisplay.ammo != 0 && HeadsUpDisplay.shoot) {
 					Paintball paintball = new Paintball(Game.player.getX()+12,
 							Game.player.getY()+12, ID.PAINTBALL, handler,
 							Game.player);
@@ -270,13 +281,12 @@ public class Menu extends MouseAdapter {
 				}
 			}
 		} else if (Game.gameState == State.GAMEOVER) {
-			if (mouseOver(mouseX, mouseY, (Game.XBOUND/2)-92, Game.YBOUND-135, 192,
-					64)) {
+			if (mouseOver(mouseX, mouseY, (Game.XBOUND/2)-92, 250, 192, 64)) Game.gameState = State.DIFFICULTYSELECT;
+			else if (mouseOver(mouseX, mouseY, (Game.XBOUND/2)-92, 350, 192, 64)) {
 				Game.gameState = State.GAME;
 				
 				handler.startGame();
-			} else if (mouseOver(mouseX, mouseY, (Game.XBOUND/2)-92, Game.YBOUND-65,
-					192, 64)) Game.gameState = State.TITLESCREEN;
+			} else if (mouseOver(mouseX, mouseY, (Game.XBOUND/2)-92, 450, 192, 64)) Game.gameState = State.TITLESCREEN;
 		}
 	}
 	

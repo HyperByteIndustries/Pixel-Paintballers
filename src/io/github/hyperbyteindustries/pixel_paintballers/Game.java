@@ -25,8 +25,9 @@ public class Game extends Canvas implements Runnable {
 	public static final String TITLE = "Pixel Paintballers";
 	
 	/**
-	 * Represents the menu state of the game.
-	 * This enum is responsible for giving the current menu state of the game.
+	 * Represents the menu states of the game.
+	 * When utilised, this enum is responsible for defining the game's current menu
+	 * state.
 	 * @author Ramone Graham
 	 *
 	 */
@@ -34,6 +35,13 @@ public class Game extends Canvas implements Runnable {
 		LOGO(), TITLESCREEN(), DIFFICULTYSELECT(), GAME(), GAMEOVER();
 	}
 	
+	/**
+	 * Represents the difficulty of the game.
+	 * When utilised, this enum is responsible for defining the game's current
+	 * difficulty.
+	 * @author Ramone Graham
+	 *
+	 */
 	public enum Difficulty {
 		EASY(), NORMAL(), HARD(), EXTREME();
 	}
@@ -130,7 +138,7 @@ public class Game extends Canvas implements Runnable {
 	 * Updates the logic of the game.
 	 */
 	private void tick() {
-		 if (!(paused)) handler.tick();
+		if (!(paused)) handler.tick();
 		
 		menu.tick();
 		
@@ -161,6 +169,7 @@ public class Game extends Canvas implements Runnable {
 		graphics2d.fillRect(0, 0, XBOUND, YBOUND);
 
 		if (!(paused)) handler.render(graphics2d);
+		
 		menu.render(graphics2d);
 		
 		if (gameState == State.GAME) {
@@ -172,7 +181,8 @@ public class Game extends Canvas implements Runnable {
 	}
 	
 	/**
-	 * Clamps a variable to a given maximum and minimum.
+	 * Mostly used with the float data-type coordinate system, this method clamps a
+	 * variable to a given maximum and minimum.
 	 * @param variable - The variable to clamp.
 	 * @param minimum - The minimum value.
 	 * @param maximum - The maximum value.
@@ -185,7 +195,8 @@ public class Game extends Canvas implements Runnable {
 	}
 	
 	/**
-	 * Clamps a variable to a given maximum and minimum.
+	 * Mostly used with integers, this method clamps a variable to a given maximum
+	 * and minimum.
 	 * @param variable - The variable to clamp.
 	 * @param minimum - The minimum value.
 	 * @param maximum - The maximum value.
@@ -201,20 +212,16 @@ public class Game extends Canvas implements Runnable {
 	public static void main(String[] args) {
 		new Game();
 		
-		GraphicsEnvironment environment =
-				GraphicsEnvironment.getLocalGraphicsEnvironment();
-		
 		try {
-			environment.registerFont(Font.createFont(Font.TRUETYPE_FONT,
+			GraphicsEnvironment environment = 
+					GraphicsEnvironment.getLocalGraphicsEnvironment();
+		
+			environment.registerFont(Font.createFont(Font.TRUETYPE_FONT, 
 					new File("res/pixelex.ttf")));
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		
-		try {
 			Thread.sleep(5000);
+			
 			gameState = State.TITLESCREEN;
-		} catch (InterruptedException e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
