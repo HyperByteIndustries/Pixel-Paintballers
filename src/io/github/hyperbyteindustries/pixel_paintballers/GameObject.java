@@ -5,8 +5,8 @@ import java.awt.Rectangle;
 
 /**
  * Represents the "skeleton" of all game objects in the game.
- * When a game object class is created (E.g. Player), it will extend this class,
- * inheriting it's methods and variables. 
+ * When a game object class is created (E.g. Player), it will extend this class, inheriting its
+ * methods and variables. 
  * @author Ramone Graham
  *
  */

@@ -5,8 +5,8 @@ import static io.github.hyperbyteindustries.pixel_paintballers.HeadsUpDisplay.le
 import java.util.Random;
 
 /**
- * Represents the spawning system of the game. When constructed, this class is
- * responsible for the spawning of enemy AI.
+ * Represents the spawning system of the game.
+ * When constructed, this class is responsible for the spawning of enemy AI.
  * @author Ramone Graham
  *
  */
@@ -34,9 +34,9 @@ public class Spawner {
 		for (int i = 0; i < handler.objects.size(); i++) {
 			GameObject tempObject = handler.objects.get(i);
 			
-			if (tempObject.getID() == ID.ENEMY || tempObject.getID() == ID.MOVINGENEMY
-					|| tempObject.getID() == ID.BOUNCYENEMY || tempObject.getID() == ID.HOMINGENEMY)
-				enemies++;
+			if (tempObject.getID() == ID.ENEMY || tempObject.getID() == ID.MOVINGENEMY ||
+					tempObject.getID() == ID.BOUNCYENEMY || tempObject.getID() ==
+					ID.HOMINGENEMY) enemies++;
 		}
 		
 		if (enemies == 0) {
@@ -150,26 +150,23 @@ public class Spawner {
 	 * Spawns an enemy that will move towards the player.
 	 */
 	private void spawnMovingEnemy() {
-		handler.addObject(
-				new Enemy(random.nextInt(Game.XBOUND-25),
-						random.nextInt(Game.YBOUND-25), ID.MOVINGENEMY, handler));
+		handler.addObject(new Enemy(random.nextInt(Game.XBOUND-25),
+				random.nextInt(Game.YBOUND-25), ID.MOVINGENEMY, handler));
 	}
 	
 	/**
 	 * Spawns an enemy that will fire bouncy paintballs.
 	 */
 	private void spawnBouncyEnemy() {
-		handler.addObject(
-				new Enemy(random.nextInt(Game.XBOUND-25),
-						random.nextInt(Game.YBOUND-25), ID.BOUNCYENEMY, handler));
+		handler.addObject(new Enemy(random.nextInt(Game.XBOUND-25),
+				random.nextInt(Game.YBOUND-25), ID.BOUNCYENEMY, handler));
 	}
 	
 	/**
 	 * Spawns an enemy that will fire homing paintballs.
 	 */
 	private void spawnHomingEnemy() {
-		handler.addObject(
-				new Enemy(random.nextInt(Game.XBOUND-25),
-						random.nextInt(Game.YBOUND-25), ID.HOMINGENEMY, handler));
+		handler.addObject(new Enemy(random.nextInt(Game.XBOUND-25), 
+				random.nextInt(Game.YBOUND-25), ID.HOMINGENEMY, handler));
 	}
 }

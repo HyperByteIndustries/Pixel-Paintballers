@@ -11,15 +11,14 @@ import io.github.hyperbyteindustries.pixel_paintballers.Game.Difficulty;
 
 /**
  * Represents the heads up display of the game.
- * When constructed, this class is responsible for the display of health, score, and
- * level.
+ * When constructed, this class is responsible for the display of health, score, and level.
  * @author Ramone Graham
  *
  */
 public class HeadsUpDisplay {
 	
-	public static int maxHealth = 100, health = 100, score = 0, level = 0, ammo = 0,
-			reloadTime = 120;
+	public static int maxHealth = 100, health = 100, score = 0, level = 0, ammo = 0, reloadTime =
+			120;
 	public static boolean shoot = true;
 
 	private Color healthColour;

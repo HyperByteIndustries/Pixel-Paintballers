@@ -9,8 +9,8 @@ import io.github.hyperbyteindustries.pixel_paintballers.Game.State;
 
 /**
  * Represents the key input handler of the game.
- * When constructed, this class is responsible for the management of certain key
- * events triggered by the user.
+ * When constructed, this class is responsible for the management of certain key events
+ * triggered by the user.
  * @author Ramone Graham
  *
  */
@@ -22,8 +22,7 @@ public class KeyInput extends KeyAdapter {
 	
 	/**
 	 * Creates a new instance of this class
-	 * @param handler - An instance of the handler class, used to control player
-	 * movement.
+	 * @param handler - An instance of the handler class, used to control player movement.
 	 */
 	public KeyInput(Handler handler) {
 		this.handler = handler;
@@ -69,10 +68,8 @@ public class KeyInput extends KeyAdapter {
 					}
 					
 					if (key == VK_R) {
-						if (HeadsUpDisplay.ammo == 0 && HeadsUpDisplay.reloadTime ==
-								120) {
+						if (HeadsUpDisplay.ammo == 0 && HeadsUpDisplay.reloadTime == 120)
 							HeadsUpDisplay.shoot = false;
-						}
 					}
 				}
 			} else {

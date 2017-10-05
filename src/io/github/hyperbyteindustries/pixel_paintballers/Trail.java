@@ -7,8 +7,8 @@ import java.awt.Rectangle;
 
 /**
  * Represents the paintball trail of the game.
- * When constructed, this class is responsible for creating transparent trail frames
- * that follow the paintball.
+ * When constructed, this class is responsible for creating transparent trail frames that follow
+ * the paintball.
  * @author Ramone Graham
  *
  */
@@ -32,8 +32,8 @@ public class Trail extends GameObject {
 	 * @param height The height of the frame.
 	 * @param life - The life of the frame.
 	 */
-	public Trail(float x, float y, ID id, Handler handler, Color colour, int width,
-			int height, float life) {
+	public Trail(float x, float y, ID id, Handler handler, Color colour, int width, int height,
+			float life) {
 		super(x, y, id);
 		
 		this.handler = handler;

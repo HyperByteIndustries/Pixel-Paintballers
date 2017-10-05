@@ -34,8 +34,7 @@ public class Paintball extends GameObject {
 		this.handler = handler;
 		this.shooter = shooter;
 		random = new Random();
-		colour = new Color(random.nextInt(256), random.nextInt(256),
-				random.nextInt(256));
+		colour = new Color(random.nextInt(256), random.nextInt(256), random.nextInt(256));
 	}
 
 	// See getBounds() in GameObject.
@@ -55,17 +54,16 @@ public class Paintball extends GameObject {
 			if (x <= 0 || x >= Game.XBOUND-9) velX *= -1;
 			if (y <= 0 || y >= Game.YBOUND-9) velY *= -1;
 		} else if (id == ID.HOMINGPAINTBALL) {
-			float diffX = x-(Game.player.getX()+12), diffY = y-(Game.player.getY()+
-					12), distance = (float) Math.sqrt((x-Game.player.getX())*(x-
-							Game.player.getX()) + (y-Game.player.getY())*(y-
-									Game.player.getY()));
+			float diffX = x-(Game.player.getX()+12), diffY = y-(Game.player.getY()+12),
+					distance = (float) Math.sqrt((x-Game.player.getX())*(x-Game.player.getX()) +
+							(y-Game.player.getY())*(y-Game.player.getY()));
 			
 			velX = (float) (((-1.0/distance)*diffX)*7);
 			velY = (float) (((-1.0/distance)*diffY)*7);
 		}
 		
-		handler.addObject(new Trail(x, y, ID.TRAIL, handler, colour,
-				getBounds().width, getBounds().height, 0.075f));
+		handler.addObject(new Trail(x, y, ID.TRAIL, handler, colour, getBounds().width,
+				getBounds().height, 0.075f));
 		
 		collision();
 	}
@@ -84,13 +82,12 @@ public class Paintball extends GameObject {
 						handler.removeObject(this);
 					}
 				}
-			} else if (tempObject.getID() == ID.ENEMY || tempObject.getID() ==
-					ID.MOVINGENEMY || tempObject.getID() == ID.BOUNCYENEMY ||
-					tempObject.getID() == ID.HOMINGENEMY) {
+			} else if (tempObject.getID() == ID.ENEMY || tempObject.getID() == ID.MOVINGENEMY ||
+					tempObject.getID() == ID.BOUNCYENEMY || tempObject.getID() ==
+					ID.HOMINGENEMY) {
 				if (shooter.getID() == ID.PLAYER) {
 					if (getBounds().intersects(tempObject.getBounds())) {
-						if (tempObject.getID() == ID.ENEMY)
-							HeadsUpDisplay.score += 1;
+						if (tempObject.getID() == ID.ENEMY) HeadsUpDisplay.score += 1;
 						else if (tempObject.getID() == ID.MOVINGENEMY)
 							HeadsUpDisplay.score += 2;
 						else if (tempObject.getID() == ID.BOUNCYENEMY)

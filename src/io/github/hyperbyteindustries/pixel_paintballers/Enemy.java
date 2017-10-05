@@ -5,7 +5,7 @@ import static java.awt.Color.CYAN;
 import static java.awt.Color.YELLOW;
 import static java.awt.Color.RED;
 import static java.awt.Color.WHITE;
-import static java.awt.Color.GRAY;
+import static java.awt.Color.BLACK;
 
 import java.awt.Rectangle;
 import java.awt.Graphics2D;
@@ -45,10 +45,9 @@ public class Enemy extends GameObject {
 		for (int i = 0; i < handler.objects.size(); i++) {
 			GameObject tempObject = handler.objects.get(i);
 			
-			if (tempObject.getID() == ID.ENEMY || tempObject.getID() ==
-					ID.MOVINGENEMY || tempObject.getID() == ID.BOUNCYENEMY ||
-					tempObject.getID() == ID.HOMINGENEMY || tempObject.getID() ==
-					ID.PLAYER) {
+			if (tempObject.getID() == ID.ENEMY || tempObject.getID() == ID.MOVINGENEMY ||
+					tempObject.getID() == ID.BOUNCYENEMY || tempObject.getID() == ID.HOMINGENEMY
+					|| tempObject.getID() == ID.PLAYER) {
 				if (getBounds().intersects(tempObject.getBounds())) respawn();
 			}
 		}
@@ -70,10 +69,9 @@ public class Enemy extends GameObject {
 		y += velY;
 		
 		if (id == ID.MOVINGENEMY) {
-			float diffX = x-(Game.player.getX()+4), diffY = y-(Game.player.getY()+
-					4), distance = (float) Math.sqrt((x-Game.player.getX())*(x-
-							Game.player.getX()) + (y-Game.player.getY())*(y-
-									Game.player.getY()));
+			float diffX = x-(Game.player.getX()+4), diffY = y-(Game.player.getY()+4), distance =
+					(float) Math.sqrt((x-Game.player.getX())*(x-Game.player.getX()) +
+							(y-Game.player.getY())*(y-Game.player.getY()));
 			
 			velX = (float) ((-1.0/distance)*diffX);
 			velY = (float) ((-1.0/distance)*diffY);
@@ -97,8 +95,8 @@ public class Enemy extends GameObject {
 			
 			Paintball paintball = null;
 			
-			if (id == ID.ENEMY || id == ID.MOVINGENEMY) paintball =
-					new Paintball(x+8, y+8, ID.PAINTBALL, handler, this);
+			if (id == ID.ENEMY || id == ID.MOVINGENEMY) paintball = new Paintball(x+8, y+8,
+					ID.PAINTBALL, handler, this);
 			else if (id == ID.BOUNCYENEMY) paintball = new Paintball(x+8, y+8,
 					ID.BOUNCYPAINTBALL, handler, this);
 			else if (id == ID.HOMINGENEMY) paintball = new Paintball(x+8, y+8,
@@ -106,10 +104,9 @@ public class Enemy extends GameObject {
 			
 			handler.addObject(paintball);
 			
-			float diffX = x-Game.player.getX(), diffY = y-Game.player.getY(),
-					distance = (float) Math.sqrt((x-Game.player.getX())*(x-
-							Game.player.getX()) + (y-Game.player.getY())*(y-
-									Game.player.getY()));
+			float diffX = x-Game.player.getX(), diffY = y-Game.player.getY(), distance = (float)
+					Math.sqrt((x-Game.player.getX())*(x-Game.player.getX()) +
+							(y-Game.player.getY())*(y-Game.player.getY()));
 			
 			paintball.setVelX((float) (((-1.0/distance)*diffX)*7));
 			paintball.setVelY((float) (((-1.0/distance)*diffY)*7));
@@ -118,27 +115,24 @@ public class Enemy extends GameObject {
 
 	// See render(Graphics2D graphics2d) in GameObject.
 	public void render(Graphics2D graphics2d) {
-		int shootTime = (int) (((double) ((double) this.shootTime/(double) 600)*10)+
-				1);
+		int shootTime = (int) (((double) ((double) this.shootTime/(double) 600)*10)+1);
 		
-		if (id == ID.ENEMY) {
-			graphics2d.setColor(GREEN);
-		} else if (id == ID.MOVINGENEMY) {
-			graphics2d.setColor(CYAN);
-		} else if (id == ID.BOUNCYENEMY) {
-			graphics2d.setColor(YELLOW);
-		} else if (id == ID.HOMINGENEMY) {
-			graphics2d.setColor(RED);
-		}
+		if (id == ID.ENEMY) graphics2d.setColor(GREEN);
+		else if (id == ID.MOVINGENEMY) graphics2d.setColor(CYAN);
+		else if (id == ID.BOUNCYENEMY) graphics2d.setColor(YELLOW);
+		else if (id == ID.HOMINGENEMY) graphics2d.setColor(RED);
 		
 		graphics2d.fill(getBounds());
 		graphics2d.setColor(WHITE);
 		graphics2d.draw(getBounds());
-		graphics2d.setColor(GRAY);
+		graphics2d.setColor(BLACK);
 		graphics2d.setFont(new Font("Pixel EX", Font.PLAIN, 10));
 		graphics2d.drawString(String.valueOf(shootTime), x+8, y+15);
 	}
 
+	/**
+	 * Spawns the enemy at a different location if they come into contact with a player.
+	 */
 	private void respawn() {
 		x = random.nextInt(Game.XBOUND-25);
 		y = random.nextInt(Game.YBOUND-25);
@@ -146,10 +140,9 @@ public class Enemy extends GameObject {
 		for (int i = 0; i < handler.objects.size(); i++) {
 			GameObject tempObject = handler.objects.get(i);
 			
-			if (tempObject.getID() == ID.ENEMY || tempObject.getID() ==
-					ID.MOVINGENEMY || tempObject.getID() == ID.BOUNCYENEMY ||
-					tempObject.getID() == ID.HOMINGENEMY || tempObject.getID() ==
-					ID.PLAYER) {
+			if (tempObject.getID() == ID.ENEMY || tempObject.getID() == ID.MOVINGENEMY ||
+					tempObject.getID() == ID.BOUNCYENEMY || tempObject.getID() == ID.HOMINGENEMY
+					|| tempObject.getID() ==ID.PLAYER) {
 				if (getBounds().intersects(tempObject.getBounds())) respawn();
 				else return;
 			}

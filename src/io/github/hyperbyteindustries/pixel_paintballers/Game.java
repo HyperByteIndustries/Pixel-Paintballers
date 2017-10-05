@@ -1,5 +1,8 @@
 package io.github.hyperbyteindustries.pixel_paintballers;
 
+import static java.awt.Color.RED;
+import static java.awt.Color.WHITE;
+import static java.awt.Color.GRAY;
 import static java.awt.Color.BLACK;
 
 import java.awt.Canvas;
@@ -11,8 +14,8 @@ import java.io.File;
 
 /**
  * Represents the core of the game.
- * When the game is initialised, this class is responsible for the management of
- * main functions across the game, such as the tick and render functions.
+ * When the game is initialised, this class is responsible for the management of main functions
+ * across the game, such as the tick and render functions.
  * @author Ramone Graham
  * 
  */
@@ -32,7 +35,8 @@ public class Game extends Canvas implements Runnable {
 	 *
 	 */
 	public enum State {
-		LOGO(), TITLESCREEN(), DIFFICULTYSELECT(), GAME(), GAMEOVER();
+		LOGO(), TITLESCREEN(), MAINMENU(), DIFFICULTYSELECT(), GAME(), GAMEOVER(),
+		CUSTOMISATION(), INFO(), INFO2();
 	}
 	
 	/**
@@ -51,7 +55,8 @@ public class Game extends Canvas implements Runnable {
 
 	public static boolean paused = false;
 	
-	public static Player player = new Player(XBOUND/2-16, YBOUND/2-16, ID.PLAYER);
+	public static Player player = new Player(XBOUND/2-16, YBOUND/2-16, ID.PLAYER, "Player", RED,
+			WHITE, GRAY);
 	
 	private Thread thread;
 	private boolean running = false;
@@ -67,13 +72,15 @@ public class Game extends Canvas implements Runnable {
 	 */
 	public Game() {
 		handler = new Handler();
-		menu = new Menu(handler);
+		menu = new Menu(this, handler);
 		keyInput = new KeyInput(handler);
 		headsUpDisplay = new HeadsUpDisplay();
 		spawner = new Spawner(handler);
 
 		addMouseListener(menu);
 		addKeyListener(keyInput);
+		
+		AudioManager.init();
 		
 		new Window(TITLE, WIDTH, HEIGHT, this);
 	}
@@ -181,8 +188,8 @@ public class Game extends Canvas implements Runnable {
 	}
 	
 	/**
-	 * Mostly used with the float data-type coordinate system, this method clamps a
-	 * variable to a given maximum and minimum.
+	 * Mostly used with the float data-type coordinate system, this method clamps a variable to 
+	 * a given maximum and minimum.
 	 * @param variable - The variable to clamp.
 	 * @param minimum - The minimum value.
 	 * @param maximum - The maximum value.
@@ -195,8 +202,7 @@ public class Game extends Canvas implements Runnable {
 	}
 	
 	/**
-	 * Mostly used with integers, this method clamps a variable to a given maximum
-	 * and minimum.
+	 * Mostly used with integers, this method clamps a variable to a given maximum and minimum.
 	 * @param variable - The variable to clamp.
 	 * @param minimum - The minimum value.
 	 * @param maximum - The maximum value.

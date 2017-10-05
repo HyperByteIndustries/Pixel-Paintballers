@@ -7,8 +7,8 @@ import io.github.hyperbyteindustries.pixel_paintballers.Game.Difficulty;
 
 /**
  * Represents the game object handler of the game.
- * When constructed, this class is responsible for the management of the tick and
- * render functions of all game objects.
+ * When constructed, this class is responsible for the management of the tick and render
+ * functions of all game objects.
  * @author Ramone Graham
  *
  */
