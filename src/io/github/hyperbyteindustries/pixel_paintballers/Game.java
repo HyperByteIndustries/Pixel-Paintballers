@@ -81,6 +81,7 @@ public class Game extends Canvas implements Runnable {
 		addKeyListener(keyInput);
 		
 		AudioManager.init();
+		DataManager.init();
 		
 		new Window(TITLE, WIDTH, HEIGHT, this);
 	}
@@ -135,6 +136,8 @@ public class Game extends Canvas implements Runnable {
 				timer += 1000;
 				System.out.println("FPS: " + frames);
 				frames = 0;
+				
+				DataManager.increaseStatistic("Time played", 1);
 			}
 		}
 		
@@ -150,8 +153,6 @@ public class Game extends Canvas implements Runnable {
 		menu.tick();
 		
 		if (gameState == State.GAME) {
-			if (!(isFocusOwner())) paused = true;
-			
 			if (!(paused)) {
 				headsUpDisplay.tick();
 				spawner.tick();
@@ -222,7 +223,7 @@ public class Game extends Canvas implements Runnable {
 			GraphicsEnvironment environment = 
 					GraphicsEnvironment.getLocalGraphicsEnvironment();
 		
-			environment.registerFont(Font.createFont(Font.TRUETYPE_FONT, 
+			environment.registerFont(Font.createFont(Font.TRUETYPE_FONT,
 					new File("res/pixelex.ttf")));
 			Thread.sleep(5000);
 			

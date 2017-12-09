@@ -4,8 +4,12 @@ import static javax.swing.JFrame.EXIT_ON_CLOSE;
 
 import java.awt.Canvas;
 import java.awt.Dimension;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowListener;
 
 import javax.swing.JFrame;
+
+import io.github.hyperbyteindustries.pixel_paintballers.Game.State;
 
 /**
  * Represents the game window.
@@ -13,7 +17,7 @@ import javax.swing.JFrame;
  * @author Ramone Graham
  *
  */
-public class Window extends Canvas {
+public class Window extends Canvas implements WindowListener {
 
 	private static final long serialVersionUID = 5982497984337248345L;
 
@@ -36,7 +40,43 @@ public class Window extends Canvas {
 		frame.setLocationRelativeTo(null);
 		frame.add(game);
 		frame.setVisible(true);
+		frame.addWindowListener(this);
 		
 		game.start();
+	}
+
+	// Evoked when a window gains focus.
+	public void windowActivated(WindowEvent e) {
+		
+	}
+
+	// Evoked when a window is closed.
+	public void windowClosed(WindowEvent e) {
+		
+	}
+
+	// Evoked when a window is closing.
+	public void windowClosing(WindowEvent e) {
+		DataManager.saveAllData();
+	}
+
+	// Evoked when a window has lost focus.
+	public void windowDeactivated(WindowEvent e) {
+		if (Game.gameState == State.GAME) Game.paused = true;
+	}
+
+	// Evoked when a window is opened from its icon.
+	public void windowDeiconified(WindowEvent e) {
+		
+	}
+
+	// Evoked when a window is minimised.
+	public void windowIconified(WindowEvent e) {
+		
+	}
+
+	// Evoked when a window is opened.
+	public void windowOpened(WindowEvent e) {
+		
 	}
 }
