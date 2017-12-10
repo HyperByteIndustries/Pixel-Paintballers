@@ -96,6 +96,7 @@ public class Paintball extends GameObject {
 							HeadsUpDisplay.score += 4;
 						handler.removeObject(this);
 						handler.removeObject(tempObject);
+						DataManager.increaseStatistic("Total kills", 1);
 					}
 				} else {
 					if (shooter.getID() == tempObject.getID()) {

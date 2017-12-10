@@ -131,7 +131,8 @@ public class Enemy extends GameObject {
 	}
 
 	/**
-	 * Spawns the enemy at a different location if they come into contact with a player.
+	 * Spawns the enemy at a different location if it's current location imposes a unfair
+	 * advantage against the player.
 	 */
 	private void respawn() {
 		x = random.nextInt(Game.XBOUND-25);

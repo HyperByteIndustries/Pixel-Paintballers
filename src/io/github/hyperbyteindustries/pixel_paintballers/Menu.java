@@ -81,7 +81,21 @@ public class Menu extends MouseAdapter {
 		} else if (Game.gameState == State.GAME) {
 			if (HeadsUpDisplay.health == 0) {
 				handler.objects.clear();
+				Game.player.setVelX(0);
+				Game.player.setVelY(0);
 				Game.gameState = State.GAMEOVER;
+				
+				DataManager.increaseStatistic("Shots fired", HeadsUpDisplay.shots);
+				DataManager.increaseStatistic("Games played", 1);
+				
+				if (HeadsUpDisplay.score > DataManager.getStatistic("Highscore (" +
+						Game.gameDifficulty.name() + ")"))
+					DataManager.setStatistic("Highscore (" + Game.gameDifficulty.name() + ")",
+							HeadsUpDisplay.score);
+				
+				DataManager.saveStatistics();
+				
+				HeadsUpDisplay.shots = 0;
 			}
 			
 			if (!(AudioManager.getMusic("Game 1").playing()))
@@ -272,10 +286,20 @@ public class Menu extends MouseAdapter {
 					40);
 			
 			graphics2d.setFont(menuText);
-			graphics2d.drawString("Your final score was: " + HeadsUpDisplay.score, 10, 175);
-			graphics2d.drawString("Your final level was: " + HeadsUpDisplay.level, 10, 195);
+			
+			if (HeadsUpDisplay.score >= DataManager.getStatistic("Highscore (" +
+					Game.gameDifficulty.name() + ")")) {
+				graphics2d.setColor(YELLOW);
+				graphics2d.drawString("Your final score was: " + HeadsUpDisplay.score +
+						"    HIGHSCORE!!!", 10, 150);
+				graphics2d.setColor(WHITE);
+			} else {
+				graphics2d.drawString("Your final score was: " + HeadsUpDisplay.score, 10, 150);
+			}
+			
+			graphics2d.drawString("Your final level was: " + HeadsUpDisplay.level, 10, 170);
 			graphics2d.drawString("Your chosen difficulty: " + Game.gameDifficulty.name(), 10,
-					215);
+					190);
 			
 			graphics2d.setFont(menuSelect);
 			graphics2d.setColor(RED);
@@ -520,7 +544,7 @@ public class Menu extends MouseAdapter {
 			
 			graphics2d.setFont(menuText);
 			graphics2d.setColor(YELLOW);
-			graphics2d.drawString("The 'aim' of the game is to shoot down your enenmies with "
+			graphics2d.drawString("The \"aim\" of the game is to shoot down your enenmies with "
 					+ "paintballs,", 5, 100);
 			graphics2d.drawString("whilst dodging their own attacks.", 5, 115);
 			
@@ -542,7 +566,8 @@ public class Menu extends MouseAdapter {
 			graphics2d.setFont(menuText);
 			graphics2d.setColor(YELLOW);
 			graphics2d.drawString("General director: ExaltedPower412", 5, 280);
-			graphics2d.drawString("Game mechanics and ideas: B-clark7698", 5, 295);
+			graphics2d.drawString("Game mechanics and ideas: B-clark7698 & FateAssassin", 5,
+					295);
 			graphics2d.drawString("Programming: Sweetboy13735", 5, 310);
 			
 			graphics2d.setFont(menuSelect);
@@ -598,6 +623,34 @@ public class Menu extends MouseAdapter {
 			graphics2d.drawString("Multiplayer game: Wildfellas & TRAPECIA - Blow up", 5, 170);
 			graphics2d.drawString("Menu select sound: Hitmarker", 5, 185);
 			graphics2d.drawString("Paintball shot sound: Intervention 420", 5, 200);
+			
+			graphics2d.setFont(menuSelect);
+			graphics2d.setColor(WHITE);
+			graphics2d.drawString("Statistics", 5, 235);
+			
+			graphics2d.setFont(menuText);
+			graphics2d.setColor(YELLOW);
+			graphics2d.drawString("Highscore (Easy): " +
+					DataManager.getStatistic("Highscore (" + Game.Difficulty.EASY.name() + ")"),
+							5, 250);
+			graphics2d.drawString("Highscore (Normal): " +
+					DataManager.getStatistic("Highscore (" + Game.Difficulty.NORMAL.name() +
+							")"), 5, 265);
+			graphics2d.drawString("Highscore (Hard): " +
+					DataManager.getStatistic("Highscore (" + Game.Difficulty.HARD.name() + ")"),
+							5, 280);
+			graphics2d.drawString("Highscore (Extreme): " +
+					DataManager.getStatistic("Highscore (" + Game.Difficulty.EXTREME.name() +
+							")"), 5, 295);
+			graphics2d.drawString("Time played: " +
+					(double) (DataManager.getStatistic("Time played")/3600.0) + " hours", 5,
+							310);
+			graphics2d.drawString("Games played: " + DataManager.getStatistic("Games played"),
+					5, 325);
+			graphics2d.drawString("Shots fired: " + DataManager.getStatistic("Shots fired"), 5,
+					340);
+			graphics2d.drawString("Total kills: " + DataManager.getStatistic("Total kills"), 5,
+					355);
 			
 			graphics2d.setFont(menuSelect);
 			graphics2d.setColor(RED);
@@ -681,8 +734,9 @@ public class Menu extends MouseAdapter {
 					paintball.setVelX((float) ((-1.0/distance) * diffX)*7);
 					paintball.setVelY((float) ((-1.0/distance) * diffY)*7);
 					
-					if (Game.gameDifficulty != Difficulty.EASY) 
-						HeadsUpDisplay.ammo--;
+					if (Game.gameDifficulty != Difficulty.EASY) HeadsUpDisplay.ammo--;
+					
+					HeadsUpDisplay.shots++;
 					
 					AudioManager.getSound("Shot").play();
 				}
@@ -840,6 +894,8 @@ public class Menu extends MouseAdapter {
 			} else if (mouseOver(mouseX, mouseY, (Game.XBOUND/2)-96, 450, 192, 64)) {
 				Game.gameState = State.MAINMENU;
 				handler.removeObject(Game.player);
+				
+				DataManager.savePlayerData();
 
 				AudioManager.getSound("Select").play();
 			}
