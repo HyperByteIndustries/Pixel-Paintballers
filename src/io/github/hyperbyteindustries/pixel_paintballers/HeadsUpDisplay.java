@@ -18,7 +18,7 @@ import io.github.hyperbyteindustries.pixel_paintballers.Game.Difficulty;
 public class HeadsUpDisplay {
 	
 	public static int maxHealth = 100, health = 100, score = 0, level = 0, ammo = 0, reloadTime =
-			120, shots = 0;
+			120;
 	public static boolean shoot = true;
 
 	private Color healthColour;
