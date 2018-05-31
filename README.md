@@ -9,7 +9,7 @@ In its current stage, Pixel Paintballers is being developed by:
 - B-Clark7698 on game mechanics and ideas
 
 ### Issue reporting
-As this Pixel Paintballers is still in development, we ask that you report any issue regarding the software to us [here](mailto:ramonegraham@gmail.com).
+As this Pixel Paintballers is still in development, we ask that you report any issue regarding the software to us via [email](mailto:ramonegraham@gmail.com).
 
 ### Current running platforms
 Pixel Paintballers is currently able to run on devices with Java version 8, although we recommend that you run it on the latest update to avoid any issues related to the JRE.
