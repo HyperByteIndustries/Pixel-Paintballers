@@ -137,7 +137,17 @@ public class Game extends Canvas implements Runnable {
 				System.out.println("FPS: " + frames);
 				frames = 0;
 				
-				DataManager.increaseStatistic("Time played", 1);
+				DataManager.timePlayed[0] += 1;
+				
+				if (DataManager.timePlayed[0] == 60) {
+					DataManager.timePlayed[1] += 1;
+					DataManager.timePlayed[0] = 0;
+				}
+				
+				if (DataManager.timePlayed[1] == 60) {
+					DataManager.timePlayed[2] += 1;
+					DataManager.timePlayed[1] = 0;
+				}
 			}
 		}
 		
@@ -225,7 +235,7 @@ public class Game extends Canvas implements Runnable {
 		
 			environment.registerFont(Font.createFont(Font.TRUETYPE_FONT,
 					new File("res/pixelex.ttf")));
-			Thread.sleep(5000);
+			Thread.sleep(2500);
 			
 			gameState = State.TITLESCREEN;
 		} catch (Exception e) {

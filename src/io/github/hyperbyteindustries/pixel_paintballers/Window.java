@@ -57,7 +57,7 @@ public class Window extends Canvas implements WindowListener {
 
 	// Evoked when a window is closing.
 	public void windowClosing(WindowEvent e) {
-		DataManager.saveAllData();
+		DataManager.saveData();
 	}
 
 	// Evoked when a window has lost focus.
