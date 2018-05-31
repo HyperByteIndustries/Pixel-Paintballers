@@ -17,41 +17,26 @@ import java.util.HashMap;
  */
 public class DataManager {
 
-	public static File playerData;
-	public static File statData;
-	
+	public static File dataFile;
 	public static HashMap<String, Long> savedStatistics = new HashMap<String, Long>();
 	
+	public static int[] timePlayed = new int[3];
+	
 	/**
-	 * Finds external data files and creates them if not present.
+	 * Finds the external data file and creates it if not present.
 	 */
 	public static void init() {
-		playerData = new File("res/Player.txt");
-		statData = new File("res/Stats.txt");
+		dataFile = new File("res/Data.txt");
 		
-		if (!(playerData.exists())) {
-			System.out.println(playerData.getName() + " doesn't exist. Creating a new file...");
+		if (!(dataFile.exists())) {
+			System.out.println(dataFile.getName() + " doesn't exist. Creating a new file...");
 			
 			try {
-				playerData.createNewFile();
+				dataFile.createNewFile();
 				
-				System.out.println(playerData.getName() + " created.");
+				System.out.println(dataFile.getName() + " created.");
 			} catch (IOException e) {
-				System.out.println("Failed to create " + playerData.getName() + ".");
-				
-				e.printStackTrace();
-			}
-		}
-		
-		if (!(statData.exists())) {
-			System.out.println(statData.getName() + " doesn't exist. Creating a new file...");
-			
-			try {
-				statData.createNewFile();
-				
-				System.out.println(statData.getName() + " created.");
-			} catch (IOException e) {
-				System.out.println("Failed to create " + statData.getName() + ".");
+				System.out.println("Failed to create " + dataFile.getName() + ":");
 				
 				e.printStackTrace();
 			}
@@ -79,48 +64,35 @@ public class DataManager {
 	}
 	
 	/**
-	 * Saves all data of the game.
+	 * Saves the game data to an external file.
 	 */
-	public static void saveAllData() {
-		savePlayerData();
-		saveStatistics();
-	}
-
-	/**
-	 * Saves the player data to an external file.
-	 */
-	public static void savePlayerData() {
-		System.out.println("Saving player data...");
+	public static void saveData() {
+		System.out.println("Saving data...");
 		
 		try {
-			FileWriter fileWriter = new FileWriter(playerData);
+			FileWriter fileWriter = new FileWriter(dataFile);
 			PrintWriter printWriter = new PrintWriter(fileWriter);
+			
+			System.out.println("Saving player data...");
 			
 			printWriter.println("Username: " + Game.player.getUsername());
 			printWriter.println("Fill colour: " + Game.player.getFillColour().getRGB());
 			printWriter.println("Outline colour: " + Game.player.getOutlineColour().getRGB());
 			printWriter.println("Username colour: " + Game.player.getUsernameColour().getRGB());
-			printWriter.close();
 			
-			System.out.println("Data successfully saved.");
-		} catch (IOException e) {
-			System.out.println("Failed to save data.");
-			
-			e.printStackTrace();
-		}
-	}
-
-	/**
-	 * Saves the player's statistics to the external file.
-	 */
-	public static void saveStatistics() {
-		System.out.println("Saving statistics...");
-		
-		try {
-			FileWriter fileWriter = new FileWriter(statData);
-			PrintWriter printWriter = new PrintWriter(fileWriter);
+			System.out.println("Saving statistic data...");
 			
 			for (String stat : savedStatistics.keySet()) {
+				if (stat.equalsIgnoreCase("Time played")) {
+					long seconds = timePlayed[0];
+					int minutes = timePlayed[1], hours = timePlayed[2];
+					
+					minutes += hours*60;
+					seconds += minutes*60;
+					
+					setStatistic(stat, seconds);
+				}
+				
 				printWriter.println(stat + ": " + savedStatistics.get(stat));
 			}
 			
@@ -135,21 +107,14 @@ public class DataManager {
 	}
 
 	/**
-	 * Reads the external data of the game.
+	 * Reads the external data of the game, constructing the player's customisation and the
+	 * statistic database.
 	 */
 	public static void readData() {
-		readPlayerData();
-		readStatistics();
-	}
-
-	/**
-	 * Reads the external player data, constructing the player's customisation.
-	 */
-	private static void readPlayerData() {
-		System.out.println("Reading player data...");
+		System.out.println("Reading data...");
 		
 		try {
-			FileReader fileReader = new FileReader(playerData);
+			FileReader fileReader = new FileReader(dataFile);
 			BufferedReader bufferedReader = new BufferedReader(fileReader);
 			
 			String data;
@@ -165,6 +130,13 @@ public class DataManager {
 				} else if (data.startsWith("Username colour:")) {
 					Game.player.setUsernameColour(new Color(Integer.parseInt(data
 							.substring(17))));
+				} else {
+					String key = data.split(": ")[0];
+					long stat = Long.parseLong(data.split(": ")[1]);
+					
+					if (key.equalsIgnoreCase("Time played")) convertTime(stat);
+					
+					setStatistic(key, stat);
 				}
 			}
 			
@@ -179,33 +151,25 @@ public class DataManager {
 	}
 	
 	/**
-	 * Reads the player's statistics from the external file, constructing its database.
+	 * Coverts the time played from seconds to the format of hours:minutes:seconds.
+	 * @param time - Time played in seconds.
 	 */
-	private static void readStatistics() {
-		System.out.println("Reading statistics...");
+	private static void convertTime(long time) {
+		int seconds = (int) time, minutes = 0, hours = 0;
 		
-		try {
-			FileReader fileReader = new FileReader(statData);
-			BufferedReader bufferedReader = new BufferedReader(fileReader);
-			
-			String data;
-			
-			while (!((data = bufferedReader.readLine()) == null)) {
-				String key = data.replace(": ", "%").split("%")[0];
-				long stat = Long.parseLong(data.replace(": ", "%").split("%")[1]);
-				setStatistic(key, stat);
-			}
-			
-			bufferedReader.close();
-			
-			System.out.println("Data successfully read.");
-		} catch (IOException e) {
-			System.out.println("Failed to read data.");
-			
-			e.printStackTrace();
+		while (seconds >= 60) {
+			minutes += 1;
+			seconds -= 60;
 		}
+		
+		while (minutes >= 60) {
+			hours += 1;
+			minutes -= 60;
+		}
+		
+		timePlayed = new int[] {seconds, minutes, hours};
 	}
-	
+
 	/**
 	 * Sets a statistic to a given value.
 	 * @param stat - The name of the statistic.

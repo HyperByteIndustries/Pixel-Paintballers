@@ -86,6 +86,7 @@ public class Menu extends MouseAdapter {
 				Game.gameState = State.GAMEOVER;
 				
 				DataManager.increaseStatistic("Shots fired", HeadsUpDisplay.shots);
+				DataManager.increaseStatistic("Total kills", HeadsUpDisplay.kills);
 				DataManager.increaseStatistic("Games played", 1);
 				
 				if (HeadsUpDisplay.score > DataManager.getStatistic("Highscore (" +
@@ -93,9 +94,7 @@ public class Menu extends MouseAdapter {
 					DataManager.setStatistic("Highscore (" + Game.gameDifficulty.name() + ")",
 							HeadsUpDisplay.score);
 				
-				DataManager.saveStatistics();
-				
-				HeadsUpDisplay.shots = 0;
+				DataManager.saveData();
 			}
 			
 			if (!(AudioManager.getMusic("Game 1").playing()))
@@ -297,9 +296,11 @@ public class Menu extends MouseAdapter {
 				graphics2d.drawString("Your final score was: " + HeadsUpDisplay.score, 10, 150);
 			}
 			
-			graphics2d.drawString("Your final level was: " + HeadsUpDisplay.level, 10, 170);
+			graphics2d.drawString("Your final level was: " + HeadsUpDisplay.level, 10, 165);
 			graphics2d.drawString("Your chosen difficulty: " + Game.gameDifficulty.name(), 10,
-					190);
+					180);
+			graphics2d.drawString("Paintballs shot in this game: " + HeadsUpDisplay.shots, 10, 195);
+			graphics2d.drawString("Enemies killed: " + HeadsUpDisplay.kills, 10, 210);
 			
 			graphics2d.setFont(menuSelect);
 			graphics2d.setColor(RED);
@@ -565,10 +566,9 @@ public class Menu extends MouseAdapter {
 			
 			graphics2d.setFont(menuText);
 			graphics2d.setColor(YELLOW);
-			graphics2d.drawString("General director: ExaltedPower412", 5, 280);
-			graphics2d.drawString("Game mechanics and ideas: B-clark7698 & FateAssassin", 5,
-					295);
-			graphics2d.drawString("Programming: Sweetboy13735", 5, 310);
+			graphics2d.drawString("General director and programming: Sweetboy13735", 5, 280);
+			graphics2d.drawString("Game mechanics and ideas: FateAssassin", 5, 295);
+			graphics2d.drawString("Game testing: B-Clark7698", 5, 310);
 			
 			graphics2d.setFont(menuSelect);
 			graphics2d.setColor(WHITE);
@@ -642,9 +642,8 @@ public class Menu extends MouseAdapter {
 			graphics2d.drawString("Highscore (Extreme): " +
 					DataManager.getStatistic("Highscore (" + Game.Difficulty.EXTREME.name() +
 							")"), 5, 295);
-			graphics2d.drawString("Time played: " +
-					(double) (DataManager.getStatistic("Time played")/3600.0) + " hours", 5,
-							310);
+			graphics2d.drawString("Time played: " + DataManager.timePlayed[2] + ":" +
+					DataManager.timePlayed[1] + ":" + DataManager.timePlayed[0], 5, 310);
 			graphics2d.drawString("Games played: " + DataManager.getStatistic("Games played"),
 					5, 325);
 			graphics2d.drawString("Shots fired: " + DataManager.getStatistic("Shots fired"), 5,
@@ -662,7 +661,7 @@ public class Menu extends MouseAdapter {
 					540);
 		}
 	}
-	
+
 	// Invoked when the mouse is pressed.
 	public void mousePressed(MouseEvent e) {
 		float mouseX = (float) e.getX();
@@ -671,27 +670,27 @@ public class Menu extends MouseAdapter {
 		if (Game.gameState == State.TITLESCREEN) {
 			if (mouseOver(mouseX, mouseY, (Game.XBOUND/2)-64, (Game.YBOUND/2)-96, 128, 64)) {
 				Game.gameState = State.MAINMENU;
-				AudioManager.getSound("Select").play();
 			} else if (mouseOver(mouseX, mouseY, (Game.XBOUND/2)-64, (Game.YBOUND/2)+32, 128,
-					64)) System.exit(1);
+					64)) {
+				DataManager.saveData();
+				
+				System.exit(1);
+			}
 		} else if (Game.gameState == State.MAINMENU) {
 			if (mouseOver(mouseX, mouseY, 5, 125, 256, 64)) {
 				Game.gameState = State.DIFFICULTYSELECT;
-				AudioManager.getSound("Select").play();
+			} else if (mouseOver(mouseX, mouseY, 5, 200, 256, 64)) {
+				AudioManager.getSound("Denied").play();
 			} else if (mouseOver(mouseX, mouseY, 5, 275, 256, 64)) {
 				Game.gameState = State.CUSTOMISATION;
 				
 				Game.player.setX(Game.XBOUND/2-16);
 				Game.player.setY(100);
 				handler.addObject(Game.player);
-				
-				AudioManager.getSound("Select").play();
 			} else if (mouseOver(mouseX, mouseY, 5, 350, 256, 64)) {
 				Game.gameState = State.INFO;
-				AudioManager.getSound("Select").play();
 			} else if (mouseOver(mouseX, mouseY, (Game.XBOUND/2)-96, 450, 192, 64)) {
 				Game.gameState = State.TITLESCREEN;
-				AudioManager.getSound("Select").play();
 			}
 		} else if (Game.gameState == State.DIFFICULTYSELECT) {
 			if (mouseOver(mouseX, mouseY, 5, 125, 192, 64)) {
@@ -716,7 +715,6 @@ public class Menu extends MouseAdapter {
 				handler.startGame();
 			} else if (mouseOver(mouseX, mouseY, (Game.XBOUND/2)-96, 450, 192, 64)) {
 				Game.gameState = State.MAINMENU;
-				AudioManager.getSound("Select").play();
 			}
 		} else if (Game.gameState == State.GAME) {
 			if (!(Game.paused)) {
@@ -743,174 +741,122 @@ public class Menu extends MouseAdapter {
 			} else {
 				if (mouseOver(mouseX, mouseY, Game.XBOUND/2-96, Game.YBOUND/2-96, 192, 64)) {
 					Game.paused = false;
-					AudioManager.getSound("Select").play();
 				}
 				else if (mouseOver(mouseX, mouseY, Game.XBOUND/2-96, Game.YBOUND/2+32, 192,
 						64)) {
 					Game.paused = false;
 					handler.objects.clear();
 					Game.gameState = State.TITLESCREEN;
-					AudioManager.getSound("Select").play();
 				}
 			}
 		} else if (Game.gameState == State.GAMEOVER) {
 			if (mouseOver(mouseX, mouseY, (Game.XBOUND/2)-92, 250, 192, 64)) {
 				Game.gameState = State.DIFFICULTYSELECT;
-				AudioManager.getSound("Select").play();
 			} else if (mouseOver(mouseX, mouseY, (Game.XBOUND/2)-92, 350, 192, 64)) {
 				Game.gameState = State.GAME;
 				handler.startGame();
-				AudioManager.getSound("Select").play();
 			} else if (mouseOver(mouseX, mouseY, (Game.XBOUND/2)-92, 450, 192, 64)) {
 				Game.gameState = State.TITLESCREEN;
-				AudioManager.getSound("Select").play();
 			}
 		} else if (Game.gameState == State.CUSTOMISATION) {
 			if (mouseOver(mouseX, mouseY, 5, 150, 256, 48)) {
-				AudioManager.getSound("Select").play();
-				
 				String username = JOptionPane.showInputDialog("Enter a username.");
 				
 				if (username == null || username.length() == 0)
 					Game.player.setUsername("Player");
 				else Game.player.setUsername(username);
-				
-				AudioManager.getSound("Select").play();
 			} else if (mouseOver(mouseX, mouseY, 275, 150, 128, 48)) {
 				Game.player.setUsername("Player");
 				Game.player.setFillColour(RED);
 				Game.player.setOutlineColour(WHITE);
 				Game.player.setUsernameColour(GRAY);
-				
-				AudioManager.getSound("Select").play();
 			} else if (mouseOver(mouseX, mouseY, 5, 240, 32, 32)) {
 				Game.player.setFillColour(CYAN);
-				AudioManager.getSound("Select").play();
 			} else if (mouseOver(mouseX, mouseY, 40, 240, 32, 32)) {
 				Game.player.setFillColour(BLUE);
-				AudioManager.getSound("Select").play();
 			} else if (mouseOver(mouseX, mouseY, 75, 240, 32, 32)) {
 				Game.player.setFillColour(DARK_GRAY);
-				AudioManager.getSound("Select").play();
 			} else if (mouseOver(mouseX, mouseY, 110, 240, 32, 32)) {
 				Game.player.setFillColour(GRAY);
-				AudioManager.getSound("Select").play();
 			} else if (mouseOver(mouseX, mouseY, 145, 240, 32, 32)) {
 				Game.player.setFillColour(GREEN);
-				AudioManager.getSound("Select").play();
 			} else if (mouseOver(mouseX, mouseY, 180, 240, 32, 32)) {
 				Game.player.setFillColour(LIGHT_GRAY);
-				AudioManager.getSound("Select").play();
 			} else if (mouseOver(mouseX, mouseY, 215, 240, 32, 32)) {
 				Game.player.setFillColour(MAGENTA);
-				AudioManager.getSound("Select").play();
 			} else if (mouseOver(mouseX, mouseY, 250, 240, 32, 32)) {
 				Game.player.setFillColour(ORANGE);
-				AudioManager.getSound("Select").play();
 			} else if (mouseOver(mouseX, mouseY, 285, 240, 32, 32)) {
 				Game.player.setFillColour(PINK);
-				AudioManager.getSound("Select").play();
 			} else if (mouseOver(mouseX, mouseY, 320, 240, 32, 32)) {
 				Game.player.setFillColour(RED);
-				AudioManager.getSound("Select").play();
 			} else if (mouseOver(mouseX, mouseY, 355, 240, 32, 32)) {
 				Game.player.setFillColour(WHITE);
-				AudioManager.getSound("Select").play();
 			} else if (mouseOver(mouseX, mouseY, 390, 240, 32, 32)) {
 				Game.player.setFillColour(YELLOW);
-				AudioManager.getSound("Select").play();
 			} else if (mouseOver(mouseX, mouseY, 5, 310, 32, 32)) {
 				Game.player.setOutlineColour(CYAN);
-				AudioManager.getSound("Select").play();
 			} else if (mouseOver(mouseX, mouseY, 40, 310, 32, 32)) {
 				Game.player.setOutlineColour(BLUE);
-				AudioManager.getSound("Select").play();
 			} else if (mouseOver(mouseX, mouseY, 75, 310, 32, 32)) {
 				Game.player.setOutlineColour(DARK_GRAY);
-				AudioManager.getSound("Select").play();
 			} else if (mouseOver(mouseX, mouseY, 110, 310, 32, 32)) {
 				Game.player.setOutlineColour(GRAY);
-				AudioManager.getSound("Select").play();
 			} else if (mouseOver(mouseX, mouseY, 145, 310, 32, 32)) {
 				Game.player.setOutlineColour(GREEN);
-				AudioManager.getSound("Select").play();
 			} else if (mouseOver(mouseX, mouseY, 180, 310, 32, 32)) {
 				Game.player.setOutlineColour(LIGHT_GRAY);
-				AudioManager.getSound("Select").play();
 			} else if (mouseOver(mouseX, mouseY, 215, 310, 32, 32)) {
 				Game.player.setOutlineColour(MAGENTA);
-				AudioManager.getSound("Select").play();
 			} else if (mouseOver(mouseX, mouseY, 250, 310, 32, 32)) {
 				Game.player.setOutlineColour(ORANGE);
-				AudioManager.getSound("Select").play();
 			} else if (mouseOver(mouseX, mouseY, 285, 310, 32, 32)) {
 				Game.player.setOutlineColour(PINK);
-				AudioManager.getSound("Select").play();
 			} else if (mouseOver(mouseX, mouseY, 320, 310, 32, 32)) {
 				Game.player.setOutlineColour(RED);
-				AudioManager.getSound("Select").play();
 			} else if (mouseOver(mouseX, mouseY, 355, 310, 32, 32)) {
 				Game.player.setOutlineColour(WHITE);
-				AudioManager.getSound("Select").play();
 			} else if (mouseOver(mouseX, mouseY, 390, 310, 32, 32)) {
 				Game.player.setOutlineColour(YELLOW);
-				AudioManager.getSound("Select").play();
 			} else if (mouseOver(mouseX, mouseY, 5, 380, 32, 32)) {
 				Game.player.setUsernameColour(CYAN);
-				AudioManager.getSound("Select").play();
 			} else if (mouseOver(mouseX, mouseY, 40, 380, 32, 32)) {
 				Game.player.setUsernameColour(BLUE);
-				AudioManager.getSound("Select").play();
 			} else if (mouseOver(mouseX, mouseY, 75, 380, 32, 32)) {
 				Game.player.setUsernameColour(DARK_GRAY);
-				AudioManager.getSound("Select").play();
 			} else if (mouseOver(mouseX, mouseY, 110, 380, 32, 32)) {
 				Game.player.setUsernameColour(GRAY);
-				AudioManager.getSound("Select").play();
 			} else if (mouseOver(mouseX, mouseY, 145, 380, 32, 32)) {
 				Game.player.setUsernameColour(GREEN);
-				AudioManager.getSound("Select").play();
 			} else if (mouseOver(mouseX, mouseY, 180, 380, 32, 32)) {
 				Game.player.setUsernameColour(LIGHT_GRAY);
-				AudioManager.getSound("Select").play();
 			} else if (mouseOver(mouseX, mouseY, 215, 380, 32, 32)) {
 				Game.player.setUsernameColour(MAGENTA);
-				AudioManager.getSound("Select").play();
 			} else if (mouseOver(mouseX, mouseY, 250, 380, 32, 32)) {
 				Game.player.setUsernameColour(ORANGE);
-				AudioManager.getSound("Select").play();
 			} else if (mouseOver(mouseX, mouseY, 285, 380, 32, 32)) {
 				Game.player.setUsernameColour(PINK);
-				AudioManager.getSound("Select").play();
 			} else if (mouseOver(mouseX, mouseY, 320, 380, 32, 32)) {
 				Game.player.setUsernameColour(RED);
-				AudioManager.getSound("Select").play();
 			} else if (mouseOver(mouseX, mouseY, 355, 380, 32, 32)) {
 				Game.player.setUsernameColour(WHITE);
-				AudioManager.getSound("Select").play();
 			} else if (mouseOver(mouseX, mouseY, 390, 380, 32, 32)) {
 				Game.player.setUsernameColour(YELLOW);
-				AudioManager.getSound("Select").play();
 			} else if (mouseOver(mouseX, mouseY, (Game.XBOUND/2)-96, 450, 192, 64)) {
 				Game.gameState = State.MAINMENU;
 				handler.removeObject(Game.player);
 				
-				DataManager.savePlayerData();
-
-				AudioManager.getSound("Select").play();
+				DataManager.saveData();
 			}
 		} else if (Game.gameState == State.INFO) {
 			if (mouseOver(mouseX, mouseY, Game.XBOUND/2+100, 500, 192, 64)) {
 				Game.gameState = State.INFO2;
-				AudioManager.getSound("Select").play();
 			} else if (mouseOver(mouseX, mouseY, (Game.XBOUND/2)-96, 500, 192, 64)) {
 				Game.gameState = State.MAINMENU;
-				AudioManager.getSound("Select").play();
 			}
 		} else if (Game.gameState == State.INFO2) {
 			if (mouseOver(mouseX, mouseY, Game.XBOUND/2-292, 500, 192, 64)) {
 				Game.gameState = State.INFO;
-				AudioManager.getSound("Select").play();
 			}
 		}
 	}
@@ -927,7 +873,10 @@ public class Menu extends MouseAdapter {
 	 * hasn't.
 	 */
 	private boolean mouseOver(float mouseX, float mouseY, int x, int y, int width, int height) {
-		if (x <= mouseX && mouseX <= x+width && y <= mouseY && mouseY <= y+height) return true;
+		if (x <= mouseX && mouseX <= x+width && y <= mouseY && mouseY <= y+height) {
+			AudioManager.getSound("Select").play();
+			return true;
+		}
 		else return false;
 	}
 }

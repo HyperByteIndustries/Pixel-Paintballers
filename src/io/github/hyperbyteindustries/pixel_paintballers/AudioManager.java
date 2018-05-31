@@ -32,6 +32,7 @@ public class AudioManager {
 			
 			soundMap.put("Select", new Sound("res/Option select.ogg"));
 			soundMap.put("Shot", new Sound("res/Paintball shot.ogg"));
+			soundMap.put("Denied", new Sound("res/Access denied.ogg"));
 		} catch (SlickException e) {
 			e.printStackTrace();
 		}

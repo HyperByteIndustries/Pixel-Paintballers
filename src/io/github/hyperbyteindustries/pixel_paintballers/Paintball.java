@@ -58,8 +58,8 @@ public class Paintball extends GameObject {
 					distance = (float) Math.sqrt((x-Game.player.getX())*(x-Game.player.getX()) +
 							(y-Game.player.getY())*(y-Game.player.getY()));
 			
-			velX = (float) (((-1.0/distance)*diffX)*7);
-			velY = (float) (((-1.0/distance)*diffY)*7);
+			velX = (float) (((-1.0/distance)*diffX)*5);
+			velY = (float) (((-1.0/distance)*diffY)*5);
 		}
 		
 		handler.addObject(new Trail(x, y, ID.TRAIL, handler, colour, getBounds().width,
@@ -96,7 +96,7 @@ public class Paintball extends GameObject {
 							HeadsUpDisplay.score += 4;
 						handler.removeObject(this);
 						handler.removeObject(tempObject);
-						DataManager.increaseStatistic("Total kills", 1);
+						HeadsUpDisplay.kills++;
 					}
 				} else {
 					if (shooter.getID() == tempObject.getID()) {

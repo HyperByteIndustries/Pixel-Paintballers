@@ -68,6 +68,8 @@ public class Handler {
 		HeadsUpDisplay.health = 100;
 		HeadsUpDisplay.score = 0;
 		HeadsUpDisplay.level = 0;
+		HeadsUpDisplay.shots = 0;
+		HeadsUpDisplay.kills = 0;
 		
 		if (Game.gameDifficulty == Difficulty.EASY) HeadsUpDisplay.ammo = -1;
 		else if (Game.gameDifficulty == Difficulty.NORMAL) HeadsUpDisplay.ammo = 30;
