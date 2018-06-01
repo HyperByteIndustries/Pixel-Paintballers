@@ -19,10 +19,10 @@ Pixel Paintballers is currently able to run on devices with Java version 8, alth
 **PLEASE READ THIS BEFORE DOWNLOADING OUR SOFTWARE.** By downloading our software, you agree and acknowledge that HyperByte Industries and its members are **not** liable for any external damage caused to your device unless our software is the direct cause of the damage.
 
 ### Download instructions
-1. Download the latest release (v1.3.3) [here](https://github.com/HyperByteIndustries/Pixel-Paintballers/raw/Alpha-releases/Pixel_Paintballers_v1.3.3-alpha.zip).*
+1. Download the latest release (v1.3.3-alpha) [here](https://github.com/HyperByteIndustries/Pixel-Paintballers/raw/Alpha-releases/Pixel_Paintballers_v1.3.3-alpha.zip).*
 2. Extract the game jar and res folder into your desired location (**NOTE: The res folder must be beside the game jar in order for the game to operate.**).
 3. Run the game jar and enjoy!
 
-*For other releases, see [here](https://github.com/HyperByteIndustries/Pixel-Paintballers/commits/Alpha-releases), and select the corresponding commit. Select the .zip file and click "view", then "Download". (For v1.2.1, click the commit titled "Jar file name fix". For v1.3.1, click the more recent commit out of the two available.)
+*For other releases, see [here](https://github.com/HyperByteIndustries/Pixel-Paintballers/commits/Alpha-releases), and select the corresponding commit. Select the .zip file and click "view", then "Download". (For v1.2.1-alpha, click the commit titled "Jar file name fix". For v1.3.1-alpha, click the more recent commit out of the two available.)
 
 *To gain FPS readings, simply run the jar file using your terminal, and the FPS rate will be printed in the terminal.*
