@@ -60,7 +60,7 @@ public class Player extends GameObject {
 		if (!(username == null)) {
 			graphics2d.setColor(usernameColour);
 			graphics2d.setFont(new Font("Pixel EX", Font.PLAIN, 14));
-			graphics2d.drawString(username, x-((username.length()-1)/2*9), y);
+			graphics2d.drawString(username, x+10-((username.length()-1)/2*10), y);
 		}
 	}
 	
