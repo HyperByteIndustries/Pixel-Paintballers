@@ -75,7 +75,24 @@ public class KeyInput extends KeyAdapter {
 			} else {
 				if (key == VK_ESCAPE) Game.paused = false;
 			}
-		}
+		} else if (Game.gameState == State.CUSTOMISATION) {
+			if (Menu.editText) {
+				if (key == VK_BACK_SPACE) {
+					if (!(Game.player.getUsername().length() == 0))
+						Game.player.setUsername(Game.player.getUsername().substring(0,
+								Game.player.getUsername().length()-1));
+				} else if (key == VK_ENTER) Menu.editText = false;
+				else {
+					if (e.isShiftDown()) {
+						if (!(key == VK_SHIFT))
+							Game.player.setUsername(Game.player.getUsername().concat(KeyEvent.
+									getKeyText(key)));
+					} else
+						Game.player.setUsername(Game.player.getUsername().concat(KeyEvent.
+								getKeyText(key).toLowerCase()));
+				}
+			}
+		}	
 	}
 	
 	// Invoked when a key is released.

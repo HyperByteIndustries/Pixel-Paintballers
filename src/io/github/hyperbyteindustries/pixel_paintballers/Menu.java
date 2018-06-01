@@ -10,7 +10,6 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
 import javax.swing.ImageIcon;
-import javax.swing.JOptionPane;
 
 import io.github.hyperbyteindustries.pixel_paintballers.Game.Difficulty;
 import io.github.hyperbyteindustries.pixel_paintballers.Game.State;
@@ -24,6 +23,8 @@ import io.github.hyperbyteindustries.pixel_paintballers.Game.State;
  */
 public class Menu extends MouseAdapter {
 
+	public static boolean editText = false;
+	
 	private Game game;
 	private Handler handler;
 	
@@ -336,7 +337,9 @@ public class Menu extends MouseAdapter {
 			graphics2d.setColor(WHITE);
 			graphics2d.drawRect(5, 150, 256, 48);
 			graphics2d.setColor(BLUE);
-			graphics2d.drawString("Change username", 12, 181);
+			
+			if (editText) graphics2d.drawString("Save username", 29, 181);
+			else graphics2d.drawString("Change username", 12, 181);
 			
 			graphics2d.setColor(RED);
 			graphics2d.fillRect(275, 150, 128, 48);
@@ -760,11 +763,13 @@ public class Menu extends MouseAdapter {
 			}
 		} else if (Game.gameState == State.CUSTOMISATION) {
 			if (mouseOver(mouseX, mouseY, 5, 150, 256, 48)) {
-				String username = JOptionPane.showInputDialog("Enter a username.");
-				
-				if (username == null || username.length() == 0)
-					Game.player.setUsername("Player");
-				else Game.player.setUsername(username);
+				if (editText) {
+					editText = false;
+					
+					if (Game.player.getUsername() == null||
+							Game.player.getUsername().length() == 0)
+						Game.player.setUsername("Player");
+				} else editText = true;
 			} else if (mouseOver(mouseX, mouseY, 275, 150, 128, 48)) {
 				Game.player.setUsername("Player");
 				Game.player.setFillColour(RED);
