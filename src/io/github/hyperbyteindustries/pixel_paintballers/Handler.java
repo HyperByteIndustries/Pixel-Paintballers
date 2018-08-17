@@ -3,8 +3,6 @@ package io.github.hyperbyteindustries.pixel_paintballers;
 import java.awt.Graphics2D;
 import java.util.LinkedList;
 
-import io.github.hyperbyteindustries.pixel_paintballers.Game.Difficulty;
-
 /**
  * Represents the game object handler of the game.
  * When constructed, this class is responsible for the management of the tick and
@@ -14,14 +12,14 @@ import io.github.hyperbyteindustries.pixel_paintballers.Game.Difficulty;
  */
 public class Handler {
 
-	LinkedList<GameObject> objects = new LinkedList<GameObject>();
+	public LinkedList<GameObject> objects = new LinkedList<GameObject>();
 	
 	/**
 	 * Updates the logic of all game objects.
 	 */
 	public void tick() {
-		for (int i = 0; i < objects.size(); i++) {
-			GameObject tempObject = objects.get(i);
+		for (int i = 0; i < getObjects().size(); i++) {
+			GameObject tempObject = getObjects().get(i);
 			
 			tempObject.tick();
 		}
@@ -32,8 +30,8 @@ public class Handler {
 	 * @param graphics2d - The graphics used to update the visuals.
 	 */
 	public void render(Graphics2D graphics2d) {
-		for (int i = 0; i < objects.size(); i++) {
-			GameObject tempObject = objects.get(i);
+		for (int i = 0; i < getObjects().size(); i++) {
+			GameObject tempObject = getObjects().get(i);
 			
 			tempObject.render(graphics2d);
 		}
@@ -44,7 +42,7 @@ public class Handler {
 	 * @param object - The object to be added to the list.
 	 */
 	public void addObject(GameObject object) {
-		objects.add(object);
+		getObjects().add(object);
 	}
 	
 	/**
@@ -52,7 +50,7 @@ public class Handler {
 	 * @param object - The object to be removed from the list.
 	 */
 	public void removeObject(GameObject object) {
-		objects.remove(object);
+		getObjects().remove(object);
 	}
 	
 	/**
@@ -64,14 +62,16 @@ public class Handler {
 		
 		addObject(Game.player);
 		
-		HeadsUpDisplay.maxHealth = 100;
-		HeadsUpDisplay.health = 100;
+		Game.player.maxHealth = 100;
+		Game.player.health = 100;
 		HeadsUpDisplay.score = 0;
-		HeadsUpDisplay.level = 0;
-		
-		if (Game.gameDifficulty == Difficulty.EASY) HeadsUpDisplay.ammo = -1;
-		else if (Game.gameDifficulty == Difficulty.NORMAL) HeadsUpDisplay.ammo = 30;
-		else if (Game.gameDifficulty == Difficulty.HARD) HeadsUpDisplay.ammo = 20;
-		else if (Game.gameDifficulty == Difficulty.EXTREME) HeadsUpDisplay.ammo = 10;
+	}
+	
+	/**
+	 * Returns the list of objects, optimised to prevent concurrent modification exceptions.
+	 * @return The list of objects.
+	 */
+	public synchronized LinkedList<GameObject> getObjects() {
+		return objects;
 	}
 }

@@ -8,11 +8,18 @@ import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 
 import javax.swing.ImageIcon;
+import javax.swing.JOptionPane;
 
-import io.github.hyperbyteindustries.pixel_paintballers.Game.Difficulty;
 import io.github.hyperbyteindustries.pixel_paintballers.Game.State;
+import io.github.hyperbyteindustries.pixel_paintballers.net.Server;
+import io.github.hyperbyteindustries.pixel_paintballers.net.packets.Packet00Connect;
+import io.github.hyperbyteindustries.pixel_paintballers.net.packets.Packet01Disconnect;
+import io.github.hyperbyteindustries.pixel_paintballers.net.packets.Packet03Shot;
+import io.github.hyperbyteindustries.pixel_paintballers.net.packets.Packet05Death;
 
 /**
  * Represents the menu system and mouse input handler of the game.
@@ -23,6 +30,7 @@ import io.github.hyperbyteindustries.pixel_paintballers.Game.State;
  */
 public class Menu extends MouseAdapter {
 
+	private Game game;
 	private Handler handler;
 	
 	private Image companyLogo;
@@ -36,7 +44,8 @@ public class Menu extends MouseAdapter {
 	 * Creates a new instance of this class.
 	 * @param handler - An instance of the handler class, used to shoot paintballs.
 	 */
-	public Menu(Handler handler) {
+	public Menu(Game game, Handler handler) {
+		this.game = game;
 		this.handler = handler;
 		
 		companyLogo = new ImageIcon("res/Company logo.png").getImage();
@@ -52,7 +61,11 @@ public class Menu extends MouseAdapter {
 	 */
 	public void tick() {
 		if (Game.gameState == State.GAME) {
-			if (HeadsUpDisplay.health == 0) {
+			if (Game.player.health == 0) {
+				Packet05Death packet = new Packet05Death(Game.player.getUsername());
+				packet.writeData(game.client);
+				
+				Game.paused = false;
 				handler.objects.clear();
 				Game.gameState = State.GAMEOVER;
 			}
@@ -83,73 +96,7 @@ public class Menu extends MouseAdapter {
 			graphics2d.drawRect((Game.XBOUND/2)-64, (Game.YBOUND/2)+32, 128, 64);
 			graphics2d.setColor(BLUE);
 			graphics2d.drawString("Quit", (Game.XBOUND/2)-45, (Game.YBOUND/2)+78);
-		} else if (Game.gameState == State.DIFFICULTYSELECT) {
-			graphics2d.setFont(menuHeader);
-			graphics2d.setColor(WHITE);
-			graphics2d.drawString("Select Difficulty", Game.XBOUND/2-
-					(("Select Difficulty".length()-1)/2*35), 40);
-			
-			graphics2d.setFont(menuSelect);
-			graphics2d.setColor(RED);
-			graphics2d.fillRect(5, 125, 192, 64);
-			graphics2d.setColor(WHITE);
-			graphics2d.drawRect(5, 125, 192, 64);
-			graphics2d.setColor(BLUE);
-			graphics2d.drawString("Easy", 101-(("Easy".length()-1)/2*35), 165);
-			graphics2d.setFont(menuText);
-			graphics2d.setColor(YELLOW);
-			graphics2d.drawString("Initial ammo: Infinite (No reloads)", 205, 140);
-			graphics2d.drawString("Enemy fire rate: 7 secs", 205, 155);
-
-			graphics2d.setFont(menuSelect);
-			graphics2d.setColor(RED);
-			graphics2d.fillRect(5, 200, 192, 64);
-			graphics2d.setColor(WHITE);
-			graphics2d.drawRect(5, 200, 192, 64);
-			graphics2d.setColor(BLUE);
-			graphics2d.drawString("Normal", 101-(("Normal".length()-1)/2*25), 240);
-			graphics2d.setFont(menuText);
-			graphics2d.setColor(YELLOW);
-			graphics2d.drawString("Initial ammo: 30", 205, 215);
-			graphics2d.drawString("Reload ammo: 15", 205, 230);
-			graphics2d.drawString("Enemy fire rate: 5 secs", 205, 245);
-
-			graphics2d.setFont(menuSelect);
-			graphics2d.setColor(RED);
-			graphics2d.fillRect(5, 275, 192, 64);
-			graphics2d.setColor(WHITE);
-			graphics2d.drawRect(5, 275, 192, 64);
-			graphics2d.setColor(BLUE);
-			graphics2d.drawString("Hard", 101-(("Hard".length()-1)/2*35), 315);
-			graphics2d.setFont(menuText);
-			graphics2d.setColor(YELLOW);
-			graphics2d.drawString("Initial ammo: 20", 205, 290);
-			graphics2d.drawString("Reload ammo: 10", 205, 305);
-			graphics2d.drawString("Enemy fire rate: 3 secs", 205, 320);
-
-			graphics2d.setFont(menuSelect);
-			graphics2d.setColor(RED);
-			graphics2d.fillRect(5, 350, 192, 64);
-			graphics2d.setColor(WHITE);
-			graphics2d.drawRect(5, 350, 192, 64);
-			graphics2d.setColor(BLUE);
-			graphics2d.drawString("Extreme", 101-(("Extreme".length()-1)/2*20),
-					390);
-			graphics2d.setFont(menuText);
-			graphics2d.setColor(YELLOW);
-			graphics2d.drawString("Initial ammo: 10", 205, 365);
-			graphics2d.drawString("Reload ammo: 5", 205, 380);
-			graphics2d.drawString("Enemy fire rate: 2 secs", 205, 395);
-			
-			graphics2d.setFont(menuSelect);
-			graphics2d.setColor(RED);
-			graphics2d.fillRect((Game.XBOUND/2)-96, 450, 192, 64);
-			graphics2d.setColor(WHITE);
-			graphics2d.drawRect((Game.XBOUND/2)-96, 450, 192, 64);
-			graphics2d.setColor(BLUE);
-			graphics2d.drawString("Back", Game.XBOUND/2-(("Back".length()-1)/2*35),
-					490);
-		} if (Game.gameState == State.GAME) {
+		} else if (Game.gameState == State.GAME) {
 			if (Game.paused) {
 				graphics2d.setFont(menuHeader);
 				graphics2d.setColor(WHITE);
@@ -176,28 +123,23 @@ public class Menu extends MouseAdapter {
 		} else if (Game.gameState == State.GAMEOVER) {
 			graphics2d.setFont(menuHeader);
 			graphics2d.setColor(WHITE);
-			graphics2d.drawString("Game Over!", Game.XBOUND/2-(("Quit".length()-1)/
+			graphics2d.drawString("You died!", Game.XBOUND/2-(("Quit".length()-1)/
 					2*150), 40);
 			
-			graphics2d.setFont(menuText);
-			graphics2d.drawString("Your final score was: " + HeadsUpDisplay.score,
-					10, 175);
-			graphics2d.drawString("Your final level was: " + HeadsUpDisplay.level,
-					10, 195);
-			
-			graphics2d.setFont(menuSelect);graphics2d.setColor(RED);
-			graphics2d.fillRect((Game.XBOUND/2)-92, Game.YBOUND-135, 192, 64);
+			graphics2d.setFont(menuSelect);
+			graphics2d.setColor(RED);
+			graphics2d.fillRect((Game.XBOUND/2)-92, 350, 192, 64);
 			graphics2d.setColor(WHITE);
-			graphics2d.drawRect((Game.XBOUND/2)-92, Game.YBOUND-135, 192, 64);
+			graphics2d.drawRect((Game.XBOUND/2)-92, 350, 192, 64);
 			graphics2d.setColor(BLUE);
-			graphics2d.drawString("Play again", (Game.XBOUND/2)-67, Game.YBOUND-95);
+			graphics2d.drawString("Rejoin", (Game.XBOUND/2)-45, 390);
 			
 			graphics2d.setColor(RED);
-			graphics2d.fillRect((Game.XBOUND/2)-92, Game.YBOUND-65, 192, 64);
+			graphics2d.fillRect((Game.XBOUND/2)-92, 450, 192, 64);
 			graphics2d.setColor(WHITE);
-			graphics2d.drawRect((Game.XBOUND/2)-92, Game.YBOUND-65, 192, 64);
+			graphics2d.drawRect((Game.XBOUND/2)-92, 450, 192, 64);
 			graphics2d.setColor(BLUE);
-			graphics2d.drawString("Quit", (Game.XBOUND/2)-25, Game.YBOUND-23);
+			graphics2d.drawString("Quit", (Game.XBOUND/2)-25, 490);
 		}
 	}
 	
@@ -209,77 +151,101 @@ public class Menu extends MouseAdapter {
 		if (Game.gameState == State.TITLESCREEN) {
 			if (mouseOver(mouseX, mouseY, (Game.XBOUND/2)-64, (Game.YBOUND/2)-96,
 					128, 64)) {
-				Game.gameState = State.DIFFICULTYSELECT;
-				
+				switch (JOptionPane.showConfirmDialog(game, "Run server?")) {
+				default:
+					break;
+				case JOptionPane.YES_OPTION:
+					game.server = new Server();
+					game.server.start();
+					
+					try {
+						game.client.ipAddress = InetAddress.getByName("localhost");
+					} catch (UnknownHostException e1) {
+						e1.printStackTrace();
+					}
+					
+					game.client.sendData(("Ping," + Game.player.getUsername()).getBytes());
+					break;
+				case JOptionPane.NO_OPTION:
+					setTargetIPAddress();
+					
+					break;
+				}
 			} else if (mouseOver(mouseX, mouseY, (Game.XBOUND/2)-64, (Game.YBOUND/2)
 					+32, 128, 64)) System.exit(1);
-		} else if (Game.gameState == State.DIFFICULTYSELECT) {
-			if (mouseOver(mouseX, mouseY, 5, 125, 192, 64)) {
-				Game.gameDifficulty = Difficulty.EASY;
-				Game.gameState = State.GAME;
-				
-				handler.startGame();
-			} else if (mouseOver(mouseX, mouseY, 5, 200, 192, 64)) {
-				Game.gameDifficulty = Difficulty.NORMAL;
-				Game.gameState = State.GAME;
-				
-				handler.startGame();
-			} else if (mouseOver(mouseX, mouseY, 5, 275, 192, 64)) {
-				Game.gameDifficulty = Difficulty.HARD;
-				Game.gameState = State.GAME;
-				
-				handler.startGame();
-			} else if (mouseOver(mouseX, mouseY, 5, 350, 192, 64)) {
-				Game.gameDifficulty = Difficulty.EXTREME;
-				Game.gameState = State.GAME;
-				
-				handler.startGame();
-			} else if (mouseOver(mouseX, mouseY, (Game.XBOUND/2)-96, 450, 192,
-					64)) {
-				Game.gameState = State.TITLESCREEN;
-			}
 		} else if (Game.gameState == State.GAME) {
 			if (!(Game.paused)) {
-				if (HeadsUpDisplay.ammo != 0) {
-					Paintball paintball = new Paintball(Game.player.getX()+12,
-							Game.player.getY()+12, ID.PAINTBALL, handler,
-							Game.player);
-					
-					handler.addObject(paintball);
-					
-					float diffX = paintball.getX()-(mouseX-4), diffY =
-							paintball.getY()-(mouseY-4), distance = (float)
-							Math.sqrt((paintball.getX()-mouseX)*(paintball.getX()-
-									mouseX) + (paintball.getY()-mouseY)*
-									(paintball.getY()-mouseY));
-					
-					paintball.setVelX((float) ((-1.0/distance) * diffX)*7);
-					paintball.setVelY((float) ((-1.0/distance) * diffY)*7);
-					
-					if (Game.gameDifficulty != Difficulty.EASY) 
-						HeadsUpDisplay.ammo--;
-				}
+				Paintball paintball = new Paintball(Game.player.getX()+12, Game.player.getY()+12,
+						ID.PAINTBALL, game, handler, Game.player);
+				
+				handler.addObject(paintball);
+				
+				float diffX = paintball.getX()-(mouseX-4), diffY =
+						paintball.getY()-(mouseY-4), distance = (float)
+						Math.sqrt((paintball.getX()-mouseX)*(paintball.getX()-
+								mouseX) + (paintball.getY()-mouseY)*
+								(paintball.getY()-mouseY));
+				
+				paintball.setVelX((float) ((-1.0/distance) * diffX)*7);
+				paintball.setVelY((float) ((-1.0/distance) * diffY)*7);
+				
+				Packet03Shot packet = new Packet03Shot(Game.player.getUsername(),
+						paintball.getX(), paintball.getY(), paintball.getVelX(),
+						paintball.getVelY());
+				packet.writeData(game.client);
 			} else {
 				if (mouseOver(mouseX, mouseY, Game.XBOUND/2-96, Game.YBOUND/2-96,
 						192, 64)) Game.paused = false;
 				else if (mouseOver(mouseX, mouseY, Game.XBOUND/2-96, Game.YBOUND/2+
 						32, 192, 64)) {
-					Game.paused = false;
-					handler.objects.clear();
-					Game.gameState = State.TITLESCREEN;
+					Packet01Disconnect packet =
+							new Packet01Disconnect(Game.player.getUsername());
+					packet.writeData(game.client);
+					
+					if (!(game.server == null)) {
+						game.server.stop();
+					} else {
+						Game.paused = false;
+						handler.objects.clear();
+						Game.gameState = State.TITLESCREEN;
+					}
 				}
 			}
 		} else if (Game.gameState == State.GAMEOVER) {
-			if (mouseOver(mouseX, mouseY, (Game.XBOUND/2)-92, Game.YBOUND-135, 192,
-					64)) {
+			if (mouseOver(mouseX, mouseY, (Game.XBOUND/2)-92, 350, 192, 64)) {
 				Game.gameState = State.GAME;
 				
 				handler.startGame();
-			} else if (mouseOver(mouseX, mouseY, (Game.XBOUND/2)-92, Game.YBOUND-65,
-					192, 64)) Game.gameState = State.TITLESCREEN;
+				
+				Packet00Connect packet = new Packet00Connect(Game.player.getUsername(),
+						Game.player.getX(), Game.player.getY(), Game.player.health, false);
+				packet.writeData(game.client);
+			} else if (mouseOver(mouseX, mouseY, (Game.XBOUND/2)-92, 450, 192, 64))
+				Game.gameState = State.TITLESCREEN;
 		}
 	}
 	
+	/**
+	 * Sets the targeted IP address of the server.
+	 */
+	private void setTargetIPAddress() {
+		String targetIPAddress = JOptionPane.showInputDialog(game, "Input target IP address.",
+				Game.TITLE, JOptionPane.PLAIN_MESSAGE);
+		
+		if (!(targetIPAddress == null)) {
+			try {
+				game.client.ipAddress = InetAddress.getByName(targetIPAddress);
+			} catch (UnknownHostException e1) {
+				JOptionPane.showMessageDialog(game, "Invalid IP address!", Game.TITLE,
+						JOptionPane.ERROR_MESSAGE);
+				
+				setTargetIPAddress();
+			}
+			
+			game.client.sendData(("Ping" + Game.player.getUsername()).getBytes());
+		}
+	}
+
 	/**
 	 * Checks to see if the user has clicked over a button.
 	 * @param mouseX - The x coordinate of the mouse.

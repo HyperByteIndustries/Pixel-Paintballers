@@ -9,6 +9,11 @@ import java.awt.GraphicsEnvironment;
 import java.awt.image.BufferStrategy;
 import java.io.File;
 
+import javax.swing.JOptionPane;
+
+import io.github.hyperbyteindustries.pixel_paintballers.net.Client;
+import io.github.hyperbyteindustries.pixel_paintballers.net.Server;
+
 /**
  * Represents the core of the game.
  * When the game is initialised, this class is responsible for the management of
@@ -25,25 +30,21 @@ public class Game extends Canvas implements Runnable {
 	public static final String TITLE = "Pixel Paintballers";
 	
 	/**
-	 * Represents the menu state of the game.
-	 * This enum is responsible for giving the current menu state of the game.
+	 * Represents the menu states of the game.
+	 * When utilised, this enum is responsible for defining the game's current menu
+	 * state.
 	 * @author Ramone Graham
 	 *
 	 */
 	public enum State {
-		LOGO(), TITLESCREEN(), DIFFICULTYSELECT(), GAME(), GAMEOVER();
-	}
-	
-	public enum Difficulty {
-		EASY(), NORMAL(), HARD(), EXTREME();
+		LOGO(), TITLESCREEN(), GAME(), GAMEOVER();
 	}
 	
 	public static State gameState = State.LOGO;
-	public static Difficulty gameDifficulty = null;
 
 	public static boolean paused = false;
 	
-	public static Player player = new Player(XBOUND/2-16, YBOUND/2-16, ID.PLAYER);
+	public static Player player;
 	
 	private Thread thread;
 	private boolean running = false;
@@ -53,30 +54,44 @@ public class Game extends Canvas implements Runnable {
 	private KeyInput keyInput;
 	private HeadsUpDisplay headsUpDisplay;
 	private Spawner spawner;
+	
+	public Client client;
+	public Server server;
 
 	/**
 	 * Creates a new instance of the game.
 	 */
 	public Game() {
+		player = new Player(XBOUND/2-16, YBOUND/2-16, ID.PLAYER, this, "Player");
+		
 		handler = new Handler();
-		menu = new Menu(handler);
+		menu = new Menu(this, handler);
 		keyInput = new KeyInput(handler);
 		headsUpDisplay = new HeadsUpDisplay();
-		spawner = new Spawner(handler);
+		spawner = new Spawner(this, handler);
+		
+		client = new Client(this, handler, "localhost");
 
 		addMouseListener(menu);
 		addKeyListener(keyInput);
 		
 		new Window(TITLE, WIDTH, HEIGHT, this);
+		
+		String username = JOptionPane.showInputDialog(this, "Please enter a username.", TITLE,
+				JOptionPane.PLAIN_MESSAGE);
+		
+		if (!(username == null)) Game.player.setUsername(username);
 	}
 	
 	/**
 	 * Starts execution of the game.
 	 */
 	public synchronized void start() {
-		thread = new Thread(this, TITLE);
+		thread = new Thread(this, TITLE + " [MAIN]");
 		thread.start();
 		running = true;
+		
+		client.start();
 	}
 	
 	/**
@@ -118,7 +133,7 @@ public class Game extends Canvas implements Runnable {
 			
 			if (System.currentTimeMillis() - timer > 1000) {
 				timer += 1000;
-				System.out.println("FPS: " + frames);
+				System.out.println("[Main INFO]: " + frames + " FPS");
 				frames = 0;
 			}
 		}
@@ -130,18 +145,14 @@ public class Game extends Canvas implements Runnable {
 	 * Updates the logic of the game.
 	 */
 	private void tick() {
-		 if (!(paused)) handler.tick();
-		
+		handler.tick();
 		menu.tick();
 		
 		if (gameState == State.GAME) {
-			if (!(isFocusOwner())) paused = true;
-			
-			if (!(paused)) {
-				headsUpDisplay.tick();
-				spawner.tick();
-			}
+			headsUpDisplay.tick();
 		}
+		
+		if (!(server == null)) server.tick();
 	}
 	
 	/**
@@ -160,19 +171,18 @@ public class Game extends Canvas implements Runnable {
 		graphics2d.setColor(BLACK);
 		graphics2d.fillRect(0, 0, XBOUND, YBOUND);
 
-		if (!(paused)) handler.render(graphics2d);
+		handler.render(graphics2d);
 		menu.render(graphics2d);
 		
-		if (gameState == State.GAME) {
-			if (!(paused)) headsUpDisplay.render(graphics2d);
-		}
+		if (gameState == State.GAME) headsUpDisplay.render(graphics2d);
 		
 		graphics2d.dispose();
 		strategy.show();
 	}
 	
 	/**
-	 * Clamps a variable to a given maximum and minimum.
+	 * Mostly used with the float data-type coordinate system, this method clamps a
+	 * variable to a given maximum and minimum.
 	 * @param variable - The variable to clamp.
 	 * @param minimum - The minimum value.
 	 * @param maximum - The maximum value.
@@ -185,7 +195,8 @@ public class Game extends Canvas implements Runnable {
 	}
 	
 	/**
-	 * Clamps a variable to a given maximum and minimum.
+	 * Mostly used with integers, this method clamps a variable to a given maximum
+	 * and minimum.
 	 * @param variable - The variable to clamp.
 	 * @param minimum - The minimum value.
 	 * @param maximum - The maximum value.
@@ -201,20 +212,16 @@ public class Game extends Canvas implements Runnable {
 	public static void main(String[] args) {
 		new Game();
 		
-		GraphicsEnvironment environment =
-				GraphicsEnvironment.getLocalGraphicsEnvironment();
-		
 		try {
-			environment.registerFont(Font.createFont(Font.TRUETYPE_FONT,
+			GraphicsEnvironment environment = 
+					GraphicsEnvironment.getLocalGraphicsEnvironment();
+		
+			environment.registerFont(Font.createFont(Font.TRUETYPE_FONT, 
 					new File("res/pixelex.ttf")));
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		
-		try {
-			Thread.sleep(5000);
+			Thread.sleep(1000);
+			
 			gameState = State.TITLESCREEN;
-		} catch (InterruptedException e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}

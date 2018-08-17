@@ -1,11 +1,14 @@
 package io.github.hyperbyteindustries.pixel_paintballers;
 
-import static java.awt.event.KeyEvent.*;
+import static java.awt.event.KeyEvent.VK_A;
+import static java.awt.event.KeyEvent.VK_D;
+import static java.awt.event.KeyEvent.VK_ESCAPE;
+import static java.awt.event.KeyEvent.VK_S;
+import static java.awt.event.KeyEvent.VK_W;
 
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 
-import io.github.hyperbyteindustries.pixel_paintballers.Game.Difficulty;
 import io.github.hyperbyteindustries.pixel_paintballers.Game.State;
 
 /**
@@ -22,7 +25,7 @@ public class KeyInput extends KeyAdapter {
 	private boolean[] keyDown = new boolean[4];
 	
 	/**
-	 * Creates a new instance of this class
+	 * Creates a new instance of this class.
 	 * @param handler - An instance of the handler class, used to control player
 	 * movement.
 	 */
@@ -43,8 +46,8 @@ public class KeyInput extends KeyAdapter {
 			if (!(Game.paused)) {
 				if (key == VK_ESCAPE) Game.paused = true;
 				else {
-					for (int i = 0; i < handler.objects.size(); i++) {
-						GameObject tempObject = handler.objects.get(i);
+					for (int i = 0; i < handler.getObjects().size(); i++) {
+						GameObject tempObject = handler.getObjects().get(i);
 						
 						if (tempObject.getID() == ID.PLAYER) {
 							if (key == VK_W) {
@@ -68,17 +71,6 @@ public class KeyInput extends KeyAdapter {
 							}
 						}
 					}
-					
-					if (key == VK_R) {
-						if (HeadsUpDisplay.ammo == 0) {
-							if (Game.gameDifficulty == Difficulty.NORMAL)
-								HeadsUpDisplay.ammo = 15;
-							else if (Game.gameDifficulty == Difficulty.HARD)
-								HeadsUpDisplay.ammo = 10;
-							else if (Game.gameDifficulty == Difficulty.EXTREME)
-								HeadsUpDisplay.ammo = 5;
-						}
-					}
 				}
 			} else {
 				if (key == VK_ESCAPE) Game.paused = false;
@@ -88,11 +80,12 @@ public class KeyInput extends KeyAdapter {
 	
 	// Invoked when a key is released.
 	public void keyReleased(KeyEvent e) {
+		int key  = e.getKeyCode();
+		
 		if (Game.gameState == State.GAME) {
-			int key  = e.getKeyCode();
 			
-			for (int i = 0; i < handler.objects.size(); i++) {
-				GameObject tempObject = handler.objects.get(i);
+			for (int i = 0; i < handler.getObjects().size(); i++) {
+				GameObject tempObject = handler.getObjects().get(i);
 				
 				if (tempObject.getID() == ID.PLAYER) {
 					if (key == VK_W) keyDown[0] = false;

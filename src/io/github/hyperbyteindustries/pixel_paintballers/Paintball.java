@@ -5,6 +5,8 @@ import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.util.Random;
 
+import io.github.hyperbyteindustries.pixel_paintballers.net.packets.Packet04Damage;
+
 /**
  * Represents the main weapon of the game.
  * When constructed, this class is responsible for the management of the paintball.
@@ -13,8 +15,9 @@ import java.util.Random;
  */
 public class Paintball extends GameObject {
 
+	private Game game;
 	private Handler handler;
-	private GameObject shooter;
+	protected GameObject shooter;
 	
 	private Random random;
 	private Color colour;
@@ -24,13 +27,15 @@ public class Paintball extends GameObject {
 	 * @param x - The x coordinate of the paintball.
 	 * @param y - The y coordinate of the paintball.
 	 * @param id - The ID tag of the paintball.
+	 * @param game - An instance of the Game class, used to send damage packets to the server.
 	 * @param handler - An instance of the Handler class, used to remove the
 	 * paintball after a collision.
 	 * @param shooter - The game object that shot the paintball.
 	 */
-	public Paintball(float x, float y, ID id, Handler handler, GameObject shooter) {
+	public Paintball(float x, float y, ID id, Game game, Handler handler, GameObject shooter) {
 		super(x, y, id);
 		
+		this.game = game;
 		this.handler = handler;
 		this.shooter = shooter;
 		random = new Random();
@@ -74,13 +79,26 @@ public class Paintball extends GameObject {
 	 * Checks to see if the paintball has collided with another game object.
 	 */
 	private void collision() {
-		for (int i = 0; i < handler.objects.size(); i++) {
-			GameObject tempObject = handler.objects.get(i);
+		for (int i = 0; i < handler.getObjects().size(); i++) {
+			GameObject tempObject = handler.getObjects().get(i);
 			
 			if (tempObject.getID() == ID.PLAYER) {
 				if (shooter.getID() != ID.PLAYER) {
 					if (getBounds().intersects(tempObject.getBounds())) {
-						HeadsUpDisplay.health -= 1;
+						Game.player.health -= 1;
+						
+						if (game != null) {
+							Packet04Damage packet = new Packet04Damage(Game.player.getUsername(),
+									1);
+							packet.writeData(game.client);
+						}
+						
+						handler.removeObject(this);
+					}
+				}
+			} else if (tempObject.getID() == ID.IPLAYER) {
+				if (shooter != tempObject) {
+					if (getBounds().intersects(tempObject.getBounds())) {
 						handler.removeObject(this);
 					}
 				}

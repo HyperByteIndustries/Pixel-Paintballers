@@ -12,8 +12,6 @@ import java.awt.Graphics2D;
 import java.awt.Font;
 import java.util.Random;
 
-import io.github.hyperbyteindustries.pixel_paintballers.Game.Difficulty;
-
 /**
  * Represents the enemy AI of the game.
  * When constructed, this class is responsible for the management of the enemy.
@@ -22,28 +20,31 @@ import io.github.hyperbyteindustries.pixel_paintballers.Game.Difficulty;
  */
 public class Enemy extends GameObject {
 
+	private Game game;
 	private Handler handler;
 	
 	private Random random;
 	
 	private int attack = 0;
-	private int shootTime = 0 /*420 = 7 secs*/;
+	private int shootTime = 0;
 	
 	/**
 	 * Creates a new enemy.
 	 * @param x - The x coordinate of the enemy.
 	 * @param y - The y coordinate of the enemy.
 	 * @param id - The ID tag of the enemy.
+	 * @param game - An instance of the game class, used to create shoot paintballs.
 	 * @param handler - An instance of the Handler class, used to shoot paintballs.
 	 */
-	public Enemy(float x, float y, ID id, Handler handler) {
+	public Enemy(float x, float y, ID id, Game game, Handler handler) {
 		super(x, y, id);
 		
+		this.game = game;
 		this.handler = handler;
 		random = new Random();
 		
-		for (int i = 0; i < handler.objects.size(); i++) {
-			GameObject tempObject = handler.objects.get(i);
+		for (int i = 0; i < handler.getObjects().size(); i++) {
+			GameObject tempObject = handler.getObjects().get(i);
 			
 			if (tempObject.getID() == ID.ENEMY || tempObject.getID() ==
 					ID.MOVINGENEMY || tempObject.getID() == ID.BOUNCYENEMY ||
@@ -53,10 +54,7 @@ public class Enemy extends GameObject {
 			}
 		}
 		
-		if (Game.gameDifficulty == Difficulty.EASY) shootTime = 420;
-		else if (Game.gameDifficulty == Difficulty.NORMAL) shootTime = 300;
-		else if (Game.gameDifficulty == Difficulty.HARD) shootTime = 180;
-		else if (Game.gameDifficulty == Difficulty.EXTREME) shootTime = 120;
+		shootTime = 420;
 	}
 
 	// See getBounds() in GameObject.
@@ -80,7 +78,7 @@ public class Enemy extends GameObject {
 			
 			if (getBounds().intersects(Game.player.getBounds())) {
 				if (attack == 1) {
-					HeadsUpDisplay.health -= 2;
+					Game.player.health -= 2;
 					attack++;
 				} else if (attack == 100) attack = 1;
 				else attack++;
@@ -90,19 +88,16 @@ public class Enemy extends GameObject {
 		shootTime--;
 		
 		if (shootTime == 0) {
-			if (Game.gameDifficulty == Difficulty.EASY) shootTime = 420;
-			else if (Game.gameDifficulty == Difficulty.NORMAL) shootTime = 300;
-			else if (Game.gameDifficulty == Difficulty.HARD) shootTime = 180;
-			else if (Game.gameDifficulty == Difficulty.EXTREME) shootTime = 120;
+			shootTime = 420;
 			
 			Paintball paintball = null;
 			
 			if (id == ID.ENEMY || id == ID.MOVINGENEMY) paintball =
-					new Paintball(x+8, y+8, ID.PAINTBALL, handler, this);
+					new Paintball(x+8, y+8, ID.PAINTBALL, game, handler, this);
 			else if (id == ID.BOUNCYENEMY) paintball = new Paintball(x+8, y+8,
-					ID.BOUNCYPAINTBALL, handler, this);
+					ID.BOUNCYPAINTBALL, game, handler, this);
 			else if (id == ID.HOMINGENEMY) paintball = new Paintball(x+8, y+8,
-					ID.HOMINGPAINTBALL, handler, this);
+					ID.HOMINGPAINTBALL, game, handler, this);
 			
 			handler.addObject(paintball);
 			
@@ -118,9 +113,8 @@ public class Enemy extends GameObject {
 
 	// See render(Graphics2D graphics2d) in GameObject.
 	public void render(Graphics2D graphics2d) {
-		Font font = new Font("Pixel EX", Font.PLAIN, 10);
-		int shootTime = (int) ((double) ((double) this.shootTime/(double) 420)*10);
-		String shootTimePrompt = "Shooting in " + shootTime;
+		int shootTime = (int) (((double) ((double) this.shootTime/(double) 600)*10)+
+				1);
 		
 		if (id == ID.ENEMY) {
 			graphics2d.setColor(GREEN);
@@ -136,17 +130,16 @@ public class Enemy extends GameObject {
 		graphics2d.setColor(WHITE);
 		graphics2d.draw(getBounds());
 		graphics2d.setColor(GRAY);
-		graphics2d.setFont(font);
-		graphics2d.drawString(shootTimePrompt, x-((shootTimePrompt.length()-1)/2*
-				5), y);
+		graphics2d.setFont(new Font("Pixel EX", Font.PLAIN, 10));
+		graphics2d.drawString(String.valueOf(shootTime), x+8, y+15);
 	}
 
 	private void respawn() {
 		x = random.nextInt(Game.XBOUND-25);
 		y = random.nextInt(Game.YBOUND-25);
 		
-		for (int i = 0; i < handler.objects.size(); i++) {
-			GameObject tempObject = handler.objects.get(i);
+		for (int i = 0; i < handler.getObjects().size(); i++) {
+			GameObject tempObject = handler.getObjects().get(i);
 			
 			if (tempObject.getID() == ID.ENEMY || tempObject.getID() ==
 					ID.MOVINGENEMY || tempObject.getID() == ID.BOUNCYENEMY ||
