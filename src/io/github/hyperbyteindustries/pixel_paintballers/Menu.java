@@ -155,7 +155,7 @@ public class Menu extends MouseAdapter {
 				default:
 					break;
 				case JOptionPane.YES_OPTION:
-					game.server = new Server();
+					game.server = new Server(game);
 					game.server.start();
 					
 					try {

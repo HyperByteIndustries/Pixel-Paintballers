@@ -20,6 +20,9 @@ public class Packet00Connect extends Packet {
 	/**
 	 * Creates a new packet to be sent between a client and a server.
 	 * @param username - The username of the player connecting to the server.
+	 * @param x - The x coordinate of the player.
+	 * @param y - The y coordinate of the player.
+	 * @param health - The health of the player.
 	 * @param alreadyConnected - The status of a player in relation to the server.
 	 */
 	public Packet00Connect(String username, float x, float y, int health,

@@ -87,11 +87,9 @@ public class Paintball extends GameObject {
 					if (getBounds().intersects(tempObject.getBounds())) {
 						Game.player.health -= 1;
 						
-						if (game != null) {
-							Packet04Damage packet = new Packet04Damage(Game.player.getUsername(),
-									1);
-							packet.writeData(game.client);
-						}
+						Packet04Damage packet = new Packet04Damage(Game.player.getUsername(),
+								1);
+						packet.writeData(game.client);
 						
 						handler.removeObject(this);
 					}
@@ -147,5 +145,9 @@ public class Paintball extends GameObject {
 	public void render(Graphics2D graphics2d) {
 		graphics2d.setColor(colour);
 		graphics2d.fill(getBounds());
+	}
+
+	public GameObject getShooter() {
+		return shooter;
 	}
 }

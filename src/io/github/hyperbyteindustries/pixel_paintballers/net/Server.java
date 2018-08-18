@@ -9,7 +9,13 @@ import java.util.LinkedList;
 
 import io.github.hyperbyteindustries.pixel_paintballers.Game;
 import io.github.hyperbyteindustries.pixel_paintballers.GameObject;
+import io.github.hyperbyteindustries.pixel_paintballers.Handler;
+import io.github.hyperbyteindustries.pixel_paintballers.HeadsUpDisplay;
 import io.github.hyperbyteindustries.pixel_paintballers.ID;
+import io.github.hyperbyteindustries.pixel_paintballers.KeyInput;
+import io.github.hyperbyteindustries.pixel_paintballers.Menu;
+import io.github.hyperbyteindustries.pixel_paintballers.Paintball;
+import io.github.hyperbyteindustries.pixel_paintballers.Spawner;
 import io.github.hyperbyteindustries.pixel_paintballers.net.packets.Packet;
 import io.github.hyperbyteindustries.pixel_paintballers.net.packets.Packet.PacketType;
 import io.github.hyperbyteindustries.pixel_paintballers.net.packets.Packet00Connect;
@@ -33,21 +39,28 @@ public class Server implements Runnable {
 	
 	private DatagramSocket socket;
 	
+	private Game game;
+	private Handler handler;
+	private Spawner spawner;
+	
 	private String infoPrefix = "[Server INFO]: ", warnPrefix = "[Server WARN]: ",
 			errorPrefix = "[Server ERROR]: ";
 	
 	private LinkedList<IPlayer> connectedPlayers = new LinkedList<IPlayer>();
-	private LinkedList<GameObject> onlineObjects = new LinkedList<GameObject>();
 	
 	/**
 	 * Creates a new server.
 	 */
-	public Server() {
+	public Server(Game game) {
 		try {
 			socket = new DatagramSocket(1331);
 		} catch (SocketException e) {
 			e.printStackTrace();
 		}
+		
+		this.game = game;
+		handler = new Handler();
+		spawner = new Spawner(game, handler);
 	}
 	
 	/**
@@ -71,7 +84,7 @@ public class Server implements Runnable {
 			Packet01Disconnect packet = new Packet01Disconnect(player.getUsername());
 			packet.writeData(this);
 			
-			removeObject(player);
+			handler.removeObject(player);
 		}
 		
 		running = false;
@@ -204,8 +217,10 @@ public class Server implements Runnable {
 		for (int i = 0; i < getConnectedPlayers().size(); i++) {
 			IPlayer connectedPlayer = getConnectedPlayers().get(i);
 			
-			if (connectedPlayer.getUsername().equalsIgnoreCase(player.getUsername()))
+			if (connectedPlayer.getUsername().equalsIgnoreCase(player.getUsername())) {
+				connectedPlayer.health = player.health;
 				alreadyConnected = true;
+			}
 			else {
 				sendData(packet.getData(), connectedPlayer.getIPAddress(),
 						connectedPlayer.getPort());
@@ -228,13 +243,13 @@ public class Server implements Runnable {
 					"] has connected.");
 		}
 		
-		addObject(player);
+		handler.addObject(player);
 		
-		for (int i = 0; i < getOnlineObjects().size(); i++) {
-			GameObject tempObject = getOnlineObjects().get(i);
+		for (int i = 0; i < handler.getObjects().size(); i++) {
+			GameObject tempObject = handler.getObjects().get(i);
 			
 			if (tempObject.getID() == ID.PAINTBALL) {
-				IPaintball paintball = (IPaintball) tempObject;
+				Paintball paintball = (Paintball) tempObject;
 				
 				
 				if (paintball.getShooter().getID() == ID.IPLAYER) {
@@ -259,7 +274,7 @@ public class Server implements Runnable {
 			
 			if (player.getUsername().equalsIgnoreCase(packet.getUsername())) {
 				getConnectedPlayers().remove(player);
-				removeObject(player);
+				handler.removeObject(player);
 				
 				System.out.println(infoPrefix + player.getUsername() + " [" +
 						player.getIPAddress().getHostAddress() + ":" + player.getPort() +
@@ -317,10 +332,10 @@ public class Server implements Runnable {
 			IPlayer player = getConnectedPlayers().get(i);
 			
 			if (player.getUsername().equalsIgnoreCase(packet.getUsername())) {
-				IPaintball paintball = new IPaintball(player.getX()+12, player.getY()+12,
-						ID.PAINTBALL, player, this);
+				Paintball paintball = new Paintball(player.getX()+12, player.getY()+12,
+						ID.PAINTBALL, game, handler, player);
 				
-				addObject(paintball);
+				handler.addObject(paintball);
 				
 				paintball.setVelX(packet.getVelX());
 				paintball.setVelY(packet.getVelY());
@@ -366,7 +381,7 @@ public class Server implements Runnable {
 			IPlayer player = getConnectedPlayers().get(i);
 			
 			if (player.getUsername().equalsIgnoreCase(packet.getUsername())) {
-				removeObject(player);
+				handler.removeObject(player);
 				
 				System.out.println(infoPrefix + packet.getUsername() + " [" +
 						player.getIPAddress().getHostAddress() + ":" + player.getPort() +
@@ -382,11 +397,7 @@ public class Server implements Runnable {
 	 * Updates the logic of the objects.
 	 */
 	public void tick() {
-		for (int i = 0; i < getOnlineObjects().size(); i++) {
-			GameObject tempObject = getOnlineObjects().get(i);
-			
-			tempObject.tick();
-		}
+		handler.tick();
 	}
 
 	/**
@@ -418,36 +429,11 @@ public class Server implements Runnable {
 	}
 	
 	/**
-	 * Adds a game object to the objects list.
-	 * @param object - The object to be added to the list.
-	 */
-	public void addObject(GameObject object) {
-		getOnlineObjects().add(object);
-	}
-	
-	/**
-	 * Removes a game object from the objects list.
-	 * @param object - The object to be removed from the list.
-	 */
-	public void removeObject(GameObject object) {
-		getOnlineObjects().remove(object);
-	}
-	
-	/**
 	 * Returns the list of connected players, optimised to prevent concurrent modification
 	 * exceptions.
 	 * @return The list of connected players.
 	 */
 	public synchronized LinkedList<IPlayer> getConnectedPlayers() {
 		return connectedPlayers;
-	}
-	
-	/**
-	 * Returns the list of online objects, optimised to prevent concurrent modification
-	 * exceptions.
-	 * @return The list of online objects.
-	 */
-	public synchronized LinkedList<GameObject> getOnlineObjects() {
-		return onlineObjects;
 	}
 }
