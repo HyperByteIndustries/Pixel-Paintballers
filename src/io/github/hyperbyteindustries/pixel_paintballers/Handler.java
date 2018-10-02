@@ -12,7 +12,7 @@ import java.util.LinkedList;
  */
 public class Handler {
 
-	public LinkedList<GameObject> objects = new LinkedList<GameObject>();
+	private LinkedList<GameObject> objects = new LinkedList<GameObject>();
 	
 	/**
 	 * Updates the logic of all game objects.
@@ -64,7 +64,7 @@ public class Handler {
 		
 		Game.player.maxHealth = 100;
 		Game.player.health = 100;
-		HeadsUpDisplay.score = 0;
+		Game.player.score = 0;
 	}
 	
 	/**

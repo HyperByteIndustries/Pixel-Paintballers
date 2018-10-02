@@ -16,9 +16,10 @@ import javax.swing.JOptionPane;
 
 import io.github.hyperbyteindustries.pixel_paintballers.Game.State;
 import io.github.hyperbyteindustries.pixel_paintballers.net.Server;
+import io.github.hyperbyteindustries.pixel_paintballers.net.Server.Mode;
 import io.github.hyperbyteindustries.pixel_paintballers.net.packets.Packet00Connect;
 import io.github.hyperbyteindustries.pixel_paintballers.net.packets.Packet01Disconnect;
-import io.github.hyperbyteindustries.pixel_paintballers.net.packets.Packet03Shot;
+import io.github.hyperbyteindustries.pixel_paintballers.net.packets.Packet03PlayerShot;
 import io.github.hyperbyteindustries.pixel_paintballers.net.packets.Packet05Death;
 
 /**
@@ -66,12 +67,12 @@ public class Menu extends MouseAdapter {
 				packet.writeData(game.client);
 				
 				Game.paused = false;
-				handler.objects.clear();
+				handler.getObjects().clear();
 				Game.gameState = State.GAMEOVER;
 			}
 		}
 	}
-	
+
 	/**
 	 * Updates the visuals for the menu.
 	 * @param graphics2d - The graphics used to update the visuals.
@@ -96,6 +97,76 @@ public class Menu extends MouseAdapter {
 			graphics2d.drawRect((Game.XBOUND/2)-64, (Game.YBOUND/2)+32, 128, 64);
 			graphics2d.setColor(BLUE);
 			graphics2d.drawString("Quit", (Game.XBOUND/2)-45, (Game.YBOUND/2)+78);
+		} else if (Game.gameState == State.MAINMENU) {
+			graphics2d.setFont(menuHeader);
+			graphics2d.setColor(WHITE);
+			graphics2d.drawString("Main menu", Game.XBOUND/2-(("Main menu".length()-1)/2*35),
+					40);
+			
+			graphics2d.setFont(menuSelect);
+			graphics2d.setColor(WHITE);
+			graphics2d.drawString("Create a server", 5, 100);
+			
+			graphics2d.setFont(menuText);
+			graphics2d.setColor(YELLOW);
+			graphics2d.drawString("Select a gamemode", 5, 125);
+			
+			graphics2d.setFont(menuSelect);
+			graphics2d.setColor(RED);
+			graphics2d.fillRect(5, 150, 256, 64);
+			graphics2d.setColor(WHITE);
+			graphics2d.drawRect(5, 150, 256, 64);
+			graphics2d.setColor(BLUE);
+			graphics2d.drawString("PVP", 133-(("PVP".length()-1)/2*18), 190);
+			graphics2d.setFont(menuText);
+			graphics2d.setColor(YELLOW);
+			graphics2d.drawString("It's a free-for-all as a maximum of 4 players", 269, 165);
+			graphics2d.drawString("battle it out against each other!", 269, 180);
+			
+			graphics2d.setFont(menuSelect);
+			graphics2d.setColor(RED);
+			graphics2d.fillRect(5, 225, 256, 64);
+			graphics2d.setColor(WHITE);
+			graphics2d.drawRect(5, 225, 256, 64);
+			graphics2d.setColor(BLUE);
+			graphics2d.drawString("Team survival", 133-(("Team survival".length()-1)/2*16), 265);
+			graphics2d.setFont(menuText);
+			graphics2d.setColor(YELLOW);
+			graphics2d.drawString("4 people team band together to battle the", 269, 240);
+			graphics2d.drawString("enemy waves! Careful tough, friendly fire is on!", 269, 255);
+			
+			graphics2d.setFont(menuSelect);
+			graphics2d.setColor(WHITE);
+			graphics2d.drawString("Connect to a server", 5, 325);
+			
+			graphics2d.setFont(menuSelect);
+			graphics2d.setColor(RED);
+			graphics2d.fillRect(5, 335, 256, 48);
+			graphics2d.setColor(WHITE);
+			graphics2d.drawRect(5, 335, 256, 48);
+			graphics2d.setColor(BLUE);
+			graphics2d.drawString("Change address", 128-("Change address".length()-1)/2*18, 366);
+			
+			graphics2d.setFont(menuText);
+			graphics2d.setColor(YELLOW);
+			graphics2d.drawString("Target server address: " +
+					game.client.getTargetIPAddress().getHostAddress(), 269, 350);
+			
+			graphics2d.setFont(menuSelect);
+			graphics2d.setColor(RED);
+			graphics2d.fillRect(5, 390, 256, 64);
+			graphics2d.setColor(WHITE);
+			graphics2d.drawRect(5, 390, 256, 64);
+			graphics2d.setColor(BLUE);
+			graphics2d.drawString("Join game", 133-(("Join game".length()-1)/2*16), 430);
+			
+			graphics2d.setFont(menuSelect);
+			graphics2d.setColor(RED);
+			graphics2d.fillRect(Game.XBOUND/2-96, 500, 192, 64);
+			graphics2d.setColor(WHITE);
+			graphics2d.drawRect(Game.XBOUND/2-96, 500, 192, 64);
+			graphics2d.setColor(BLUE);
+			graphics2d.drawString("Back", Game.XBOUND/2-(("Back".length()-1)/2*35), 540);
 		} else if (Game.gameState == State.GAME) {
 			if (Game.paused) {
 				graphics2d.setFont(menuHeader);
@@ -151,28 +222,41 @@ public class Menu extends MouseAdapter {
 		if (Game.gameState == State.TITLESCREEN) {
 			if (mouseOver(mouseX, mouseY, (Game.XBOUND/2)-64, (Game.YBOUND/2)-96,
 					128, 64)) {
-				switch (JOptionPane.showConfirmDialog(game, "Run server?")) {
-				default:
-					break;
-				case JOptionPane.YES_OPTION:
-					game.server = new Server(game);
-					game.server.start();
-					
-					try {
-						game.client.ipAddress = InetAddress.getByName("localhost");
-					} catch (UnknownHostException e1) {
-						e1.printStackTrace();
-					}
-					
-					game.client.sendData(("Ping," + Game.player.getUsername()).getBytes());
-					break;
-				case JOptionPane.NO_OPTION:
-					setTargetIPAddress();
-					
-					break;
-				}
+				Game.gameState = State.MAINMENU;
 			} else if (mouseOver(mouseX, mouseY, (Game.XBOUND/2)-64, (Game.YBOUND/2)
 					+32, 128, 64)) System.exit(1);
+		} else if (Game.gameState == State.MAINMENU) {
+			if (mouseOver(mouseX, mouseY, 5, 125, 256, 64)) {
+				game.server = new Server(game);
+				Server.gameMode = Mode.PVP;
+				game.server.start();
+				
+				try {
+					game.client.setTargetIPAddress(InetAddress.getByName("localhost"));
+				} catch (UnknownHostException e1) {
+					e1.printStackTrace();
+				}
+				
+				game.client.sendData(("Ping," + Game.player.getUsername()).getBytes());
+			} else if (mouseOver(mouseX, mouseY, 5, 200, 256, 64)) {
+				game.server = new Server(game);
+				Server.gameMode = Mode.TEAMSURVIVAL;
+				game.server.start();
+				
+				try {
+					game.client.setTargetIPAddress(InetAddress.getByName("localhost"));
+				} catch (UnknownHostException e1) {
+					e1.printStackTrace();
+				}
+				
+				game.client.sendData(("Ping," + Game.player.getUsername()).getBytes());
+			} else if (mouseOver(mouseX, mouseY, 5, 335, 256, 48)) {
+				setTargetIPAddress();
+			} else if (mouseOver(mouseX, mouseY, 5, 390, 256, 64)) {
+				game.client.sendData(("Ping," + Game.player.getUsername()).getBytes());
+			} else if (mouseOver(mouseX, mouseY, (Game.XBOUND/2)-96, 500, 192, 64)) {
+				Game.gameState = State.TITLESCREEN;
+			}
 		} else if (Game.gameState == State.GAME) {
 			if (!(Game.paused)) {
 				Paintball paintball = new Paintball(Game.player.getX()+12, Game.player.getY()+12,
@@ -189,7 +273,7 @@ public class Menu extends MouseAdapter {
 				paintball.setVelX((float) ((-1.0/distance) * diffX)*7);
 				paintball.setVelY((float) ((-1.0/distance) * diffY)*7);
 				
-				Packet03Shot packet = new Packet03Shot(Game.player.getUsername(),
+				Packet03PlayerShot packet = new Packet03PlayerShot(Game.player.getUsername(),
 						paintball.getX(), paintball.getY(), paintball.getVelX(),
 						paintball.getVelY());
 				packet.writeData(game.client);
@@ -206,8 +290,8 @@ public class Menu extends MouseAdapter {
 						game.server.stop();
 					} else {
 						Game.paused = false;
-						handler.objects.clear();
-						Game.gameState = State.TITLESCREEN;
+						handler.getObjects().clear();
+						Game.gameState = State.MAINMENU;
 					}
 				}
 			}
@@ -220,8 +304,13 @@ public class Menu extends MouseAdapter {
 				Packet00Connect packet = new Packet00Connect(Game.player.getUsername(),
 						Game.player.getX(), Game.player.getY(), Game.player.health, false);
 				packet.writeData(game.client);
-			} else if (mouseOver(mouseX, mouseY, (Game.XBOUND/2)-92, 450, 192, 64))
-				Game.gameState = State.TITLESCREEN;
+			} else if (mouseOver(mouseX, mouseY, (Game.XBOUND/2)-92, 450, 192, 64)) {
+				if (!(game.server == null)) {
+					game.server.stop();
+				}
+				
+				Game.gameState = State.MAINMENU;
+			}
 		}
 	}
 	
@@ -234,15 +323,13 @@ public class Menu extends MouseAdapter {
 		
 		if (!(targetIPAddress == null)) {
 			try {
-				game.client.ipAddress = InetAddress.getByName(targetIPAddress);
+				game.client.setTargetIPAddress(InetAddress.getByName(targetIPAddress));
 			} catch (UnknownHostException e1) {
 				JOptionPane.showMessageDialog(game, "Invalid IP address!", Game.TITLE,
 						JOptionPane.ERROR_MESSAGE);
 				
 				setTargetIPAddress();
 			}
-			
-			game.client.sendData(("Ping" + Game.player.getUsername()).getBytes());
 		}
 	}
 

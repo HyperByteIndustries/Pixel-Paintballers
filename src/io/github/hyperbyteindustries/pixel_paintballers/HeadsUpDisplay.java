@@ -15,7 +15,7 @@ import java.awt.Graphics2D;
  */
 public class HeadsUpDisplay {
 	
-	public static int score = 0;
+	public static int level = 0;
 	
 	/**
 	 * Updates the logic of the display.
@@ -37,6 +37,7 @@ public class HeadsUpDisplay {
 		graphics2d.drawRect(5, 5, Game.player.maxHealth, 25);
 		graphics2d.setFont(new Font("Pixel EX", Font.PLAIN, 10));
 		graphics2d.drawString("Health: " + Game.player.health, 15, 22);
-		graphics2d.drawString("Score: " + score, 5, 45);
+		graphics2d.drawString("Score: " + Game.player.score, 5, 45);
+		graphics2d.drawString("Level: " + level, 5, 55);
 	}
 }

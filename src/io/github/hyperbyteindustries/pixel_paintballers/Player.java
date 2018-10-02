@@ -13,7 +13,7 @@ import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 
-import io.github.hyperbyteindustries.pixel_paintballers.net.packets.Packet02Move;
+import io.github.hyperbyteindustries.pixel_paintballers.net.packets.Packet02PlayerMove;
 
 /**
  * Represents the main player of the game.
@@ -30,7 +30,7 @@ public class Player extends GameObject {
 	
 	protected String username;
 	
-	public int health = 100, maxHealth = 100;
+	public int health = 100, maxHealth = 100, score = 0;
 	public Color healthColour;
 	
 	/**
@@ -69,15 +69,15 @@ public class Player extends GameObject {
 		healthColour = new Color(75, healthpercentage*2, 0);
 		
 		if (!(game == null)) {
-			Packet02Move packet = null;
+			Packet02PlayerMove packet = null;
 			
 			if (x == prevX && y == prevY && !(stationaryMovePacketSent)) {
-				packet = new Packet02Move(username, false, x, y);
+				packet = new Packet02PlayerMove(username, false, x, y);
 				
 				stationaryMovePacketSent = true;
 			} else if (x != prevX || y != prevY) {
 				if (velX != prevVelX || velY != prevVelY) {
-					packet = new Packet02Move(username, true, velX, velY);
+					packet = new Packet02PlayerMove(username, true, velX, velY);
 					
 					prevVelX = velX;
 					prevVelY = velY;

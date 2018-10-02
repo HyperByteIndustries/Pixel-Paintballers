@@ -20,8 +20,9 @@ public abstract class Packet {
 	 *
 	 */
 	public enum PacketType {
-		INVALID("-1"), CONNECT("00"), DISCONNECT("01"), MOVE("02"), SHOT("03"), DAMAGE("04"),
-		DEATH("05");
+		INVALID("-1"), CONNECT("00"), DISCONNECT("01"), PLAYERMOVE("02"), PLAYERSHOT("03"),
+		DAMAGE("04"), DEATH("05"), LEVELUP("06"), SPAWN("07"), ENEMYSHOT("08"),
+		TARGETCHANGE("09"), ENEMYMOVE("10");
 		
 		private String packetID;
 		
@@ -53,22 +54,26 @@ public abstract class Packet {
 	}
 	
 	/**
+	 * Compiles the packet data into a byte array.
+	 * @return The byte array of data that is sent between the server and clients.
+	 */
+	public abstract byte[] getData();
+	
+	/**
 	 * Writes the packet data to the server.
 	 * @param client - The client sending the data to the server.
 	 */
-	public abstract void writeData(Client client);
+	public void writeData(Client client) {
+		client.sendData(getData());
+	}
 	
 	/**
 	 * Writes the data to all connected clients.
 	 * @param server - The server sending the data to all clients.
 	 */
-	public abstract void writeData(Server server);
-	
-	/**
-	 * Compiles the packet data into a byte array.
-	 * @return The byte array of data that is sent between the server and clients.
-	 */
-	public abstract byte[] getData();
+	public void writeData(Server server) {
+		server.sendDataToAll(getData());
+	}
 	
 	/**
 	 * Gets the packet type.

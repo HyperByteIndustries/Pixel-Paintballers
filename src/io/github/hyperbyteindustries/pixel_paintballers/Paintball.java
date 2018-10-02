@@ -16,11 +16,12 @@ import io.github.hyperbyteindustries.pixel_paintballers.net.packets.Packet04Dama
 public class Paintball extends GameObject {
 
 	private Game game;
-	private Handler handler;
-	protected GameObject shooter;
 	
-	private Random random;
-	private Color colour;
+	protected Handler handler;
+	
+	private GameObject shooter;
+	
+	protected Color colour;
 	
 	/**
 	 * Creates a new paintball.
@@ -38,9 +39,9 @@ public class Paintball extends GameObject {
 		this.game = game;
 		this.handler = handler;
 		this.shooter = shooter;
-		random = new Random();
-		colour = new Color(random.nextInt(256), random.nextInt(256),
-				random.nextInt(256));
+		
+		Random random = new Random();
+		colour = new Color(random.nextInt(256), random.nextInt(256), random.nextInt(256));
 	}
 
 	// See getBounds() in GameObject.
@@ -78,7 +79,7 @@ public class Paintball extends GameObject {
 	/**
 	 * Checks to see if the paintball has collided with another game object.
 	 */
-	private void collision() {
+	protected void collision() {
 		for (int i = 0; i < handler.getObjects().size(); i++) {
 			GameObject tempObject = handler.getObjects().get(i);
 			
@@ -103,16 +104,18 @@ public class Paintball extends GameObject {
 			} else if (tempObject.getID() == ID.ENEMY || tempObject.getID() ==
 					ID.MOVINGENEMY || tempObject.getID() == ID.BOUNCYENEMY ||
 					tempObject.getID() == ID.HOMINGENEMY) {
-				if (shooter.getID() == ID.PLAYER) {
+				if (shooter.getID() == ID.PLAYER || shooter.getID() == ID.IPLAYER) {
 					if (getBounds().intersects(tempObject.getBounds())) {
-						if (tempObject.getID() == ID.ENEMY)
-							HeadsUpDisplay.score += 1;
+						Player player = (Player) shooter;
+						
+						if (tempObject.getID() == ID.ENEMY) player.score += 1;
 						else if (tempObject.getID() == ID.MOVINGENEMY)
-							HeadsUpDisplay.score += 2;
+							player.score += 2;
 						else if (tempObject.getID() == ID.BOUNCYENEMY)
-							HeadsUpDisplay.score += 3;
+							player.score += 3;
 						else if (tempObject.getID() == ID.HOMINGENEMY)
-							HeadsUpDisplay.score += 4;
+							player.score += 4;
+						
 						handler.removeObject(this);
 						handler.removeObject(tempObject);
 					}

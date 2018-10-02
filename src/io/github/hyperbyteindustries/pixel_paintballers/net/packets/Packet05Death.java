@@ -1,8 +1,5 @@
 package io.github.hyperbyteindustries.pixel_paintballers.net.packets;
 
-import io.github.hyperbyteindustries.pixel_paintballers.net.Client;
-import io.github.hyperbyteindustries.pixel_paintballers.net.Server;
-
 /**
  * Represents the death packet of the multiplayer system.
  * When constructed, this class is responsible for communicating data about a player who has died.
@@ -31,16 +28,6 @@ public class Packet05Death extends Packet {
 		super ("05");
 		
 		username = readData(data);
-	}
-
-	// See writeData(Client client) in Packet.
-	public void writeData(Client client) {
-		client.sendData(getData());
-	}
-
-	// See writeData(Server server) in Packet.
-	public void writeData(Server server) {
-		server.sendDataToAll(getData());
 	}
 
 	// See getData() in Packet.

@@ -1,8 +1,5 @@
 package io.github.hyperbyteindustries.pixel_paintballers.net.packets;
 
-import io.github.hyperbyteindustries.pixel_paintballers.net.Client;
-import io.github.hyperbyteindustries.pixel_paintballers.net.Server;
-
 /**
  * Represents the damage packet of the multiplayer system.
  * When constructed, this class is responsible for communicating data about a player who has taken
@@ -38,16 +35,6 @@ public class Packet04Damage extends Packet {
 		
 		username = dataArray[0];
 		damageTaken = Integer.parseInt(dataArray[1]);
-	}
-
-	// See writeData(Client client) in Packet.
-	public void writeData(Client client) {
-		client.sendData(getData());
-	}
-
-	// See writeData(Server server) in Packet.
-	public void writeData(Server server) {
-		server.sendDataToAll(getData());
 	}
 
 	// See getData() in Packet.

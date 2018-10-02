@@ -37,7 +37,7 @@ public class Game extends Canvas implements Runnable {
 	 *
 	 */
 	public enum State {
-		LOGO(), TITLESCREEN(), GAME(), GAMEOVER();
+		LOGO(), TITLESCREEN(), MAINMENU(), GAME(), GAMEOVER();
 	}
 	
 	public static State gameState = State.LOGO;
@@ -53,7 +53,6 @@ public class Game extends Canvas implements Runnable {
 	private Menu menu;
 	private KeyInput keyInput;
 	private HeadsUpDisplay headsUpDisplay;
-	private Spawner spawner;
 	
 	public Client client;
 	public Server server;
@@ -68,7 +67,6 @@ public class Game extends Canvas implements Runnable {
 		menu = new Menu(this, handler);
 		keyInput = new KeyInput(handler);
 		headsUpDisplay = new HeadsUpDisplay();
-		spawner = new Spawner(this, handler);
 		
 		client = new Client(this, handler, "localhost");
 
@@ -133,7 +131,7 @@ public class Game extends Canvas implements Runnable {
 			
 			if (System.currentTimeMillis() - timer > 1000) {
 				timer += 1000;
-				System.out.println("[Main INFO]: " + frames + " FPS");
+				System.out.println("[Main INFO]: FPS: " + frames);
 				frames = 0;
 			}
 		}
@@ -148,11 +146,11 @@ public class Game extends Canvas implements Runnable {
 		handler.tick();
 		menu.tick();
 		
+		if (!(server == null)) server.tick();
+		
 		if (gameState == State.GAME) {
 			headsUpDisplay.tick();
 		}
-		
-		if (!(server == null)) server.tick();
 	}
 	
 	/**
