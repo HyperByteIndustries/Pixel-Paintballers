@@ -27,6 +27,7 @@ Pixel Paintballers is currently able to run on devices with Java version 8, alth
 
 ### Releases
 Here are all the releases of Pixel Paintballers in order of their latest release date.
+- [v1.1-beta](https://github.com/HyperByteIndustries/Pixel-Paintballers/raw/Beta-releases/Pixel_Paintballers_v1.1-beta.zip)
 - [v1.0.1-beta](https://github.com/HyperByteIndustries/Pixel-Paintballers/raw/Beta-releases/Pixel_Paintballers_v1.0.1-beta.zip)
 - [v1.0-beta](https://github.com/HyperByteIndustries/Pixel-Paintballers/raw/Beta-releases/Pixel_Paintballers_v1.0-beta.zip)
 - [v1.3.3-alpha](https://github.com/HyperByteIndustries/Pixel-Paintballers/raw/Alpha-releases/Pixel_Paintballers_v1.3.3-alpha.zip)
