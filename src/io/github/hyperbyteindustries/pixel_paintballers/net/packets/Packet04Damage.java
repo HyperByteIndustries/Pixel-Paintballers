@@ -1,7 +1,7 @@
 package io.github.hyperbyteindustries.pixel_paintballers.net.packets;
 
 /**
- * Represents the damage packet of the multiplayer system.
+ * Represents the damage packet of the game's multiplayer system.
  * When constructed, this class is responsible for communicating data about a player who has taken
  * damage from a paintball.
  * @author Ramone Graham
@@ -14,7 +14,7 @@ public class Packet04Damage extends Packet {
 
 	/**
 	 * Creates a new packet to be sent between a client and a server.
-	 * @param username - The username of the player is taking damage.
+	 * @param username - The username of the player taking damage.
 	 * @param damageTaken - The amount of damage taken.
 	 */
 	public Packet04Damage(String username, int damageTaken) {
@@ -29,7 +29,7 @@ public class Packet04Damage extends Packet {
 	 * @param data - The packet data sent.
 	 */
 	public Packet04Damage(byte[] data) {
-		super ("04");
+		super("04");
 		
 		String[] dataArray = readData(data).split(",");
 		
@@ -43,7 +43,7 @@ public class Packet04Damage extends Packet {
 	}
 	
 	/**
-	 * Gets the username of the player is taking damage.
+	 * Gets the username of the player taking damage.
 	 * @return The username of the player.
 	 */
 	public String getUsername() {

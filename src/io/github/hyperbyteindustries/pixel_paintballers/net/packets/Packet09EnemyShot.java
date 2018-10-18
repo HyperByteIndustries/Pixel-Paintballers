@@ -3,13 +3,13 @@ package io.github.hyperbyteindustries.pixel_paintballers.net.packets;
 import io.github.hyperbyteindustries.pixel_paintballers.ID;
 
 /**
- * Represents the enemy shot packet of the multiplayer system.
+ * Represents the enemy shot packet of the game's multiplayer system.
  * When constructed, this class is responsible for communicating data about an enemy who has
  * shot a paintball.
  * @author Ramone Graham
  *
  */
-public class Packet08EnemyShot extends Packet {
+public class Packet09EnemyShot extends Packet {
 
 	private int enemyNumber;
 	private String target;
@@ -17,7 +17,7 @@ public class Packet08EnemyShot extends Packet {
 	private float x, y, velX, velY;
 	
 	/**
-	 * Creates a new packet to be sent between a client and a server.
+	 * Creates a new packet to be sent to clients.
 	 * @param enemyNumber - The enemy number of the enemy shooting.
 	 * @param target - The username of the targeted player.
 	 * @param id - The ID tag of the paintball.
@@ -26,9 +26,9 @@ public class Packet08EnemyShot extends Packet {
 	 * @param velX - The x-axis velocity of the paintball.
 	 * @param velY - The y-axis velocity of the paintball.
 	 */
-	public Packet08EnemyShot(int enemyNumber, String target, ID id, float x, float y,
+	public Packet09EnemyShot(int enemyNumber, String target, ID id, float x, float y,
 			float velX, float velY) {
-		super("08");
+		super("09");
 		
 		this.enemyNumber = enemyNumber;
 		this.target = target;
@@ -40,11 +40,11 @@ public class Packet08EnemyShot extends Packet {
 	}
 	
 	/**
-	 * Creates a new packet that has been sent between a client and a server.
+	 * Creates a new packet that has been sent to a client.
 	 * @param data - The packet data sent.
 	 */
-	public Packet08EnemyShot(byte[] data) {
-		super("08");
+	public Packet09EnemyShot(byte[] data) {
+		super("09");
 		
 		String[] dataArray = readData(data).split(",");
 		

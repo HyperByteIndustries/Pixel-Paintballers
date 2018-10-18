@@ -6,17 +6,16 @@ import java.awt.Graphics2D;
 import java.util.LinkedList;
 
 import io.github.hyperbyteindustries.pixel_paintballers.Enemy;
-import io.github.hyperbyteindustries.pixel_paintballers.Game;
 import io.github.hyperbyteindustries.pixel_paintballers.GameObject;
 import io.github.hyperbyteindustries.pixel_paintballers.Handler;
 import io.github.hyperbyteindustries.pixel_paintballers.ID;
 import io.github.hyperbyteindustries.pixel_paintballers.Player;
-import io.github.hyperbyteindustries.pixel_paintballers.net.packets.Packet08EnemyShot;
-import io.github.hyperbyteindustries.pixel_paintballers.net.packets.Packet09TargetChange;
-import io.github.hyperbyteindustries.pixel_paintballers.net.packets.Packet10EnemyMove;
+import io.github.hyperbyteindustries.pixel_paintballers.net.packets.Packet08EnemyMove;
+import io.github.hyperbyteindustries.pixel_paintballers.net.packets.Packet09EnemyShot;
+import io.github.hyperbyteindustries.pixel_paintballers.net.packets.Packet10TargetChange;
 
 /**
- * Represents an enemy in multiplayer system.
+ * Represents an enemy in the game's multiplayer system.
  * When constructed, this class is responsible for the online management of the enemy.
  * @author Ramone Graham
  *
@@ -27,17 +26,35 @@ public class IEnemy extends Enemy {
 	
 	private int enemyNumber;
 	
-	public IEnemy(float x, float y, ID id, Game game, Handler handler, Server server,
-			int enemyNumber) {
-		super(x, y, id, game, handler);
+	/**
+	 * Creates a new enemy
+	 * @param x - The x coordinate of the enemy.
+	 * @param y - The y coordinate of the enemy.
+	 * @param id - The ID tag of the enemy.
+	 * @param handler - An instance of the Handler class, used to create paintballs.
+	 * @param server - An instance of the Server class, used to write packets to clients
+	 * @param enemyNumber - The enemy's number, used to identify an enemy.
+	 */
+	public IEnemy(float x, float y, ID id, Handler handler, Server server, int enemyNumber) {
+		super(x, y, id, null, handler);
 		
 		this.server = server;
 		this.enemyNumber = enemyNumber;
 	}
 	
+	// See tick() in GameObject.
 	public void tick() {
+		float prevX = x, prevY = y;
+		
 		x += velX;
 		y += velY;
+		
+		if (!(server == null)) {
+			if (!(prevX == x) && !(prevY == y)) {
+				Packet08EnemyMove movePacket = new Packet08EnemyMove(enemyNumber, x, y);
+				movePacket.writeData(server);
+			}
+		}
 		
 		boolean targetConnected = false;
 		
@@ -55,7 +72,7 @@ public class IEnemy extends Enemy {
 			}
 		}
 		
-		if (!(targetConnected)) {
+		if (!(targetConnected) && !(server == null)) {
 			LinkedList<Player> targets = new LinkedList<Player>();
 			
 			for (int i = 0; i < handler.getObjects().size(); i++) {
@@ -68,14 +85,12 @@ public class IEnemy extends Enemy {
 			
 			target = targets.get(random.nextInt(targets.size()));
 			
-			if (!(server == null)) {
-				Packet09TargetChange packet = new Packet09TargetChange(enemyNumber,
-						target.getUsername());
-				packet.writeData(server);
-			}
+			Packet10TargetChange packet = new Packet10TargetChange(enemyNumber,
+					target.getUsername());
+			packet.writeData(server);
 		 }
 		
-		if (id == ID.MOVINGENEMY) {
+		if (id == ID.IMOVINGENEMY) {
 			if (!(server == null)) {
 				float diffX = x-(target.getX()+4), diffY = y-(target.getY()+4),
 						distance = (float) Math.sqrt((x-target.getX())*(x-target.getX())+
@@ -83,9 +98,6 @@ public class IEnemy extends Enemy {
 				
 				velX = (float) ((-1.0/distance)*diffX);
 				velY = (float) ((-1.0/distance)*diffY);
-				
-				Packet10EnemyMove packet = new Packet10EnemyMove(enemyNumber, velX, velY);
-				packet.writeData(server);
 			}
 			
 			if (getBounds().intersects(target.getBounds())) {
@@ -101,12 +113,12 @@ public class IEnemy extends Enemy {
 			if (!(server == null)) {
 				IPaintball paintball = null;
 				
-				if (id == ID.ENEMY || id == ID.MOVINGENEMY) paintball = new IPaintball(x+8, y+8,
-						ID.PAINTBALL, game, handler, this, target);
-				else if (id == ID.BOUNCYENEMY) paintball = new IPaintball(x+8, y+8,
-						ID.BOUNCYPAINTBALL, game, handler, this, target);
-				else if (id == ID.HOMINGENEMY) paintball = new IPaintball(x+8, y+8,
-						ID.HOMINGPAINTBALL, game, handler, this, target);
+				if (id == ID.IENEMY || id == ID.IMOVINGENEMY) paintball = new IPaintball(x+8,
+						y+8, ID.PAINTBALL, handler, this);
+				else if (id == ID.IBOUNCYENEMY) paintball = new IPaintball(x+8, y+8,
+						ID.BOUNCYPAINTBALL, handler, this);
+				else if (id == ID.IHOMINGENEMY) paintball = new IPaintball(x+8, y+8,
+						ID.HOMINGPAINTBALL, handler, this);
 				
 				handler.addObject(paintball);
 				
@@ -117,7 +129,7 @@ public class IEnemy extends Enemy {
 				paintball.setVelX((float) (((-1.0/distance)*diffX)*7));
 				paintball.setVelY((float) (((-1.0/distance)*diffY)*7));
 				
-				Packet08EnemyShot packet = new Packet08EnemyShot(enemyNumber,
+				Packet09EnemyShot packet = new Packet09EnemyShot(enemyNumber,
 						target.getUsername(), paintball.getID(), paintball.getX(),
 						paintball.getY(), paintball.getVelX(), paintball.getVelY());
 				packet.writeData(server);
@@ -127,21 +139,15 @@ public class IEnemy extends Enemy {
 		} else shootTime--;
 	}
 	
+	// See render(Graphics2D graphics2d) in GameObject.
 	public void render(Graphics2D graphics2d) {
 		super.render(graphics2d);
 		
 		String targetMessage = "Target: " + target.getUsername();
 		
 		graphics2d.setColor(WHITE);
-		graphics2d.drawString(targetMessage, x-((targetMessage.length()-1)/2*10), y-5);
-	}
-	
-	/**
-	 * Sets the target to the given player.
-	 * @param target - The target player to be set.
-	 */
-	public void setTarget(Player target) {
-		this.target = target;
+		graphics2d.drawString(targetMessage,
+				(float) (x-((targetMessage.length()-1)/2*7.5)), y-5);
 	}
 	
 	/**
@@ -150,14 +156,6 @@ public class IEnemy extends Enemy {
 	 */
 	public void setEnemyNumber(int enemyNumber) {
 		this.enemyNumber = enemyNumber;
-	}
-	
-	/**
-	 * Gets the player target of the enemy.
-	 * @return The player target.
-	 */
-	public Player getTarget() {
-		return target;
 	}
 	
 	/**

@@ -64,9 +64,11 @@ public class Player extends GameObject {
 		y = Game.clamp(y, 0, Game.YBOUND-33);
 		health = Game.clamp(health, 0, maxHealth);
 		
-		int healthpercentage = (int) (((double) health/(double) maxHealth)*100);
-		
-		healthColour = new Color(75, healthpercentage*2, 0);
+		if (id == ID.IPLAYER) {
+			int healthpercentage = (int) (((double) health/(double) maxHealth)*100);
+			
+			healthColour = new Color(75, healthpercentage*2, 0);
+		}
 		
 		if (!(game == null)) {
 			Packet02PlayerMove packet = null;
@@ -103,12 +105,21 @@ public class Player extends GameObject {
 			graphics2d.setColor(GRAY);
 			graphics2d.setFont(new Font("Pixel EX", Font.PLAIN, 14));
 			
-			graphics2d.drawString(username, x-((username.length()-1)/2*10), y-5);
+			graphics2d.drawString(username, (float) (x-((username.length()-1)/2*9.5)), y-5);
 			
 			if (id == ID.IPLAYER) {
 				graphics2d.setColor(healthColour);
-				graphics2d.drawString("Health: " + health,
-						x-((("Health: " + health).length()-1)/2*8), y-20);
+				
+				if (health == 100) {
+					graphics2d.drawString("Health: " + health,
+							(x-((("Health: " + health).length()-1)/2*8)), y-20);
+				} else if (health > 9) {
+					graphics2d.drawString("Health: " + health,
+							(float) (x-((("Health: " + health).length()-1)/2*9.5)), y-20);
+				} else {
+					graphics2d.drawString("Health: " + health,
+							(x-((("Health: " + health).length()-1)/2*9)), y-20);
+				}
 			}
 		}
 	}

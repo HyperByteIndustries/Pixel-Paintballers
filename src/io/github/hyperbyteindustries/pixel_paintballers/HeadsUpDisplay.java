@@ -3,6 +3,7 @@ package io.github.hyperbyteindustries.pixel_paintballers;
 import static java.awt.Color.GRAY;
 import static java.awt.Color.WHITE;
 
+import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics2D;
 
@@ -21,7 +22,10 @@ public class HeadsUpDisplay {
 	 * Updates the logic of the display.
 	 */
 	public void tick() {
+		int healthpercentage =
+				(int) (((double) Game.player.health/(double) Game.player.maxHealth)*100);
 		
+		Game.player.healthColour = new Color(75, healthpercentage*2, 0);
 	}
 	
 	/**

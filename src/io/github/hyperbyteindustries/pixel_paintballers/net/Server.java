@@ -20,13 +20,13 @@ import io.github.hyperbyteindustries.pixel_paintballers.net.packets.Packet01Disc
 import io.github.hyperbyteindustries.pixel_paintballers.net.packets.Packet02PlayerMove;
 import io.github.hyperbyteindustries.pixel_paintballers.net.packets.Packet03PlayerShot;
 import io.github.hyperbyteindustries.pixel_paintballers.net.packets.Packet04Damage;
-import io.github.hyperbyteindustries.pixel_paintballers.net.packets.Packet05Death;
+import io.github.hyperbyteindustries.pixel_paintballers.net.packets.Packet05PlayerDeath;
 import io.github.hyperbyteindustries.pixel_paintballers.net.packets.Packet07Spawn;
 import io.github.hyperbyteindustries.pixel_paintballers.net.packets.Packet06LevelUp;
-import io.github.hyperbyteindustries.pixel_paintballers.net.packets.Packet08EnemyShot;
+import io.github.hyperbyteindustries.pixel_paintballers.net.packets.Packet09EnemyShot;
 
 /**
- * Represents the game server of the multiplayer system.
+ * Represents the server of the game's multiplayer system.
  * When the server is initialised, this class is responsible for the management of all data sent
  * from connected clients, relaying the data back to all other clients.
  * @author Ramone Graham
@@ -34,6 +34,12 @@ import io.github.hyperbyteindustries.pixel_paintballers.net.packets.Packet08Enem
  */
 public class Server implements Runnable {
 
+	/**
+	 * Represents the game modes of the server.
+	 * When utilised, this enum is responsible for defining the server's current game mode.
+	 * @author Ramone Graham
+	 *
+	 */
 	public enum Mode {
 		PVP(), TEAMSURVIVAL();
 	}
@@ -43,7 +49,6 @@ public class Server implements Runnable {
 	private Thread thread;
 	private boolean running = false;
 	
-	private Game game;
 	private Handler handler;
 	private Spawner spawner;
 	
@@ -57,10 +62,9 @@ public class Server implements Runnable {
 	/**
 	 * Creates a new server.
 	 */
-	public Server(Game game) {
-		this.game = game;
+	public Server() {
 		handler = new Handler();
-		spawner = new Spawner(game, handler, this);
+		spawner = new Spawner(handler, this);
 		
 		try {
 			socket = new DatagramSocket(1331);
@@ -73,9 +77,13 @@ public class Server implements Runnable {
 	 * Starts execution of the server.
 	 */
 	public synchronized void start() {
+		System.out.println(infoPrefix + "Starting server...");
+		
 		thread = new Thread(this, Game.TITLE + " [SERVER]");
 		thread.start();
 		running = true;
+		
+		System.out.println(infoPrefix + "Server startup complete!");
 	}
 	
 	/**
@@ -89,8 +97,6 @@ public class Server implements Runnable {
 			
 			Packet01Disconnect packet = new Packet01Disconnect(player.getUsername());
 			packet.writeData(this);
-			
-			handler.removeObject(player);
 		}
 		
 		handler.getObjects().clear();
@@ -116,6 +122,8 @@ public class Server implements Runnable {
 		try {
 			socket.close();
 			
+			System.out.println(infoPrefix + "Server shutdown complete!");
+			
 			thread.join();
 		} catch (InterruptedException e) {
 			e.printStackTrace();
@@ -131,29 +139,34 @@ public class Server implements Runnable {
 	private void parsePacket(byte[] data, InetAddress address, int port) {
 		String message = new String(data).trim();
 		
-		if (message.length() >= 4 && message.substring(0, 4).equalsIgnoreCase("Ping")) {
+		if (message.length() > 4 && message.substring(0, 4).equalsIgnoreCase("Ping")) {
 			System.out.println(infoPrefix + "Ping recieved from CLIENT [" +
 					address.getHostAddress() + ":" + port + "].");
 			
-			for (int i = 0, players = 0; i < getConnectedPlayers().size(); i++) {
-				IPlayer player = getConnectedPlayers().get(i);
-				
-				players++;
-				
-				if (player.equals(getConnectedPlayers().getLast())) {
-					if (!(players < 4)) {
-						sendData(("Pong" + 0 + ",4 players reached").getBytes(), address, port);
-						return;
-					}
-				}
-			}
+			String[] dataArray = message.substring(4).split(",");
 			
 			for (int i = 0; i < getConnectedPlayers().size(); i++) {
 				IPlayer player = getConnectedPlayers().get(i);
 				
-				if (player.getUsername().equalsIgnoreCase(message.substring(4))) {
+				if (player.getUsername().equalsIgnoreCase(dataArray[0])) {
 					sendData(("Pong" + 0 + ",Username already taken").getBytes(), address, port);
 					return;
+				}
+			}
+			
+			if (Game.Mode.valueOf(dataArray[1]) == Game.Mode.PLAYER) {
+				for (int i = 0, players = 0; i < handler.getObjects().size(); i++) {
+					GameObject tempObject = handler.getObjects().get(i);
+					
+					if (tempObject.getID() == ID.IPLAYER) players++;
+					
+					if (tempObject.equals(handler.getObjects().getLast())) {
+						if (!(players < 4)) {
+							sendData(("Pong" + 0 + ",4 players reached").getBytes(), address,
+									port);
+							return;
+						}
+					}
 				}
 			}
 			
@@ -166,7 +179,9 @@ public class Server implements Runnable {
 			default:
 				break;
 			case INVALID:
-				System.err.println(errorPrefix + "Invalid packet recieved: " + message);
+				System.err.println(errorPrefix + "Invalid packet received from [" +
+						address.getHostAddress() + ":" + port + "]: " + message);
+				
 				break;
 			case CONNECT:
 				packet = new Packet00Connect(data);
@@ -180,7 +195,10 @@ public class Server implements Runnable {
 				
 				player.health = ((Packet00Connect) packet).getHealth();
 				
+				player.gameMode = ((Packet00Connect) packet).getGameMode();
+				
 				addConnection(player, (Packet00Connect) packet);
+				
 				break;
 			case DISCONNECT:
 				packet = new Packet01Disconnect(data);
@@ -189,33 +207,69 @@ public class Server implements Runnable {
 						" [" + address.getHostAddress() + ":" + port + "] is disconnecting...");
 				
 				removeConnection((Packet01Disconnect) packet);
+				
 				break;
 			case PLAYERMOVE:
 				packet = new Packet02PlayerMove(data);
 				
 				movePlayer((Packet02PlayerMove) packet);
+				
 				break;
 			case PLAYERSHOT:
 				packet = new Packet03PlayerShot(data);
 				
 				shootPaintball((Packet03PlayerShot) packet);
+				
 				break;
 			case DAMAGE:
 				packet = new Packet04Damage(data);
 				
 				hurtPlayer((Packet04Damage) packet);
-				break;
-			case DEATH:
-				packet = new Packet05Death(data);
 				
-				killPlayer((Packet05Death) packet);
+				break;
+			case PLAYERDEATH:
+				packet = new Packet05PlayerDeath(data);
+				
+				killPlayer((Packet05PlayerDeath) packet);
+				
+				break;
+			case LEVELUP:
+				System.err.println(errorPrefix + "A " + type.name() +
+						" packet has been received from [" + address.getHostAddress() + ":" +
+						port + "]: " + message);
+				
+				break;
+			case SPAWN:
+				System.err.println(errorPrefix + "A " + type.name() +
+						" packet has been received from [" + address.getHostAddress() + ":" +
+						port + "]: " + message);
+				
+				break;
+			case ENEMYMOVE:
+				System.err.println(errorPrefix + "A " + type.name() +
+						" packet has been received from [" + address.getHostAddress() + ":" +
+						port + "]: " + message);
+				
+				break;
+			case ENEMYSHOT:
+				System.err.println(errorPrefix + "A " + type.name() +
+						" packet has been received from [" + address.getHostAddress() + ":" +
+						port + "]: " + message);
+				
+				break;
+			case TARGETCHANGE:
+				System.err.println(errorPrefix + "A " + type.name() +
+						" packet has been received from [" + address.getHostAddress() + ":" +
+						port + "]: " + message);
+				
 				break;
 			}
 		}
 	}
 
 	/**
-	 * Adds a newly connected player, or rejects them if they have a duplicate username.
+	 * Adds a newly connected player, or respawns a player who is already connected, assuming
+	 * they are respawning after dying.
 	 * @param player - The new player connection to add.
 	 * @param packet - The connect packet associated with the connecting player.
 	 */
@@ -228,13 +282,12 @@ public class Server implements Runnable {
 			if (connectedPlayer.getUsername().equalsIgnoreCase(player.getUsername())) {
 				connectedPlayer.health = player.health;
 				alreadyConnected = true;
-			}
-			else {
+			} else {
 				sendData(packet.getData(), connectedPlayer.getIPAddress(),
 						connectedPlayer.getPort());
 				Packet00Connect packet2 = new Packet00Connect(connectedPlayer.getUsername(),
 						connectedPlayer.getX(), connectedPlayer.getY(), connectedPlayer.health,
-						true);
+						true, connectedPlayer.gameMode);
 				sendData(packet2.getData(), player.getIPAddress(), player.getPort());
 			}
 		}
@@ -242,7 +295,8 @@ public class Server implements Runnable {
 		if (alreadyConnected) {
 			System.out.println(warnPrefix + player.getUsername() + " [" +
 					player.getIPAddress().getHostAddress() + ":" + player.getPort() +
-					"] is already connected; assuming that a dead player has rejoined...");
+					"] is already connected; assuming that a previously dead player has "
+					+ "respawned...");
 		} else {
 			getConnectedPlayers().add(player);
 			
@@ -251,16 +305,19 @@ public class Server implements Runnable {
 					"] has connected.");
 		}
 		
-		handler.addObject(player);
+		if (player.gameMode == Game.Mode.PLAYER) handler.addObject(player);
+		
+		Packet06LevelUp levelUpPacket = new Packet06LevelUp(spawner.level);
+		sendData(levelUpPacket.getData(), player.getIPAddress(), player.getPort());
 		
 		LinkedList<IEnemy> enemyList = new LinkedList<IEnemy>();
 		
 		for (int i = 0; i < handler.getObjects().size(); i++) {
 			GameObject tempObject = handler.getObjects().get(i);
 			
-			if (tempObject.getID() == ID.ENEMY || tempObject.getID() == ID.MOVINGENEMY ||
-					tempObject.getID() == ID.BOUNCYENEMY || tempObject.getID() ==
-					ID.HOMINGENEMY) {
+			if (tempObject.getID() == ID.IENEMY || tempObject.getID() == ID.IMOVINGENEMY ||
+					tempObject.getID() == ID.IBOUNCYENEMY || tempObject.getID() ==
+					ID.IHOMINGENEMY) {
 				enemyList.add((IEnemy) tempObject);
 			}
 		}
@@ -303,14 +360,14 @@ public class Server implements Runnable {
 									paintball.getY(), paintball.getVelX(), paintball.getVelY());
 					sendData(playerShotPacket.getData(), player.getIPAddress(),
 							player.getPort());
-				} else if (paintball.getShooter().getID() == ID.ENEMY ||
-						paintball.getShooter().getID() == ID.MOVINGENEMY ||
-						paintball.getShooter().getID() == ID.BOUNCYENEMY ||
-						paintball.getShooter().getID() == ID.HOMINGENEMY) {
+				} else if (paintball.getShooter().getID() == ID.IENEMY ||
+						paintball.getShooter().getID() == ID.IMOVINGENEMY ||
+						paintball.getShooter().getID() == ID.IBOUNCYENEMY ||
+						paintball.getShooter().getID() == ID.IHOMINGENEMY) {
 					IEnemy enemy = (IEnemy) paintball.getShooter();
 					
-					Packet08EnemyShot enemyShotPacket =
-							new Packet08EnemyShot(enemy.getEnemyNumber(),
+					Packet09EnemyShot enemyShotPacket =
+							new Packet09EnemyShot(enemy.getEnemyNumber(),
 									enemy.getTarget().getUsername(), paintball.getID(),
 									paintball.getX(), paintball.getY(), paintball.getVelX(),
 									paintball.getVelY());
@@ -320,9 +377,6 @@ public class Server implements Runnable {
 				}
 			}
 		}
-		
-		Packet06LevelUp levelUpPacket = new Packet06LevelUp(spawner.level);
-		sendData(levelUpPacket.getData(), player.getIPAddress(), player.getPort());
 	}
 
 	/**
@@ -334,8 +388,11 @@ public class Server implements Runnable {
 			IPlayer player = getConnectedPlayers().get(i);
 			
 			if (player.getUsername().equalsIgnoreCase(packet.getUsername())) {
+				packet.writeData(this);
+				
 				getConnectedPlayers().remove(player);
-				handler.removeObject(player);
+				
+				if (player.gameMode == Game.Mode.PLAYER) handler.removeObject(player);
 				
 				System.out.println(infoPrefix + player.getUsername() + " [" +
 						player.getIPAddress().getHostAddress() + ":" + player.getPort() +
@@ -344,13 +401,11 @@ public class Server implements Runnable {
 				break;
 			}
 		}
-		
-		packet.writeData(this);
 	}
 
 	/**
-	 * Sets a moving player's new velocity.
-	 * @param packet - The move packet associated with the moving player.
+	 * Either sets a moving player's velocity, or sets a player's stationary coordinates.
+	 * @param packet - The move packet associated with the moving / stationary player.
 	 */
 	private void movePlayer(Packet02PlayerMove packet) {
 		for (int i = 0; i < getConnectedPlayers().size(); i++) {
@@ -385,16 +440,16 @@ public class Server implements Runnable {
 	}
 
 	/**
-	 * Creates a new paintball that has been shot by a player.
-	 * @param packet - The shot packet associated with the shooting player.
+	 * Creates a paintball shot by a player.
+	 * @param packet - The shot packet associated with the player shooting.
 	 */
 	private void shootPaintball(Packet03PlayerShot packet) {
 		for (int i = 0; i < getConnectedPlayers().size(); i++) {
 			IPlayer player = getConnectedPlayers().get(i);
 			
 			if (player.getUsername().equalsIgnoreCase(packet.getUsername())) {
-				Paintball paintball = new Paintball(player.getX()+12, player.getY()+12,
-						ID.PAINTBALL, game, handler, player);
+				IPaintball paintball = new IPaintball(packet.getX(), packet.getY(), ID.PAINTBALL,
+						handler, player);
 				
 				handler.addObject(paintball);
 				
@@ -437,7 +492,7 @@ public class Server implements Runnable {
 	 * Removes a dead player from the object emulation.
 	 * @param packet - The death packet associated with the dead player.
 	 */
-	private void killPlayer(Packet05Death packet) {
+	private void killPlayer(Packet05PlayerDeath packet) {
 		for (int i = 0; i < getConnectedPlayers().size(); i++) {
 			IPlayer player = getConnectedPlayers().get(i);
 			
@@ -470,6 +525,10 @@ public class Server implements Runnable {
 	 * @param port - The target port of the client.
 	 */
 	public void sendData(byte[] data, InetAddress ipAddress, int port) {
+		if (data.length > 2048)
+			System.err.println(errorPrefix + "Data length (" + data.length +
+					") exceeds limit! Level: " + spawner.level);
+		
 		DatagramPacket packet = new DatagramPacket(data, data.length, ipAddress, port);
 		
 		try {

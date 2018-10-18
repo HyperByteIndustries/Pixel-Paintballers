@@ -1,9 +1,9 @@
 package io.github.hyperbyteindustries.pixel_paintballers.net.packets;
 
 /**
- * Represents the player movement packet of the multiplayer system.
- * When constructed, this class is responsible for communicating data about a player who has
- * moved.
+ * Represents the player movement packet of the game's multiplayer system.
+ * When constructed, this class is responsible for communicating data about a player who is moving
+ * or stationary.
  * @author Ramone Graham
  *
  */

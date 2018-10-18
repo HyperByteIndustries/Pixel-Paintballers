@@ -3,9 +3,9 @@ package io.github.hyperbyteindustries.pixel_paintballers.net.packets;
 import io.github.hyperbyteindustries.pixel_paintballers.ID;
 
 /**
- * Represents the enemy spawn packet of the multiplayer system.
- * When constructed, this class is responsible for communicating data about a new enemy that has
- * spawned.
+ * Represents the enemy spawn packet of the game's multiplayer system.
+ * When constructed, this class is responsible for communicating data about a new wave of enemies
+ * that have spawned.
  * @author Ramone Graham
  *
  */
@@ -13,37 +13,37 @@ public class Packet07Spawn extends Packet {
 
 	private int enemyCount;
 	
-	private float[] x, y;
-	private ID[] id;
-	private int[] enemyNumber, attackTime, shootTime;
-	private String[] target;
+	private float[] xcoords, ycoords;
+	private ID[] ids;
+	private int[] enemyNumbers, attackTimes, shootTimes;
+	private String[] targets;
 	
 	/**
 	 * Creates a new packet to be sent to the clients.
-	 * @param x - The x coordinate of the enemy.
-	 * @param y - The y coordinate of the enemy.
-	 * @param id - The ID tag of the enemy.
-	 * @param enemyNumber - The enemy number of the enemy.
-	 * @param attackTime - The attack timer for the moving enemy.
-	 * @param shootTime - The shoot timer for the enemy.
-	 * @param target - The username of the enemy's target.
+	 * @param x - The x coordinates of the enemies.
+	 * @param y - The y coordinates of the enemies.
+	 * @param id - The ID tags of the enemies.
+	 * @param enemyNumber - The enemy numbers of the enemies.
+	 * @param attackTime - The attack timers for the moving enemies.
+	 * @param shootTime - The shoot timers for the enemies.
+	 * @param target - The usernames of the enemies' targets.
 	 */
-	public Packet07Spawn(int enemyCount, float[] x, float[] y, ID[] id, int[] enemyNumber,
-			int[] attackTime, int[] shootTime, String[] target) {
+	public Packet07Spawn(int enemyCount, float[] xcoords, float[] ycoords, ID[] ids,
+			int[] enemyNumbers, int[] attackTimes, int[] shootTimes, String[] targets) {
 		super("07");
 		
 		this.enemyCount = enemyCount;
-		this.x = x;
-		this.y = y;
-		this.id = id;
-		this.enemyNumber = enemyNumber;
-		this.attackTime = attackTime;
-		this.shootTime = shootTime;
-		this.target = target;
+		this.xcoords = xcoords;
+		this.ycoords = ycoords;
+		this.ids = ids;
+		this.enemyNumbers = enemyNumbers;
+		this.attackTimes = attackTimes;
+		this.shootTimes = shootTimes;
+		this.targets = targets;
 	}
 	
 	/**
-	 * Creates a new packet that has been sent between a client and a server.
+	 * Creates a new packet that has been sent to a client.
 	 * @param data - The packet data sent.
 	 */
 	public Packet07Spawn(byte[] data) {
@@ -52,49 +52,48 @@ public class Packet07Spawn extends Packet {
 		String[] dataArray = readData(data).split(",");
 		
 		enemyCount = Integer.parseInt(dataArray[0]);
-
-		x = new float[enemyCount];
-		y = new float[enemyCount];
-		id = new ID[enemyCount];
-		enemyNumber = new int[enemyCount];
-		attackTime = new int[enemyCount];
-		shootTime = new int[enemyCount];
-		target = new String[enemyCount];
+		xcoords = new float[enemyCount];
+		ycoords = new float[enemyCount];
+		ids = new ID[enemyCount];
+		enemyNumbers = new int[enemyCount];
+		attackTimes = new int[enemyCount];
+		shootTimes = new int[enemyCount];
+		targets = new String[enemyCount];
 		
 		if (enemyCount == 1) {
-			x[0] = Float.parseFloat(dataArray[1]);
-			y[0] = Float.parseFloat(dataArray[2]);
-			id[0] = ID.valueOf(dataArray[3]);
-			enemyNumber[0] = Integer.parseInt(dataArray[4]);
-			attackTime[0] = Integer.parseInt(dataArray[5]);
-			shootTime[0] = Integer.parseInt(dataArray[6]);
-			target[0] = dataArray[7];
+			xcoords[0] = Float.parseFloat(dataArray[1]);
+			ycoords[0] = Float.parseFloat(dataArray[2]);
+			ids[0] = ID.valueOf(dataArray[3]);
+			enemyNumbers[0] = Integer.parseInt(dataArray[4]);
+			attackTimes[0] = Integer.parseInt(dataArray[5]);
+			shootTimes[0] = Integer.parseInt(dataArray[6]);
+			targets[0] = dataArray[7];
 		} else {
 			for (int i = 0; i < dataArray[1].split(";").length; i++) {
-				x[i] = Float.parseFloat(dataArray[1].split(";")[i]);
+				xcoords[i] = Float.parseFloat(dataArray[1].split(";")[i]);
 			}
 			
 			for (int i = 0; i < dataArray[2].split(";").length; i++) {
-				y[i] = Float.parseFloat(dataArray[2].split(";")[i]);
+				ycoords[i] = Float.parseFloat(dataArray[2].split(";")[i]);
 			}
 			
 			for (int i = 0; i < dataArray[3].split(";").length; i++) {
-				id[i] = ID.valueOf(dataArray[3].split(";")[i]);
+				ids[i] = ID.valueOf(dataArray[3].split(";")[i]);
 			}
 			
 			for (int i = 0; i < dataArray[4].split(";").length; i++) {
-				enemyNumber[i] = Integer.parseInt(dataArray[4].split(";")[i]);
+				enemyNumbers[i] = Integer.parseInt(dataArray[4].split(";")[i]);
 			}
 			
 			for (int i = 0; i < dataArray[5].split(";").length; i++) {
-				attackTime[i] = Integer.parseInt(dataArray[5].split(";")[i]);
+				attackTimes[i] = Integer.parseInt(dataArray[5].split(";")[i]);
 			}
 			
 			for (int i = 0; i < dataArray[6].split(";").length; i++) {
-				shootTime[i] = Integer.parseInt(dataArray[6].split(";")[i]);
+				shootTimes[i] = Integer.parseInt(dataArray[6].split(";")[i]);
 			}
 			
-			target = dataArray[7].split(";");
+			targets = dataArray[7].split(";");
 		}
 	}
 
@@ -102,94 +101,98 @@ public class Packet07Spawn extends Packet {
 	public byte[] getData() {
 		String packetData = packetID + enemyCount + ",";
 		
-		for (int i = 0; i < x.length; i++) {
-			if (i < x.length-1) packetData = packetData.concat(x[i] + ";");
-			else packetData = packetData.concat(x[i] + ",");
+		for (int i = 0; i < xcoords.length; i++) {
+			if (i < xcoords.length-1) packetData = packetData.concat(xcoords[i] + ";");
+			else packetData = packetData.concat(xcoords[i] + ",");
 		}
 		
-		for (int i = 0; i < y.length; i++) {
-			if (i < y.length-1) packetData = packetData.concat(y[i] + ";");
-			else packetData = packetData.concat(y[i] + ",");
+		for (int i = 0; i < ycoords.length; i++) {
+			if (i < ycoords.length-1) packetData = packetData.concat(ycoords[i] + ";");
+			else packetData = packetData.concat(ycoords[i] + ",");
 		}
 		
-		for (int i = 0; i < id.length; i++) {
-			if (i < id.length-1) packetData = packetData.concat(id[i] + ";");
-			else packetData = packetData.concat(id[i] + ",");
+		for (int i = 0; i < ids.length; i++) {
+			if (i < ids.length-1) packetData = packetData.concat(ids[i] + ";");
+			else packetData = packetData.concat(ids[i] + ",");
 		}
 		
-		for (int i = 0; i < enemyNumber.length; i++) {
-			if (i < x.length-1) packetData = packetData.concat(enemyNumber[i] + ";");
-			else packetData = packetData.concat(enemyNumber[i] + ",");
+		for (int i = 0; i < enemyNumbers.length; i++) {
+			if (i < xcoords.length-1) packetData = packetData.concat(enemyNumbers[i] + ";");
+			else packetData = packetData.concat(enemyNumbers[i] + ",");
 		}
 		
-		for (int i = 0; i < attackTime.length; i++) {
-			if (i < attackTime.length-1) packetData = packetData.concat(attackTime[i] + ";");
-			else packetData = packetData.concat(attackTime[i] + ",");
+		for (int i = 0; i < attackTimes.length; i++) {
+			if (i < attackTimes.length-1) packetData = packetData.concat(attackTimes[i] + ";");
+			else packetData = packetData.concat(attackTimes[i] + ",");
 		}
 		
-		for (int i = 0; i < shootTime.length; i++) {
-			if (i < shootTime.length-1) packetData = packetData.concat(shootTime[i] + ";");
-			else packetData = packetData.concat(shootTime[i] + ",");
+		for (int i = 0; i < shootTimes.length; i++) {
+			if (i < shootTimes.length-1) packetData = packetData.concat(shootTimes[i] + ";");
+			else packetData = packetData.concat(shootTimes[i] + ",");
 		}
 		
-		for (int i = 0; i < target.length; i++) {
-			if (i < target.length-1) packetData = packetData.concat(target[i] + ";");
-			else packetData = packetData.concat(target[i]);
+		for (int i = 0; i < targets.length; i++) {
+			if (i < targets.length-1) packetData = packetData.concat(targets[i] + ";");
+			else packetData = packetData.concat(targets[i]);
 		}
 		
 		return packetData.getBytes();
 	}
 	
+	/**
+	 * Gets the amount of enemies that have spawned.
+	 * @return The amount of enemies that have spawned.
+	 */
 	public int getEnemyCount() {
 		return enemyCount;
 	}
 	
 	/**
-	 * Gets the x coordinate of the enemy.
-	 * @return The current x coordinate.
+	 * Gets the x coordinate of an enemy.
+	 * @return The enemy's current x coordinate.
 	 */
 	public float getX(int index) {
-		return x[index];
+		return xcoords[index];
 	}
 	
 	/**
-	 * Gets the y coordinate of the enemy.
-	 * @return The current y coordinate.
+	 * Gets the y coordinate of an enemy.
+	 * @return The enemy's current y coordinate.
 	 */
 	public float getY(int index) {
-		return y[index];
+		return ycoords[index];
 	}
 	
 	/**
-	 * Gets the ID tag of the enemy.
-	 * @return The current ID tag.
+	 * Gets the ID tag of an enemy.
+	 * @return The enemy's current ID tag.
 	 */
 	public ID getID(int index) {
-		return id[index];
+		return ids[index];
 	}
 	
 	/**
-	 * Gets the enemy number of the enemy.
-	 * @return The current enemy number.
+	 * Gets the enemy number of an enemy.
+	 * @return The enemy's current enemy number.
 	 */
 	public int getEnemyNumber(int index) {
-		return enemyNumber[index];
+		return enemyNumbers[index];
 	}
 	
 	/**
-	 * Gets the attack timer for the moving enemy.
-	 * @return The current attack timer.
+	 * Gets the attack timer for a moving enemy.
+	 * @return The enemy's current attack timer.
 	 */
 	public int getAttackTime(int index) {
-		return attackTime[index];
+		return attackTimes[index];
 	}
 	
 	/**
-	 * Gets the shoot timer for the enemy.
-	 * @return The current shoot timer.
+	 * Gets the shoot timer for an enemy.
+	 * @return The enemy's current shoot timer.
 	 */
 	public int getShootTime(int index) {
-		return shootTime[index];
+		return shootTimes[index];
 	}
 	
 	/**
@@ -197,6 +200,6 @@ public class Packet07Spawn extends Packet {
 	 * @return The current username of the enemy's target.
 	 */
 	public String getTarget(int index) {
-		return target[index];
+		return targets[index];
 	}
 }

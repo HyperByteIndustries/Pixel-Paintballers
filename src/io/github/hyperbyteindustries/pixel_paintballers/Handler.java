@@ -3,6 +3,8 @@ package io.github.hyperbyteindustries.pixel_paintballers;
 import java.awt.Graphics2D;
 import java.util.LinkedList;
 
+import io.github.hyperbyteindustries.pixel_paintballers.Game.Mode;
+
 /**
  * Represents the game object handler of the game.
  * When constructed, this class is responsible for the management of the tick and
@@ -60,7 +62,7 @@ public class Handler {
 		Game.player.setX((Game.XBOUND/2)-16);
 		Game.player.setY((Game.YBOUND/2)-16);
 		
-		addObject(Game.player);
+		if (Game.gameMode == Mode.PLAYER) addObject(Game.player);
 		
 		Game.player.maxHealth = 100;
 		Game.player.health = 100;

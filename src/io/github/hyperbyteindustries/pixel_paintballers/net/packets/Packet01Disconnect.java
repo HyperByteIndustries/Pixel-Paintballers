@@ -1,7 +1,7 @@
 package io.github.hyperbyteindustries.pixel_paintballers.net.packets;
 
 /**
- * Represents the disconnection packet of the multiplayer system.
+ * Represents the disconnection packet of the game's multiplayer system.
  * When constructed, this class is responsible for communicating data about a player who has left
  * the server.
  * @author Ramone Graham

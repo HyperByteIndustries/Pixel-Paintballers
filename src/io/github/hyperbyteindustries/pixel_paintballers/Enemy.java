@@ -53,8 +53,10 @@ public class Enemy extends GameObject {
 			
 			if (tempObject.getID() == ID.ENEMY || tempObject.getID() == ID.MOVINGENEMY ||
 					tempObject.getID() == ID.BOUNCYENEMY || tempObject.getID() ==
-					ID.HOMINGENEMY || tempObject.getID() == ID.PLAYER || tempObject.getID() ==
-					ID.IPLAYER) {
+					ID.HOMINGENEMY || tempObject.getID() == ID.IENEMY || tempObject.getID() ==
+					ID.IMOVINGENEMY || tempObject.getID() == ID.IBOUNCYENEMY ||
+					tempObject.getID() == ID.IHOMINGENEMY || tempObject.getID() == ID.PLAYER ||
+					tempObject.getID() == ID.IPLAYER) {
 				if (getBounds().intersects(tempObject.getBounds())) respawn();
 				
 				if (tempObject.getID() == ID.PLAYER || tempObject.getID() == ID.IPLAYER) {
@@ -94,23 +96,25 @@ public class Enemy extends GameObject {
 		}
 		
 		if (shootTime == 0) {
-			Paintball paintball = null;
-			
-			if (id == ID.ENEMY || id == ID.MOVINGENEMY) paintball = new Paintball(x+8, y+8,
-					ID.PAINTBALL, game, handler, this);
-			else if (id == ID.BOUNCYENEMY) paintball = new Paintball(x+8, y+8,
-					ID.BOUNCYPAINTBALL, game, handler, this);
-			else if (id == ID.HOMINGENEMY) paintball = new Paintball(x+8, y+8,
-					ID.HOMINGPAINTBALL, game, handler, this);
-			
-			handler.addObject(paintball);
-			
-			float diffX = x-target.getX(), diffY = y-target.getY(),
-					distance = (float) Math.sqrt((x-target.getX())*(x-target.getX())+
-							(y-target.getY())*(y-target.getY()));
-			
-			paintball.setVelX((float) (((-1.0/distance)*diffX)*7));
-			paintball.setVelY((float) (((-1.0/distance)*diffY)*7));
+			if (!(game == null)) {
+				Paintball paintball = null;
+				
+				if (id == ID.ENEMY || id == ID.MOVINGENEMY) paintball = new Paintball(x+8, y+8,
+						ID.PAINTBALL, game, handler, this);
+				else if (id == ID.BOUNCYENEMY) paintball = new Paintball(x+8, y+8,
+						ID.BOUNCYPAINTBALL, game, handler, this);
+				else if (id == ID.HOMINGENEMY) paintball = new Paintball(x+8, y+8,
+						ID.HOMINGPAINTBALL, game, handler, this);
+				
+				handler.addObject(paintball);
+				
+				float diffX = x-target.getX(), diffY = y-target.getY(),
+						distance = (float) Math.sqrt((x-target.getX())*(x-target.getX())+
+								(y-target.getY())*(y-target.getY()));
+				
+				paintball.setVelX((float) (((-1.0/distance)*diffX)*7));
+				paintball.setVelY((float) (((-1.0/distance)*diffY)*7));
+			}
 			
 			shootTime = 420;
 		} else shootTime--;
@@ -120,13 +124,13 @@ public class Enemy extends GameObject {
 	public void render(Graphics2D graphics2d) {
 		int shootTime = (int) (((double) ((double) this.shootTime/(double) 600)*10)+1);
 		
-		if (id == ID.ENEMY) {
+		if (id == ID.ENEMY || id == ID.IENEMY) {
 			graphics2d.setColor(GREEN);
-		} else if (id == ID.MOVINGENEMY) {
+		} else if (id == ID.MOVINGENEMY || id == ID.IMOVINGENEMY) {
 			graphics2d.setColor(CYAN);
-		} else if (id == ID.BOUNCYENEMY) {
+		} else if (id == ID.BOUNCYENEMY || id == ID.IBOUNCYENEMY) {
 			graphics2d.setColor(YELLOW);
-		} else if (id == ID.HOMINGENEMY) {
+		} else if (id == ID.HOMINGENEMY || id == ID.IHOMINGENEMY) {
 			graphics2d.setColor(RED);
 		}
 		
@@ -138,6 +142,10 @@ public class Enemy extends GameObject {
 		graphics2d.drawString(String.valueOf(shootTime), x+8, y+15);
 	}
 
+	/**
+	 * Respawns the enemy in a different location if it's current location intersects with a
+	 * player or another enemy.
+	 */
 	private void respawn() {
 		x = random.nextInt(Game.XBOUND-25);
 		y = random.nextInt(Game.YBOUND-25);
@@ -147,11 +155,29 @@ public class Enemy extends GameObject {
 			
 			if (tempObject.getID() == ID.ENEMY || tempObject.getID() == ID.MOVINGENEMY ||
 					tempObject.getID() == ID.BOUNCYENEMY || tempObject.getID() ==
-					ID.HOMINGENEMY || tempObject.getID() == ID.PLAYER || tempObject.getID() ==
-					ID.IPLAYER) {
+					ID.HOMINGENEMY || tempObject.getID() == ID.IENEMY || tempObject.getID() ==
+					ID.IMOVINGENEMY || tempObject.getID() == ID.IBOUNCYENEMY ||
+					tempObject.getID() == ID.IHOMINGENEMY || tempObject.getID() == ID.PLAYER ||
+					tempObject.getID() == ID.IPLAYER) {
 				if (getBounds().intersects(tempObject.getBounds())) respawn();
 				else return;
 			}
 		}
+	}
+	
+	/**
+	 * Sets the target to the given player.
+	 * @param target - The target player to be set.
+	 */
+	public void setTarget(Player target) {
+		this.target = target;
+	}
+	
+	/**
+	 * Gets the player target of the enemy.
+	 * @return The player target.
+	 */
+	public Player getTarget() {
+		return target;
 	}
 }

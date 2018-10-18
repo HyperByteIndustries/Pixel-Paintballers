@@ -8,7 +8,6 @@ import java.awt.Graphics2D;
 import java.awt.GraphicsEnvironment;
 import java.awt.image.BufferStrategy;
 import java.io.File;
-
 import javax.swing.JOptionPane;
 
 import io.github.hyperbyteindustries.pixel_paintballers.net.Client;
@@ -40,7 +39,18 @@ public class Game extends Canvas implements Runnable {
 		LOGO(), TITLESCREEN(), MAINMENU(), GAME(), GAMEOVER();
 	}
 	
+	/**
+	 * Represents the game modes of the game.
+	 * When utilised, this enum is responsible for defining the games's current game mode.
+	 * @author Ramone Graham
+	 *
+	 */
+	public enum Mode {
+		PLAYER(), SPECTATOR();
+	}
+	
 	public static State gameState = State.LOGO;
+	public static Mode gameMode = null;
 
 	public static boolean paused = false;
 	
@@ -75,10 +85,27 @@ public class Game extends Canvas implements Runnable {
 		
 		new Window(TITLE, WIDTH, HEIGHT, this);
 		
+		setUsername();
+	}
+	
+	/**
+	 * Creates a player username that is no longer than 17 characters.
+	 */
+	public void setUsername() {
 		String username = JOptionPane.showInputDialog(this, "Please enter a username.", TITLE,
 				JOptionPane.PLAIN_MESSAGE);
 		
-		if (!(username == null)) Game.player.setUsername(username);
+		if (!(username == null)) {
+			if (username.length() > 17) {
+				JOptionPane.showMessageDialog(this,
+						"Please enter a username no longer than 17 characters.", Game.TITLE,
+						JOptionPane.ERROR_MESSAGE);
+				
+				setUsername();
+			} else {
+				Game.player.setUsername(username);
+			}
+		}
 	}
 	
 	/**
@@ -96,6 +123,8 @@ public class Game extends Canvas implements Runnable {
 	 * Stops execution of the game.
 	 */
 	public synchronized void stop() {
+		client.stop();
+		
 		try {
 			thread.join();
 			running = false;
@@ -129,8 +158,8 @@ public class Game extends Canvas implements Runnable {
 			
 			frames++;
 			
-			if (System.currentTimeMillis() - timer > 1000) {
-				timer += 1000;
+			if (System.currentTimeMillis() - timer >= 1000) {
+				timer += (System.currentTimeMillis() - timer);
 				System.out.println("[Main INFO]: FPS: " + frames);
 				frames = 0;
 			}
@@ -143,10 +172,10 @@ public class Game extends Canvas implements Runnable {
 	 * Updates the logic of the game.
 	 */
 	private void tick() {
+		if (!(server == null)) server.tick();
+		
 		handler.tick();
 		menu.tick();
-		
-		if (!(server == null)) server.tick();
 		
 		if (gameState == State.GAME) {
 			headsUpDisplay.tick();
@@ -179,8 +208,8 @@ public class Game extends Canvas implements Runnable {
 	}
 	
 	/**
-	 * Mostly used with the float data-type coordinate system, this method clamps a
-	 * variable to a given maximum and minimum.
+	 * Mostly used with the float coordinate system, this method clamps a variable to a given
+	 * maximum and minimum.
 	 * @param variable - The variable to clamp.
 	 * @param minimum - The minimum value.
 	 * @param maximum - The maximum value.
@@ -193,8 +222,7 @@ public class Game extends Canvas implements Runnable {
 	}
 	
 	/**
-	 * Mostly used with integers, this method clamps a variable to a given maximum
-	 * and minimum.
+	 * Mostly used with integers, this method clamps a variable to a given maximum and minimum.
 	 * @param variable - The variable to clamp.
 	 * @param minimum - The minimum value.
 	 * @param maximum - The maximum value.
@@ -211,10 +239,9 @@ public class Game extends Canvas implements Runnable {
 		new Game();
 		
 		try {
-			GraphicsEnvironment environment = 
-					GraphicsEnvironment.getLocalGraphicsEnvironment();
+			GraphicsEnvironment environment = GraphicsEnvironment.getLocalGraphicsEnvironment();
 		
-			environment.registerFont(Font.createFont(Font.TRUETYPE_FONT, 
+			environment.registerFont(Font.createFont(Font.TRUETYPE_FONT,
 					new File("res/pixelex.ttf")));
 			Thread.sleep(1000);
 			

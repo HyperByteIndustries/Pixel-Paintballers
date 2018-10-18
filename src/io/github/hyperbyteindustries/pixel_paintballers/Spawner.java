@@ -16,21 +16,21 @@ import io.github.hyperbyteindustries.pixel_paintballers.net.packets.Packet06Leve
  */
 public class Spawner {
 
-	private Game game;
 	private Handler handler;
 	private Server server;
 	
 	private Random random;
 	
+	private boolean gameStarted = false;
+	
 	public int level = 0;
 	
 	/**
 	 * Creates a new instance of the spawner.
-	 * @param game - An instance of the Game class, used to spawn enemies.
 	 * @param handler - An instance of the Handler class, used to spawn enemies.
+	 * @param server - An instance of the Server class, used to send packets.
 	 */
-	public Spawner(Game game, Handler handler, Server server) {
-		this.game = game;
+	public Spawner(Handler handler, Server server) {
 		this.handler = handler;
 		this.server = server;
 		random = new Random();
@@ -46,98 +46,110 @@ public class Spawner {
 			GameObject tempObject = handler.getObjects().get(i);
 			
 			if (tempObject.getID() == ID.IPLAYER) players++;
-			else if (tempObject.getID() == ID.ENEMY || tempObject.getID() == ID.MOVINGENEMY ||
-					tempObject.getID() == ID.BOUNCYENEMY || tempObject.getID() ==
-					ID.HOMINGENEMY) enemies++;
+			else if (tempObject.getID() == ID.IENEMY || tempObject.getID() == ID.IMOVINGENEMY ||
+					tempObject.getID() == ID.IBOUNCYENEMY || tempObject.getID() ==
+					ID.IHOMINGENEMY) enemies++;
 		}
 		
-		if (players >= 2 && enemies == 0) {
-			if (level == 0)  spawnEnemy();
-			else if (level == 1) for (int i = 0; i < 2; i++) spawnEnemy();
-			else if (level == 2) for (int i = 0; i < 3; i++) spawnEnemy();
-			else if (level == 3) for (int i = 0; i < 4; i++) spawnEnemy();
-			else if (level == 4) for (int i = 0; i < 5; i++) spawnEnemy();
-			else if (level == 5) {
+		if (players > 0 && enemies == 0) {
+			if (level == 0 || gameStarted) {
+				level++;
+				
+				Packet06LevelUp levelUpPacket = new Packet06LevelUp(level);
+				levelUpPacket.writeData(server);
+			}
+			
+			if (level == 1) {
+				if (players >= 2) {
+					spawnEnemy();
+					
+					gameStarted = true;
+				}
+			} else if (level == 2) for (int i = 0; i < 2; i++) spawnEnemy();
+			else if (level == 3) for (int i = 0; i < 3; i++) spawnEnemy();
+			else if (level == 4) for (int i = 0; i < 4; i++) spawnEnemy();
+			else if (level == 5) for (int i = 0; i < 5; i++) spawnEnemy();
+			else if (level == 6) {
 				for (int i = 0; i < 2; i++) spawnEnemy();
 				spawnMovingEnemy();
-			} else if (level == 6) {
+			} else if (level == 7) {
 				for (int i = 0; i < 2; i++) spawnEnemy();
 				for (int i = 0; i < 2; i++) spawnMovingEnemy();
-			} else if (level == 7) {
-				for (int i = 0; i < 3; i++) spawnEnemy();
-				for (int i = 0; i < 3; i++) spawnMovingEnemy();
 			} else if (level == 8) {
 				for (int i = 0; i < 3; i++) spawnEnemy();
-				for (int i = 0; i < 4; i++) spawnMovingEnemy();
+				for (int i = 0; i < 3; i++) spawnMovingEnemy();
 			} else if (level == 9) {
 				for (int i = 0; i < 3; i++) spawnEnemy();
+				for (int i = 0; i < 4; i++) spawnMovingEnemy();
+			} else if (level == 10) {
+				for (int i = 0; i < 3; i++) spawnEnemy();
 				for (int i = 0; i < 5; i++) spawnMovingEnemy();
-			}  else if (level == 10) {
+			}  else if (level == 11) {
 				for (int i = 0; i < 2; i++) spawnEnemy();
 				for (int i = 0; i < 2; i++) spawnMovingEnemy();
 				spawnBouncyEnemy();
-			} else if (level == 11) {
+			} else if (level == 12) {
 				for (int i = 0; i < 2; i++) spawnEnemy();
 				for (int i = 0; i < 2; i++) spawnMovingEnemy();
 				for (int i = 0; i < 2; i++) spawnBouncyEnemy();
-			} else if (level == 12) {
-				for (int i = 0; i < 2; i++) spawnEnemy();
-				for (int i = 0; i < 3; i++) spawnMovingEnemy();
-				for (int i = 0; i < 3; i++) spawnBouncyEnemy();
 			} else if (level == 13) {
 				for (int i = 0; i < 2; i++) spawnEnemy();
 				for (int i = 0; i < 3; i++) spawnMovingEnemy();
-				for (int i = 0; i < 4; i++) spawnBouncyEnemy();
+				for (int i = 0; i < 3; i++) spawnBouncyEnemy();
 			} else if (level == 14) {
+				for (int i = 0; i < 2; i++) spawnEnemy();
+				for (int i = 0; i < 3; i++) spawnMovingEnemy();
+				for (int i = 0; i < 4; i++) spawnBouncyEnemy();
+			} else if (level == 15) {
 				for (int i = 0; i < 3; i++) spawnEnemy();
 				for (int i = 0; i < 4; i++) spawnMovingEnemy();
 				for (int i = 0; i < 5; i++) spawnBouncyEnemy();
-			} else if (level == 15) {
-				for (int i = 0; i < 2; i++) spawnEnemy();
-				for (int i = 0; i < 2; i++) spawnMovingEnemy();
-				for (int i = 0; i < 2; i++) spawnBouncyEnemy();
-				spawnHomingEnemy();
 			} else if (level == 16) {
 				for (int i = 0; i < 2; i++) spawnEnemy();
 				for (int i = 0; i < 2; i++) spawnMovingEnemy();
 				for (int i = 0; i < 2; i++) spawnBouncyEnemy();
-				for (int i = 0; i < 2; i++) spawnHomingEnemy();
+				spawnHomingEnemy();
 			} else if (level == 17) {
 				for (int i = 0; i < 2; i++) spawnEnemy();
 				for (int i = 0; i < 2; i++) spawnMovingEnemy();
-				for (int i = 0; i < 3; i++) spawnBouncyEnemy();
-				for (int i = 0; i < 3; i++) spawnHomingEnemy();
+				for (int i = 0; i < 2; i++) spawnBouncyEnemy();
+				for (int i = 0; i < 2; i++) spawnHomingEnemy();
 			} else if (level == 18) {
 				for (int i = 0; i < 2; i++) spawnEnemy();
 				for (int i = 0; i < 2; i++) spawnMovingEnemy();
 				for (int i = 0; i < 3; i++) spawnBouncyEnemy();
-				for (int i = 0; i < 4; i++) spawnHomingEnemy();
+				for (int i = 0; i < 3; i++) spawnHomingEnemy();
 			} else if (level == 19) {
+				for (int i = 0; i < 2; i++) spawnEnemy();
+				for (int i = 0; i < 2; i++) spawnMovingEnemy();
+				for (int i = 0; i < 3; i++) spawnBouncyEnemy();
+				for (int i = 0; i < 4; i++) spawnHomingEnemy();
+			} else if (level == 20) {
 				for (int i = 0; i < 2; i++) spawnEnemy();
 				for (int i = 0; i < 3; i++) spawnMovingEnemy();
 				for (int i = 0; i < 4; i++) spawnBouncyEnemy();
 				for (int i = 0; i < 5; i++) spawnHomingEnemy();
-			} else if (level == 20) {
+			} else if (level == 21) {
 				for (int i = 0; i < 5; i++) spawnEnemy();
 				for (int i = 0; i < 5; i++) spawnMovingEnemy();
 				for (int i = 0; i < 5; i++) spawnBouncyEnemy();
 				for (int i = 0; i < 5; i++) spawnHomingEnemy();
-			} else if (level == 21) {
+			} else if (level == 22) {
 				for (int i = 0; i < 6; i++) spawnEnemy();
 				for (int i = 0; i < 5; i++) spawnMovingEnemy();
 				for (int i = 0; i < 5; i++) spawnBouncyEnemy();
 				for (int i = 0; i < 5; i++) spawnHomingEnemy();
-			} else if (level == 22) {
+			} else if (level == 23) {
 				for (int i = 0; i < 7; i++) spawnEnemy();
 				for (int i = 0; i < 6; i++) spawnMovingEnemy();
 				for (int i = 0; i < 5; i++) spawnBouncyEnemy();
 				for (int i = 0; i < 5; i++) spawnHomingEnemy();
-			} else if (level == 23) {
+			} else if (level == 24) {
 				for (int i = 0; i < 8; i++) spawnEnemy();
 				for (int i = 0; i < 7; i++) spawnMovingEnemy();
 				for (int i = 0; i < 6; i++) spawnBouncyEnemy();
 				for (int i = 0; i < 5; i++) spawnHomingEnemy();
-			} else if (level == 24) {
+			} else if (level == 25) {
 				for (int i = 0; i < 9; i++) spawnEnemy();
 				for (int i = 0; i < 8; i++) spawnMovingEnemy();
 				for (int i = 0; i < 7; i++) spawnBouncyEnemy();
@@ -154,39 +166,38 @@ public class Spawner {
 			for (int i = 0; i < handler.getObjects().size(); i++) {
 				GameObject tempObject = handler.getObjects().get(i);
 				
-				if (tempObject.getID() == ID.ENEMY || tempObject.getID() == ID.MOVINGENEMY ||
-						tempObject.getID() == ID.BOUNCYENEMY || tempObject.getID() ==
-						ID.HOMINGENEMY) {
+				if (tempObject.getID() == ID.IENEMY || tempObject.getID() == ID.IMOVINGENEMY ||
+						tempObject.getID() == ID.IBOUNCYENEMY || tempObject.getID() ==
+						ID.IHOMINGENEMY) {
 					enemyList.add((IEnemy) tempObject);
 				}
 			}
 			
-			float[] x = new float[enemyList.size()], y = new float[enemyList.size()];
-			ID[] id = new ID[enemyList.size()];
-			int[] enemyNumber = new int[enemyList.size()], attackTime =
-					new int[enemyList.size()], shootTime = new int[enemyList.size()];
-			String[] target = new String[enemyList.size()];
-			
-			for (int i = 0; i < enemyList.size(); i++) {
-				IEnemy enemy = enemyList.get(i);
+			if (enemyList.size() >= 1) {
+				float[] xcoords = new float[enemyList.size()],
+						ycoords = new float[enemyList.size()];
+				ID[] ids = new ID[enemyList.size()];
+				int[] enemyNumbers = new int[enemyList.size()],
+						attackTimes = new int[enemyList.size()],
+						shootTimes = new int[enemyList.size()];
+				String[] targets = new String[enemyList.size()];
 				
-				x[i] = enemy.getX();
-				y[i] = enemy.getY();
-				id[i] = enemy.getID();
-				enemyNumber[i] = enemy.getEnemyNumber();
-				attackTime[i] = enemy.attackTime;
-				shootTime[i] = enemy.shootTime;
-				target[i] = enemy.getTarget().getUsername();
+				for (int i = 0; i < enemyList.size(); i++) {
+					IEnemy enemy = enemyList.get(i);
+					
+					xcoords[i] = enemy.getX();
+					ycoords[i] = enemy.getY();
+					ids[i] = enemy.getID();
+					enemyNumbers[i] = enemy.getEnemyNumber();
+					attackTimes[i] = enemy.attackTime;
+					shootTimes[i] = enemy.shootTime;
+					targets[i] = enemy.getTarget().getUsername();
+				}
+				
+				Packet07Spawn spawnPacket = new Packet07Spawn(enemyList.size(), xcoords, ycoords,
+						ids, enemyNumbers, attackTimes, shootTimes, targets);
+				spawnPacket.writeData(server);
 			}
-			
-			level++;
-			
-			Packet06LevelUp levelUpPacket = new Packet06LevelUp(level);
-			levelUpPacket.writeData(server);
-			
-			Packet07Spawn spawnPacket = new Packet07Spawn(enemyList.size(), x, y, id,
-					enemyNumber, attackTime, shootTime, target);
-			spawnPacket.writeData(server);
 		}
 	}
 	
@@ -195,7 +206,7 @@ public class Spawner {
 	 */
 	private void spawnEnemy() {
 		IEnemy enemy = new IEnemy(random.nextInt(Game.XBOUND-25), random.nextInt(Game.YBOUND-25),
-				ID.ENEMY, game, handler, server, generateEnemyID());
+				ID.IENEMY, handler, server, generateEnemyNumber());
 		
 		handler.addObject(enemy);
 	}
@@ -205,7 +216,7 @@ public class Spawner {
 	 */
 	private void spawnMovingEnemy() {
 		IEnemy enemy = new IEnemy(random.nextInt(Game.XBOUND-25), random.nextInt(Game.YBOUND-25),
-				ID.MOVINGENEMY, game, handler, server, generateEnemyID());
+				ID.IMOVINGENEMY, handler, server, generateEnemyNumber());
 		
 		handler.addObject(enemy);
 	}
@@ -215,7 +226,7 @@ public class Spawner {
 	 */
 	private void spawnBouncyEnemy() {
 		IEnemy enemy = new IEnemy(random.nextInt(Game.XBOUND-25), random.nextInt(Game.YBOUND-25),
-				ID.BOUNCYENEMY, game, handler, server, generateEnemyID());
+				ID.IBOUNCYENEMY, handler, server, generateEnemyNumber());
 		
 		handler.addObject(enemy);
 	}
@@ -225,23 +236,27 @@ public class Spawner {
 	 */
 	private void spawnHomingEnemy() {
 		IEnemy enemy = new IEnemy(random.nextInt(Game.XBOUND-25), random.nextInt(Game.YBOUND-25),
-				ID.HOMINGENEMY, game, handler, server, generateEnemyID());
+				ID.IHOMINGENEMY, handler, server, generateEnemyNumber());
 		
 		handler.addObject(enemy);
 	}
 	
-	private int generateEnemyID() {
+	/**
+	 * Gives online enemies a wave-unique number that corresponds to them.
+	 * @return A randomly generated enemy number.
+	 */
+	private int generateEnemyNumber() {
 		int enemyID = random.nextInt();
 		
 		for (int i = 0; i < handler.getObjects().size(); i++) {
 			GameObject tempObject = handler.getObjects().get(i);
 			
-			if (tempObject.getID() == ID.ENEMY || tempObject.getID() == ID.MOVINGENEMY ||
-					tempObject.getID() == ID.BOUNCYENEMY || tempObject.getID() ==
-					ID.HOMINGENEMY) {
+			if (tempObject.getID() == ID.IENEMY || tempObject.getID() == ID.IMOVINGENEMY ||
+					tempObject.getID() == ID.IBOUNCYENEMY || tempObject.getID() ==
+					ID.IHOMINGENEMY) {
 				IEnemy enemy = (IEnemy) tempObject;
 				
-				if (enemy.getEnemyNumber() == enemyID) enemyID = generateEnemyID();
+				if (enemy.getEnemyNumber() == enemyID) enemyID = generateEnemyNumber();
 			}
 		}
 		

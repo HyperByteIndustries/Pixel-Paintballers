@@ -1,9 +1,11 @@
 package io.github.hyperbyteindustries.pixel_paintballers.net.packets;
 
+import io.github.hyperbyteindustries.pixel_paintballers.Game;
+
 /**
- * Represents the connection packet of the multiplayer system.
+ * Represents the connection packet of the game's multiplayer system.
  * When constructed, this class is responsible for communicating data about a new player who has
- * joined the server.
+ * joined the server, or a player who is repsawning after a death.
  * @author Ramone Graham
  *
  */
@@ -13,6 +15,7 @@ public class Packet00Connect extends Packet {
 	private float x, y;
 	private int health;
 	private boolean alreadyConnected;
+	private Game.Mode gameMode;
 
 	/**
 	 * Creates a new packet to be sent between a client and a server.
@@ -21,9 +24,10 @@ public class Packet00Connect extends Packet {
 	 * @param y - The y coordinate of the player.
 	 * @param health - The health of the player.
 	 * @param alreadyConnected - The status of a player in relation to the server.
+	 * @param gameMode - The game mode of the player connecting.
 	 */
 	public Packet00Connect(String username, float x, float y, int health,
-			boolean alreadyConnected) {
+			boolean alreadyConnected, Game.Mode gameMode) {
 		super("00");
 		
 		this.username = username;
@@ -31,6 +35,7 @@ public class Packet00Connect extends Packet {
 		this.y = y;
 		this.health = health;
 		this.alreadyConnected = alreadyConnected;
+		this.gameMode = gameMode;
 	}
 
 	/**
@@ -47,12 +52,13 @@ public class Packet00Connect extends Packet {
 		y = Float.parseFloat(dataArray[2]);
 		health = Integer.parseInt(dataArray[3]);
 		alreadyConnected = Integer.parseInt(dataArray[4]) == 1;
+		gameMode = Game.Mode.valueOf(dataArray[5]);
 	}
 
 	// See getData() in Packet.
 	public byte[] getData() {
 		return (packetID + username + "," + x + "," + y + "," + health + "," +
-				(alreadyConnected?1:0)).getBytes();
+				(alreadyConnected?1:0) + "," + gameMode.name()).getBytes();
 	}
 	
 	/**
@@ -89,9 +95,17 @@ public class Packet00Connect extends Packet {
 
 	/**
 	 * Checks to see if a player has connected to the server.
-	 * @return - True if a player has connected, otherwise false.
+	 * @return - <code>true</code> if a player has connected, otherwise <code>false</code>.
 	 */
 	public boolean isAlreadyConnected() {
 		return alreadyConnected;
+	}
+	
+	/**
+	 * Gets the game mode of the connecting player.
+	 * @return The player's game mode.
+	 */
+	public Game.Mode getGameMode() {
+		return gameMode;
 	}
 }

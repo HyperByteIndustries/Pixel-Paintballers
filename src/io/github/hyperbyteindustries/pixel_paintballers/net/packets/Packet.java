@@ -21,8 +21,8 @@ public abstract class Packet {
 	 */
 	public enum PacketType {
 		INVALID("-1"), CONNECT("00"), DISCONNECT("01"), PLAYERMOVE("02"), PLAYERSHOT("03"),
-		DAMAGE("04"), DEATH("05"), LEVELUP("06"), SPAWN("07"), ENEMYSHOT("08"),
-		TARGETCHANGE("09"), ENEMYMOVE("10");
+		DAMAGE("04"), PLAYERDEATH("05"), LEVELUP("06"), SPAWN("07"), ENEMYMOVE("08"),
+		ENEMYSHOT("09"), TARGETCHANGE("10");
 		
 		private String packetID;
 		
@@ -82,7 +82,7 @@ public abstract class Packet {
 	 */
 	public static PacketType lookupPacket(String packetID) {
 		for (PacketType type : PacketType.values()) {
-			if (type.getPacketID().equalsIgnoreCase(packetID)) return type;
+			if (type.getPacketID().equals(packetID)) return type;
 		}
 		
 		return PacketType.INVALID;

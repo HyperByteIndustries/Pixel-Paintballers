@@ -2,13 +2,13 @@ package io.github.hyperbyteindustries.pixel_paintballers.net;
 
 import java.net.InetAddress;
 
+import io.github.hyperbyteindustries.pixel_paintballers.Game;
 import io.github.hyperbyteindustries.pixel_paintballers.ID;
 import io.github.hyperbyteindustries.pixel_paintballers.Player;
 
 /**
- * Represents a player who has connected to a multiplayer server.
- * When constructed, this class is responsible for the management of the player in a multiplayer
- * system.
+ * Represents an online player in the game's multiplayer system.
+ * When constructed, this class is responsible for the online management of the player.
  * @author Ramone Graham
  *
  */
@@ -17,8 +17,10 @@ public class IPlayer extends Player {
 	private InetAddress ipAddress;
 	private int port;
 	
+	public Game.Mode gameMode;
+	
 	/**
-	 *Creates a new player.
+	 * Creates a new player.
 	 * @param x - The x coordinate of the player.
 	 * @param y - The y coordinate of the player.
 	 * @param id - The ID tag of the player.

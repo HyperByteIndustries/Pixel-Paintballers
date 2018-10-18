@@ -70,6 +70,6 @@ public class Trail extends GameObject {
 	 */
 	private AlphaComposite makeTransparent(float alpha) {
 		int rule = AlphaComposite.SRC_OVER;
-		return(AlphaComposite.getInstance(rule, alpha));
+		return AlphaComposite.getInstance(rule, alpha);
 	}
 }
