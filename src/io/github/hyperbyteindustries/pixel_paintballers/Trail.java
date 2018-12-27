@@ -19,13 +19,13 @@ public class Trail extends GameObject {
 	private Color colour;
 
 	private int width, height;
-	private float alpha = 1, life;
+	private float life, alpha = 1;
 	
 	/**
 	 * Creates a new trail frame.
-	 * @param x - The x coordinate of the frame.
-	 * @param y - The y coordinate of the frame.
-	 * @param id - The ID tag of the frame.
+	 * @param @param x - The X coordinate of the frame.
+	 * @param y - The Y coordinate of the frame.
+	 * @param id - The identification tag of the frame.
 	 * @param handler - An instance of the Handler class, used to remove the frame.
 	 * @param colour - The colour of the frame.
 	 * @param width - The width of the frame.
@@ -50,17 +50,16 @@ public class Trail extends GameObject {
 
 	// See tick() in GameObject.
 	public void tick() {
-		if (alpha > life) {
-			alpha -= (life - 0.0001f);
-		} else handler.removeObject(this);
+		if (alpha > life) alpha -= (life - 0.0001f);
+		else handler.removeObject(this);
 	}
 
 	// See render(Graphics2D graphics2d) in GameObject
-	public void render(Graphics2D graphics2d) {
-		graphics2d.setComposite(makeTransparent(alpha));
-		graphics2d.setColor(colour);
-		graphics2d.draw(getBounds());
-		graphics2d.setComposite(makeTransparent(1));
+	public void render(Graphics2D graphics2D) {
+		graphics2D.setComposite(makeTransparent(alpha));
+		graphics2D.setColor(colour);
+		graphics2D.draw(getBounds());
+		graphics2D.setComposite(makeTransparent(1));
 	}
 	
 	/**
@@ -70,6 +69,6 @@ public class Trail extends GameObject {
 	 */
 	private AlphaComposite makeTransparent(float alpha) {
 		int rule = AlphaComposite.SRC_OVER;
-		return(AlphaComposite.getInstance(rule, alpha));
+		return AlphaComposite.getInstance(rule, alpha);
 	}
 }

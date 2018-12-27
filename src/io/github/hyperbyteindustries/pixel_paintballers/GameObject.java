@@ -17,8 +17,8 @@ public abstract class GameObject {
 	
 	/**
 	 * Creates a new game object.
-	 * @param x - The x coordinate of the object.
-	 * @param y - The y coordinate of the object.
+	 * @param x - The X coordinate of the object.
+	 * @param y - The Y coordinate of the object.
 	 * @param id - The identification tag of the object.
 	 */
 	public GameObject(float x, float y, ID id) {
@@ -40,37 +40,37 @@ public abstract class GameObject {
 	
 	/**
 	 * Updates the visuals of the game object.
-	 * @param graphics2d - The graphics used to update the visuals.
+	 * @param graphics2d - The graphics used to update the visuals of the object.
 	 */
-	public abstract void render(Graphics2D graphics2d);
+	public abstract void render(Graphics2D graphics2D);
 	
 	/**
-	 * Sets the x coordinate to the given value.
-	 * @param x - The value to be set.
+	 * Sets the X coordinate to the given value.
+	 * @param x - The X coordinate of the new location.
 	 */
 	public void setX(float x) {
 		this.x = x;
 	}
 	
 	/**
-	 * Sets the y coordinate to the given value.
-	 * @param y - The value to be set.
+	 * Sets the Y coordinate to the given value.
+	 * @param y - The Y coordinate of the new location.
 	 */
 	public void setY(float y) {
 		this.y = y;
 	}
 	
 	/**
-	 * Sets the velocity across the x axis to the given value.
-	 * @param velX - The value the velocity is to be set to.
+	 * Sets the X axis velocity to the given value.
+	 * @param velX - The new velocity across the X axis.
 	 */
 	public void setVelX(float velX) {
 		this.velX = velX;
 	}
 	
 	/**
-	 * Sets the velocity across the y axis to the given value.
-	 * @param velY - The value the velocity is to be set to.
+	 * Sets the Y axis velocity to the given value.
+	 * @param velY - The new velocity across the Y axis.
 	 */
 	public void setVelY(float velY) {
 		this.velY = velY;
@@ -78,47 +78,47 @@ public abstract class GameObject {
 	
 	/**
 	 * Sets the ID tag to the given value.
-	 * @param id - The ID to be set.
+	 * @param id - The new ID tag.
 	 */
 	public void setID(ID id) {
 		this.id = id;
 	}
 	
 	/**
-	 * Gets the current x coordinate of the game object.
-	 * @return The current x coordinate of the object.
+	 * Returns the X coordinate of the game object.
+	 * @return The X coordinate of the object.
 	 */
 	public float getX() {
 		return x;
 	}
 	
 	/**
-	 * Gets the current y coordinate of the game object.
-	 * @return The current y coordinate of the object.
+	 * Returns the Y coordinate of the game object.
+	 * @return The Y coordinate of the object.
 	 */
 	public float getY() {
 		return y;
 	}
 	
 	/**
-	 * Gets the current velocity across the x axis.
-	 * @return The current velocity.
+	 * Returns the X axis velocity of the game object.
+	 * @return The velocity of across the X axis.
 	 */
 	public float getVelX() {
 		return velX;
 	}
 	
 	/**
-	 * Gets the current velocity across the y axis.
-	 * @return The current velocity.
+	 * Returns the Y axis velocity of the game object.
+	 * @return The velocity of across the Y axis.
 	 */
 	public float getVelY() {
 		return velY;
 	}
 	
 	/**
-	 * Gets the ID tag of the game object.
-	 * @return The ID of the object.
+	 * Returns the ID tag of the game object.
+	 * @return The ID tag of the object.
 	 */
 	public ID getID() {
 		return id;

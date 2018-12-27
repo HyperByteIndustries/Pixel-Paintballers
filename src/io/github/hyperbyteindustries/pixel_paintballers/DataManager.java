@@ -17,8 +17,8 @@ import java.util.HashMap;
  */
 public class DataManager {
 
-	public static File dataFile;
-	public static HashMap<String, Long> savedStatistics = new HashMap<String, Long>();
+	private static File dataFile;
+	private static HashMap<String, Long> savedStatistics = new HashMap<String, Long>();
 	
 	public static int[] timePlayed = new int[3];
 	
@@ -26,17 +26,21 @@ public class DataManager {
 	 * Finds the external data file and creates it if not present.
 	 */
 	public static void init() {
+		System.out.println(Game.MAINPREFIX + "Initialising Data Manager...");
+		
 		dataFile = new File("res/Data.txt");
 		
 		if (!(dataFile.exists())) {
-			System.out.println(dataFile.getName() + " doesn't exist. Creating a new file...");
+			System.out.println(Game.WARNPREFIX + dataFile.getName() +
+					" doesn't exist. Creating a new file...");
 			
 			try {
 				dataFile.createNewFile();
 				
-				System.out.println(dataFile.getName() + " created.");
+				System.out.println(Game.MAINPREFIX + dataFile.getName() + " created.");
 			} catch (IOException e) {
-				System.out.println("Failed to create " + dataFile.getName() + ":");
+				System.err.println(Game.ERRORPREFIX + "Failed to create " + dataFile.getName() +
+						":");
 				
 				e.printStackTrace();
 			}
@@ -45,8 +49,13 @@ public class DataManager {
 		readData();
 		
 		if (savedStatistics.size() == 0) {
+			System.out.println(Game.WARNPREFIX +
+					"Statistics not found. Creating new statistics...");
+			
 			createStatistics();
 		}
+		
+		System.out.println(Game.MAINPREFIX + "Data Manager Initialised.");
 	}
 
 	/**
@@ -61,26 +70,28 @@ public class DataManager {
 		setStatistic("Games played", 0);
 		setStatistic("Shots fired", 0);
 		setStatistic("Total kills", 0);
+		
+		System.out.println(Game.MAINPREFIX + "Statistics successfully created.");
 	}
 	
 	/**
 	 * Saves the game data to an external file.
 	 */
 	public static void saveData() {
-		System.out.println("Saving data...");
+		System.out.println(Game.MAINPREFIX + "Saving data...");
 		
 		try {
 			FileWriter fileWriter = new FileWriter(dataFile);
 			PrintWriter printWriter = new PrintWriter(fileWriter);
 			
-			System.out.println("Saving player data...");
+			System.out.println(Game.MAINPREFIX + "Saving player data...");
 			
 			printWriter.println("Username: " + Game.player.getUsername());
 			printWriter.println("Fill colour: " + Game.player.getFillColour().getRGB());
 			printWriter.println("Outline colour: " + Game.player.getOutlineColour().getRGB());
 			printWriter.println("Username colour: " + Game.player.getUsernameColour().getRGB());
 			
-			System.out.println("Saving statistic data...");
+			System.out.println(Game.MAINPREFIX + "Saving statistic data...");
 			
 			for (String stat : savedStatistics.keySet()) {
 				if (stat.equalsIgnoreCase("Time played")) {
@@ -98,9 +109,9 @@ public class DataManager {
 			
 			printWriter.close();
 			
-			System.out.println("Data successfully saved.");
+			System.out.println(Game.MAINPREFIX + "Data successfully saved.");
 		} catch (IOException e) {
-			System.out.println("Failed to save data.");
+			System.err.println(Game.ERRORPREFIX + "Failed to save data:");
 			
 			e.printStackTrace();
 		}
@@ -111,7 +122,7 @@ public class DataManager {
 	 * statistic database.
 	 */
 	public static void readData() {
-		System.out.println("Reading data...");
+		System.out.println(Game.MAINPREFIX + "Reading data...");
 		
 		try {
 			FileReader fileReader = new FileReader(dataFile);
@@ -120,17 +131,17 @@ public class DataManager {
 			String data;
 			
 			while (!((data = bufferedReader.readLine()) == null)) {
-				if (data.startsWith("Username:")) {
+				if (data.startsWith("Username:"))
 					Game.player.setUsername(data.substring(10));
-				} else if (data.startsWith("Fill colour:")) {
+				else if (data.startsWith("Fill colour:"))
 					Game.player.setFillColour(new Color(Integer.parseInt(data.substring(13))));
-				} else if (data.startsWith("Outline colour:")) {
-					Game.player.setOutlineColour(new Color(Integer.parseInt(data
-							.substring(16))));
-				} else if (data.startsWith("Username colour:")) {
-					Game.player.setUsernameColour(new Color(Integer.parseInt(data
-							.substring(17))));
-				} else {
+				else if (data.startsWith("Outline colour:"))
+					Game.player.setOutlineColour(new Color(Integer.parseInt(
+							data.substring(16))));
+				else if (data.startsWith("Username colour:"))
+					Game.player.setUsernameColour(new Color(Integer.parseInt(
+							data.substring(17))));
+				else {
 					String key = data.split(": ")[0];
 					long stat = Long.parseLong(data.split(": ")[1]);
 					
@@ -142,9 +153,9 @@ public class DataManager {
 			
 			bufferedReader.close();
 			
-			System.out.println("Data successfully read.");
+			System.out.println(Game.MAINPREFIX + "Data successfully read.");
 		} catch (IOException e) {
-			System.out.println("Failed to read data.");
+			System.err.println(Game.ERRORPREFIX + "Failed to read data:");
 			
 			e.printStackTrace();
 		}
@@ -180,7 +191,7 @@ public class DataManager {
 	}
 	
 	/**
-	 * Gets a statistic from the database. 
+	 * Returns a statistic from the database. 
 	 * @param stat - The statistic to retrieve.
 	 * @return The requested statistic.
 	 */

@@ -22,6 +22,8 @@ public class AudioManager {
 	 * Stores the game's music in audio maps.
 	 */
 	public static void init() {
+		System.out.println(Game.MAINPREFIX + "Initialising Audio Manager...");
+		
 		try {
 			musicMap.put("Title", new Music("res/Title screen.ogg"));
 			musicMap.put("Menu 1", new Music("res/Main menu 1.ogg"));
@@ -36,23 +38,25 @@ public class AudioManager {
 		} catch (SlickException e) {
 			e.printStackTrace();
 		}
+		
+		System.out.println(Game.MAINPREFIX + "Audio Manager Initialised.");
 	}
 	
 	/**
-	 * Gets a piece of music to play.
-	 * @param key - The name tag assigned to the music.
+	 * Returns a piece of music to play.
+	 * @param music - The name tag assigned to the music.
 	 * @return The music to play.
 	 */
-	public static Music getMusic(String key) {
-		return musicMap.get(key);
+	public static Music getMusic(String music) {
+		return musicMap.get(music);
 	}
 	
 	/**
-	 * Gets a piece of sound to play.
-	 * @param key - The name tag assigned to the sound.
+	 * Returns a sound to play.
+	 * @param sound - The name tag assigned to the sound.
 	 * @return The sound to play.
 	 */
-	public static Sound getSound(String key) {
-		return soundMap.get(key);
+	public static Sound getSound(String sound) {
+		return soundMap.get(sound);
 	}
 }

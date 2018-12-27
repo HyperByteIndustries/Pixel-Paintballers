@@ -9,8 +9,8 @@ import io.github.hyperbyteindustries.pixel_paintballers.Game.State;
 
 /**
  * Represents the key input handler of the game.
- * When constructed, this class is responsible for the management of certain key events
- * triggered by the user.
+ * When constructed, this class is responsible for the management of certain key events triggered
+ * by the user.
  * @author Ramone Graham
  *
  */
@@ -34,15 +34,15 @@ public class KeyInput extends KeyAdapter {
 	}
 	
 	// Invoked when a key is pressed.
-	public void keyPressed(KeyEvent e) {
-		int key = e.getKeyCode();
+	public void keyPressed(KeyEvent event) {
+		int key = event.getKeyCode();
 		
 		if (Game.gameState == State.GAME) {
 			if (!(Game.paused)) {
 				if (key == VK_ESCAPE) Game.paused = true;
 				else {
-					for (int i = 0; i < handler.objects.size(); i++) {
-						GameObject tempObject = handler.objects.get(i);
+					for (int i = 0; i < handler.getObjects().size(); i++) {
+						GameObject tempObject = handler.getObjects().get(i);
 						
 						if (tempObject.getID() == ID.PLAYER) {
 							if (key == VK_W) {
@@ -69,7 +69,7 @@ public class KeyInput extends KeyAdapter {
 					
 					if (key == VK_R) {
 						if (HeadsUpDisplay.ammo == 0 && HeadsUpDisplay.reloadTime == 120)
-							HeadsUpDisplay.shoot = false;
+							HeadsUpDisplay.reloading = true;
 					}
 				}
 			} else {
@@ -77,31 +77,41 @@ public class KeyInput extends KeyAdapter {
 			}
 		} else if (Game.gameState == State.CUSTOMISATION) {
 			if (Menu.editText) {
-				if (key == VK_BACK_SPACE) {
+				if (key == VK_ENTER) Menu.editText = false;
+				else if (key == VK_BACK_SPACE) {
 					if (!(Game.player.getUsername().length() == 0))
 						Game.player.setUsername(Game.player.getUsername().substring(0,
 								Game.player.getUsername().length()-1));
-				} else if (key == VK_ENTER) Menu.editText = false;
-				else {
-					if (e.isShiftDown()) {
-						if (!(key == VK_SHIFT))
-							Game.player.setUsername(Game.player.getUsername().concat(KeyEvent.
-									getKeyText(key)));
-					} else
-						Game.player.setUsername(Game.player.getUsername().concat(KeyEvent.
-								getKeyText(key).toLowerCase()));
+				} else if (key == VK_MINUS) {
+					if (event.isShiftDown()) {
+						if (Game.player.getUsername().length() < 17)
+							Game.player.setUsername(Game.player.getUsername().concat("_"));
+						else AudioManager.getSound("Denied").play();
+					}
+				} else {
+					String chars = "1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+					
+					for (int i = 0; i < chars.length(); i++) {
+						String c = chars.substring(i, i+1);
+						
+						if (KeyEvent.getKeyText(key).equalsIgnoreCase(c)) {
+							if (Game.player.getUsername().length() < 17)
+								Game.player.setUsername(Game.player.getUsername().concat(c));
+							else AudioManager.getSound("Denied").play();
+						}
+					}
 				}
 			}
-		}	
+		}
 	}
 	
 	// Invoked when a key is released.
-	public void keyReleased(KeyEvent e) {
+	public void keyReleased(KeyEvent event) {
 		if (Game.gameState == State.GAME) {
-			int key  = e.getKeyCode();
+			int key = event.getKeyCode();
 			
-			for (int i = 0; i < handler.objects.size(); i++) {
-				GameObject tempObject = handler.objects.get(i);
+			for (int i = 0; i < handler.getObjects().size(); i++) {
+				GameObject tempObject = handler.getObjects().get(i);
 				
 				if (tempObject.getID() == ID.PLAYER) {
 					if (key == VK_W) keyDown[0] = false;
