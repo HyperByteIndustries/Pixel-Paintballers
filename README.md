@@ -1,5 +1,5 @@
 # Pixel Paintballers
-Pixel Paintballers is a simple action shooter game currently in stage Beta of development.
+Pixel Paintballers is a simple action shooter game currently in the final stages of development.
 
 ## Development
 ### Development staff
