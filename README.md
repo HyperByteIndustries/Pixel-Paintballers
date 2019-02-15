@@ -1,10 +1,10 @@
 # Pixel Paintballers
-Pixel Paintballers is a simple action shooter game currently in stage Beta of development.
+Pixel Paintballers is a simple action shooter game currently in the final stages of development.
 
 ## Development
 ### Development staff
 In its current stage, Pixel Paintballers is being developed by:
-- Sweetboy13735 as general director and lead programmer
+- [Sweetboy13735](https://sweetboy13735.github.io) as general director and lead programmer
 - FateAssasin on game mechanics and ideas
 - B-Clark7698 on testing and quality assurance
 
