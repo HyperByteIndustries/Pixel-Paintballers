@@ -1,11 +1,12 @@
 package io.github.hyperbyteindustries.pixel_paintballers;
 
+import static java.awt.Color.BLACK;
+import static java.awt.Color.GRAY;
 import static java.awt.Color.RED;
 import static java.awt.Color.WHITE;
-import static java.awt.Color.GRAY;
-import static java.awt.Color.BLACK;
-import static java.awt.Cursor.DEFAULT_CURSOR;
 import static java.awt.Cursor.CROSSHAIR_CURSOR;
+import static java.awt.Cursor.DEFAULT_CURSOR;
+import static java.awt.Font.TRUETYPE_FONT;
 
 import java.awt.Canvas;
 import java.awt.Cursor;
@@ -14,11 +15,23 @@ import java.awt.FontFormatException;
 import java.awt.Graphics2D;
 import java.awt.GraphicsEnvironment;
 import java.awt.image.BufferStrategy;
-import java.io.File;
 import java.io.IOException;
+import java.util.Date;
 
+import io.github.hyperbyteindustries.pixel_paintballers.entities.Enemy;
+import io.github.hyperbyteindustries.pixel_paintballers.entities.Entity;
+import io.github.hyperbyteindustries.pixel_paintballers.entities.Entity.ID;
+import io.github.hyperbyteindustries.pixel_paintballers.entities.Handler;
+import io.github.hyperbyteindustries.pixel_paintballers.entities.Player;
+import io.github.hyperbyteindustries.pixel_paintballers.entities.Spawner;
+import io.github.hyperbyteindustries.pixel_paintballers.managers.AudioManager;
+import io.github.hyperbyteindustries.pixel_paintballers.managers.DataManager;
 import io.github.hyperbyteindustries.pixel_paintballers.net.Client;
 import io.github.hyperbyteindustries.pixel_paintballers.net.Server;
+import io.github.hyperbyteindustries.pixel_paintballers.ui.HeadsUpDisplay;
+import io.github.hyperbyteindustries.pixel_paintballers.ui.KeyInput;
+import io.github.hyperbyteindustries.pixel_paintballers.ui.Menu;
+import io.github.hyperbyteindustries.pixel_paintballers.ui.Menu.State;
 
 /**
  * Represents the core of the game.
@@ -31,20 +44,9 @@ public class Game extends Canvas implements Runnable {
 
 	private static final long serialVersionUID = -7703785121704902521L;
 	
-	public static final int WIDTH = 800, HEIGHT = WIDTH / 12 * 9;
-	public static final String TITLE = "Pixel Paintballers", MAINPREFIX = "[Main INFO]: ",
-			WARNPREFIX = "[Main WARN]: ", ERRORPREFIX = "[Main ERROR]: ";
-	
-	/**
-	 * Represents the menu states of the game.
-	 * When utilised, this enum is responsible for defining the game's current menu state.
-	 * @author Ramone Graham
-	 *
-	 */
-	public enum State {
-		LOGO(), TITLESCREEN(), MAINMENU(), DIFFICULTYSELECT(), GAME(), GAMEOVER(), MULTIPLAYER(),
-		SERVERCONNECTION(), CUSTOMISATION(), INFO(), INFO2();
-	}
+	public static final int WIDTH = 800, HEIGHT = WIDTH / 4 * 3;
+	public static final String TITLE = "Pixel Paintballers", INFO_PREFIX = "[Main INFO]: ",
+			WARN_PREFIX = "[Main WARN]: ", ERROR_PREFIX = "[Main ERROR]: ";
 	
 	/**
 	 * Represents the game modes of the game.
@@ -66,16 +68,16 @@ public class Game extends Canvas implements Runnable {
 		EASY(), NORMAL(), HARD(), EXTREME();
 	}
 	
-	public static State gameState = State.LOGO;
 	public static Mode gameMode = Mode.SINGLEPLAYER;
 	public static Difficulty gameDifficulty = null;
+
+	public static float musicVolume = 1, sfxVolume = 1;
+	public static boolean paused = false;
 	
 	public static Player player;
 
-	public static boolean paused = false;
-	
-	private Thread thread;
 	private boolean running = false;
+	private Thread thread;
 	
 	private Handler handler;
 	private Menu menu;
@@ -85,6 +87,8 @@ public class Game extends Canvas implements Runnable {
 	
 	private long pauseTimer;
 	
+	public Window window;
+	
 	public Client client;
 	public Server server;
 
@@ -92,8 +96,7 @@ public class Game extends Canvas implements Runnable {
 	 * Creates a new instance of the game.
 	 */
 	public Game() {
-		player = new Player(WIDTH/2-16, HEIGHT/2-16, ID.PLAYER, this, "Player", RED, WHITE,
-				GRAY);
+		player = new Player(WIDTH/2-16, HEIGHT/2-16, this, "Player", RED, WHITE, GRAY);
 		
 		handler = new Handler();
 		menu = new Menu(this, handler);
@@ -101,12 +104,10 @@ public class Game extends Canvas implements Runnable {
 		keyInput = new KeyInput(handler);
 		spawner = new Spawner(this, handler);
 		
-		client = new Client(this, handler, "localhost");
+		window = new Window(this);
 
 		addMouseListener(menu);
 		addKeyListener(keyInput);
-		
-		new Window(this, TITLE);
 		
 		AudioManager.init();
 		DataManager.init();
@@ -118,58 +119,78 @@ public class Game extends Canvas implements Runnable {
 	 * Starts execution of the game.
 	 */
 	public synchronized void start() {
+		System.out.println(new Date() + " " + INFO_PREFIX + "Starting Pixel Paintballers...");
+		
+		running = true;
 		thread = new Thread(this, TITLE + " [MAIN]");
+		client = new Client(this, handler, "localhost");
+		
 		thread.start();
 		
 		client.start();
 		
-		running = true;
+		System.out.println(new Date() + " " + INFO_PREFIX + "Startup complete!");
 	}
 	
 	/**
 	 * Stops execution of the game.
 	 */
 	public synchronized void stop() {
+		System.out.println(new Date() + " " + INFO_PREFIX + "Stopping Pixel Paintballers...");
+
+		client.stop();
+		
+		running = false;
+		
 		try {
 			thread.join();
-
-			client.stop();
-			
-			running = false;
-		} catch (InterruptedException e) {
-			e.printStackTrace();
+		} catch (InterruptedException exception) {
+			System.err.print(new Date() + " " + ERROR_PREFIX + "An exception occured whilst "
+					+ "stopping the game - ");
+			exception.printStackTrace();
 		}
+		
+		System.out.println(new Date() + " " + INFO_PREFIX + "Shutdown complete!");
 	}
 
-	// Runs the game loop.
+	/*
+	 * (non-Javadoc)
+	 * @see java.lang.Runnable#run()
+	 */
+	/**
+	 * {@inheritDoc}
+	 */
 	public void run() {
 		requestFocus();
 		
 		long lastTime = System.nanoTime(), timer = System.currentTimeMillis();
-		double amountOfTicks = 60.0, ns = 1000000000 / amountOfTicks, delta = 0;
-		int frames = 0;
+		double amountOfTicks = 60D, nanosecondsPerTick = 1000000000 / amountOfTicks, delta = 0;
+		int ticksPerSecond = 0, framesPerSecond = 0;
 		
 		while (running) {
 			long now = System.nanoTime();
-			delta += (now - lastTime) / ns;
+			delta += (now-lastTime) / nanosecondsPerTick;
 			lastTime = now;
 			
 			while (delta >= 1) {
 				tick();
 				
 				delta--;
+				ticksPerSecond++;
 			}
 			
 			if (running) render();
 			
-			frames++;
+			framesPerSecond++;
 			
-			if (System.currentTimeMillis() - timer >= 1000) {
+			if (System.currentTimeMillis()-timer >= 1000) {
 				timer = System.currentTimeMillis();
 				
-				if (menu.clickable) System.out.println(MAINPREFIX + frames + " FPS");
+				System.out.println(new Date() + " " + INFO_PREFIX + ticksPerSecond + " TPS, " +
+						framesPerSecond + " FPS");
 				
-				frames = 0;
+				framesPerSecond = 0;
+				ticksPerSecond = 0;
 				
 				DataManager.timePlayed[0] += 1;
 				
@@ -206,7 +227,7 @@ public class Game extends Canvas implements Runnable {
 		
 		menu.tick();
 		
-		if (gameState == State.GAME) {
+		if (Menu.menuState == State.GAME) {
 			switch (gameMode) {
 			case SINGLEPLAYER:
 				if (!paused) {
@@ -216,13 +237,13 @@ public class Game extends Canvas implements Runnable {
 					if (getCursor().getType() == DEFAULT_CURSOR)
 						setCursor(new Cursor(CROSSHAIR_CURSOR));
 				} else {
-					for (int i = 0; i < handler.getObjects().size(); i++) {
-						GameObject tempObject = handler.getObjects().get(i);
+					for (int i = 0; i < handler.getEntities().size(); i++) {
+						Entity entity = handler.getEntities().get(i);
 						
-						if (tempObject.getID() == ID.ENEMY || tempObject.getID() ==
-								ID.MOVINGENEMY || tempObject.getID() == ID.BOUNCYENEMY ||
-								tempObject.getID() == ID.HOMINGENEMY) {
-							Enemy enemy = (Enemy) tempObject;
+						if (entity.getID() == ID.ENEMY || entity.getID() == ID.MOVINGENEMY ||
+								entity.getID() == ID.BOUNCYENEMY || entity.getID() ==
+								ID.HOMINGENEMY) {
+							Enemy enemy = (Enemy) entity;
 							
 							enemy.attackTimer += (System.currentTimeMillis()-pauseTimer);
 							enemy.shootTimer += (System.currentTimeMillis()-pauseTimer);
@@ -255,8 +276,7 @@ public class Game extends Canvas implements Runnable {
 				break;
 			}
 		} else {
-			if (getCursor().getType() == CROSSHAIR_CURSOR)
-				setCursor(new Cursor(DEFAULT_CURSOR));
+			if (getCursor().getType() == CROSSHAIR_CURSOR) setCursor(new Cursor(DEFAULT_CURSOR));
 		}
 	}
 	
@@ -291,7 +311,7 @@ public class Game extends Canvas implements Runnable {
 		
 		menu.render(graphics2D);
 		
-		if (gameState == State.GAME) {
+		if (Menu.menuState == State.GAME) {
 			switch (gameMode) {
 			case SINGLEPLAYER:
 				if (!paused) headsUpDisplay.render(graphics2D);
@@ -335,13 +355,20 @@ public class Game extends Canvas implements Runnable {
 		else return variable;
 	}
 
-	// Called by the JVM, this method executes the game.
+	/**
+	 * Called by the JVM, this method executes the game.
+	 * @param args - Additional arguments included to start the game.
+	 */
 	public static void main(String[] args) {
 		try {
-			GraphicsEnvironment.getLocalGraphicsEnvironment().registerFont(Font.createFont(
-					Font.TRUETYPE_FONT, new File("res/pixelex.ttf")));
-		} catch (FontFormatException | IOException e) {
-			e.printStackTrace();
+			GraphicsEnvironment environment = GraphicsEnvironment.getLocalGraphicsEnvironment();
+			
+			environment.registerFont(Font.createFont(TRUETYPE_FONT,
+					Game.class.getResourceAsStream("/pixelex.ttf")));
+		} catch (FontFormatException | IOException exception) {
+			System.err.print(new Date() + " " + ERROR_PREFIX + "An exception occured whilst "
+					+ "registering the font - ");
+			exception.printStackTrace();
 		}
 		
 		new Game();

@@ -5,8 +5,8 @@ import io.github.hyperbyteindustries.pixel_paintballers.net.Server;
 
 /**
  * Represents the "skeleton" of all packets in the multiplayer system.
- * When a packet class is created (E.g. Packet00Connect), it will extend this class, inheriting
- * it's methods and variables. 
+ * When a packet class is created (E.g. {@link Packet00Connect}), this abstract class is
+ * responsible for providing methods and variables that help to manage the packet.
  * @author Ramone Graham
  *
  */
@@ -14,8 +14,9 @@ public abstract class Packet {
 
 	/**
 	 * Represents the type tag of a packet.
-	 * When a packet class is created, (E.g. Packet00Connect), it will get a type tag in order to
-	 * inherit certain behaviours.
+	 * When a packet class is created, (E.g. {@link Packet00Connect}), this enumeration is
+	 * responsible for providing a packet type to the packet in order for it to carry out
+	 * specific instructions.
 	 * @author Ramone Graham
 	 *
 	 */

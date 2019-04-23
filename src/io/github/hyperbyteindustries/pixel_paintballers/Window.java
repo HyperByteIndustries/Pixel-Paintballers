@@ -1,77 +1,124 @@
 package io.github.hyperbyteindustries.pixel_paintballers;
 
+import static io.github.hyperbyteindustries.pixel_paintballers.Game.ERROR_PREFIX;
+import static io.github.hyperbyteindustries.pixel_paintballers.Game.TITLE;
 import static java.awt.BorderLayout.CENTER;
 
-import static javax.swing.JFrame.EXIT_ON_CLOSE;
-
 import java.awt.BorderLayout;
-import java.awt.Canvas;
 import java.awt.Dimension;
+import java.awt.DisplayMode;
+import java.awt.GraphicsEnvironment;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
-import javax.swing.ImageIcon;
+import javax.imageio.ImageIO;
 import javax.swing.JFrame;
 
-import io.github.hyperbyteindustries.pixel_paintballers.Game.State;
+import io.github.hyperbyteindustries.pixel_paintballers.managers.DataManager;
 import io.github.hyperbyteindustries.pixel_paintballers.net.packets.Packet01Disconnect;
+import io.github.hyperbyteindustries.pixel_paintballers.ui.Menu;
+import io.github.hyperbyteindustries.pixel_paintballers.ui.Menu.State;
 
 /**
- * Represents the game window.
+ * Represents the window/program frame of the game.
  * When constructed, this class is responsible for creating the game's window and handling any
  * changes to its state.
  * @author Ramone Graham
  *
  */
-public class Window extends Canvas implements WindowListener {
+public class Window extends JFrame implements WindowListener {
 
 	private static final long serialVersionUID = 5982497984337248345L;
 	
 	private Game game;
+	
+	public boolean fullscreen = false;
+	public List<DisplayMode> fullscreenModes = new ArrayList<DisplayMode>();
+	public DisplayMode fullscreenMode;
 
 	/**
 	 * Creates a new window.
 	 * @param game - An instance of the Game class, used to display the visuals.
 	 * @param title - The name of the window.
 	 */
-	public Window(Game game, String title) {
+	public Window(Game game) {
+		super(TITLE);
+		
 		this.game = game;
 		
+		GraphicsEnvironment environment = GraphicsEnvironment.getLocalGraphicsEnvironment();
+		
+		for (int i = 0; i < environment.getDefaultScreenDevice().getDisplayModes().length; i++) {
+			DisplayMode mode = environment.getDefaultScreenDevice().getDisplayModes()[i];
+			
+			if (mode.getWidth() == 800 && mode.getHeight() == 600) fullscreenModes.add(mode);
+		}
+		
+		fullscreenMode = fullscreenModes.get(0);
+		
 		Dimension dimension = new Dimension(Game.WIDTH, Game.HEIGHT);
-		JFrame frame = new JFrame(title);
 		
 		game.setMaximumSize(dimension);
 		game.setMinimumSize(dimension);
 		game.setPreferredSize(dimension);
 		
-		frame.setDefaultCloseOperation(EXIT_ON_CLOSE);
-		frame.setLayout(new BorderLayout());
-		frame.setResizable(false);
+		setDefaultCloseOperation(EXIT_ON_CLOSE);
+		setLayout(new BorderLayout());
+		setResizable(false);
 		
-		frame.add(game, CENTER);
-		frame.pack();
+		add(game, CENTER);
+		pack();
 		
-		frame.addWindowListener(this);
-		frame.setLocationRelativeTo(null);
-		frame.setIconImage(new ImageIcon("res/Game Icon.png").getImage());
-		frame.setVisible(true);
+		addWindowListener(this);
+		setLocationRelativeTo(null);
+		
+		try {
+			setIconImage(ImageIO.read(getClass().getResourceAsStream("/Game Icon.png")));
+		} catch (IOException exception) {
+			System.err.print(new Date() + " " + ERROR_PREFIX + "An exception occured whilst setting the game icon - ");
+			exception.printStackTrace();
+		}
+		
+		setVisible(true);
 		
 		game.start();
 	}
 
-	// Evoked when a window gains focus.
-	public void windowActivated(WindowEvent e) {
+	/*
+	 * (non-Javadoc)
+	 * @see java.awt.event.WindowListener#windowActivated(java.awt.event.WindowEvent)
+	 */
+	/**
+	 * {@inheritDoc}
+	 */
+	public void windowActivated(WindowEvent event) {
 		
 	}
 
-	// Evoked when a window is closed.
-	public void windowClosed(WindowEvent e) {
+	/*
+	 * (non-Javadoc)
+	 * @see java.awt.event.WindowListener#windowClosed(java.awt.event.WindowEvent)
+	 */
+	/**
+	 * {@inheritDoc}
+	 */
+	public void windowClosed(WindowEvent event) {
 		
 	}
 
-	// Evoked when a window is closing.
-	public void windowClosing(WindowEvent e) {
-		if (Game.gameState == State.GAME && Game.gameMode == Game.Mode.MULTIPLAYER) {
+	/*
+	 * (non-Javadoc)
+	 * @see java.awt.event.WindowListener#windowClosing(java.awt.event.WindowEvent)
+	 */
+	/**
+	 * {@inheritDoc}
+	 */
+	public void windowClosing(WindowEvent event) {
+		if (Menu.menuState == State.GAME && Game.gameMode == Game.Mode.MULTIPLAYER) {
 			Packet01Disconnect packet = new Packet01Disconnect(Game.player.getUsername());
 			packet.writeData(game.client);
 		}
@@ -79,23 +126,47 @@ public class Window extends Canvas implements WindowListener {
 		DataManager.saveData();
 	}
 
-	// Evoked when a window has lost focus.
-	public void windowDeactivated(WindowEvent e) {
-		if (Game.gameState == State.GAME) Game.paused = true;
+	/*
+	 * (non-Javadoc)
+	 * @see java.awt.event.WindowListener#windowDeactivated(java.awt.event.WindowEvent)
+	 */
+	/**
+	 * {@inheritDoc}
+	 */
+	public void windowDeactivated(WindowEvent event) {
+		if (Menu.menuState == State.GAME) Game.paused = true;
 	}
 
-	// Evoked when a window is opened from its icon.
-	public void windowDeiconified(WindowEvent e) {
+	/*
+	 * (non-Javadoc)
+	 * @see java.awt.event.WindowListener#windowDeiconified(java.awt.event.WindowEvent)
+	 */
+	/**
+	 * {@inheritDoc}
+	 */
+	public void windowDeiconified(WindowEvent event) {
 		
 	}
 
-	// Evoked when a window is minimised.
-	public void windowIconified(WindowEvent e) {
+	/*
+	 * (non-Javadoc)
+	 * @see java.awt.event.WindowListener#windowIconified(java.awt.event.WindowEvent)
+	 */
+	/**
+	 * {@inheritDoc}
+	 */
+	public void windowIconified(WindowEvent event) {
 		
 	}
 
-	// Evoked when a window is opened.
-	public void windowOpened(WindowEvent e) {
+	/*
+	 * (non-Javadoc)
+	 * @see java.awt.event.WindowListener#windowOpened(java.awt.event.WindowEvent)
+	 */
+	/**
+	 * {@inheritDoc}
+	 */
+	public void windowOpened(WindowEvent event) {
 		
 	}
 }

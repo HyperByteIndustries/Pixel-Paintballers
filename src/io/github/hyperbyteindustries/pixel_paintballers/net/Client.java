@@ -6,18 +6,18 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
 import java.net.UnknownHostException;
+import java.util.Date;
 
 import javax.swing.JOptionPane;
 
-import io.github.hyperbyteindustries.pixel_paintballers.AudioManager;
 import io.github.hyperbyteindustries.pixel_paintballers.Game;
-import io.github.hyperbyteindustries.pixel_paintballers.Game.State;
-import io.github.hyperbyteindustries.pixel_paintballers.GameObject;
-import io.github.hyperbyteindustries.pixel_paintballers.Handler;
-import io.github.hyperbyteindustries.pixel_paintballers.ID;
-import io.github.hyperbyteindustries.pixel_paintballers.Paintball;
-import io.github.hyperbyteindustries.pixel_paintballers.Player;
-import io.github.hyperbyteindustries.pixel_paintballers.Spawner;
+import io.github.hyperbyteindustries.pixel_paintballers.entities.Entity;
+import io.github.hyperbyteindustries.pixel_paintballers.entities.Entity.ID;
+import io.github.hyperbyteindustries.pixel_paintballers.entities.Handler;
+import io.github.hyperbyteindustries.pixel_paintballers.entities.Paintball;
+import io.github.hyperbyteindustries.pixel_paintballers.entities.Player;
+import io.github.hyperbyteindustries.pixel_paintballers.entities.Spawner;
+import io.github.hyperbyteindustries.pixel_paintballers.managers.AudioManager;
 import io.github.hyperbyteindustries.pixel_paintballers.net.packets.Packet;
 import io.github.hyperbyteindustries.pixel_paintballers.net.packets.Packet.PacketType;
 import io.github.hyperbyteindustries.pixel_paintballers.net.packets.Packet00Connect;
@@ -30,6 +30,8 @@ import io.github.hyperbyteindustries.pixel_paintballers.net.packets.Packet06Leve
 import io.github.hyperbyteindustries.pixel_paintballers.net.packets.Packet07Spawn;
 import io.github.hyperbyteindustries.pixel_paintballers.net.packets.Packet08EnemyShot;
 import io.github.hyperbyteindustries.pixel_paintballers.net.packets.Packet09TargetChange;
+import io.github.hyperbyteindustries.pixel_paintballers.ui.Menu;
+import io.github.hyperbyteindustries.pixel_paintballers.ui.Menu.State;
 
 /**
  * Represents the client of the game's multiplayer system.
@@ -40,8 +42,8 @@ import io.github.hyperbyteindustries.pixel_paintballers.net.packets.Packet09Targ
  */
 public class Client implements Runnable {
 
-	private Thread thread;
 	private boolean running = false;
+	private Thread thread;
 
 	private Game game;
 	private Handler handler;
@@ -49,7 +51,7 @@ public class Client implements Runnable {
 	private InetAddress serverIPAddress;
 	private DatagramSocket socket;
 	
-	private String infoPrefix = "[Client INFO]: ", errorPrefix = "[Client ERROR]: ";
+	private final String infoPrefix = "[Client INFO]: ", errorPrefix = "[Client ERROR]: ";
 	
 	/**
 	 * Creates a new client.
@@ -65,8 +67,10 @@ public class Client implements Runnable {
 		try {
 			this.serverIPAddress = InetAddress.getByName(serverIPAddress);
 			socket = new DatagramSocket();
-		} catch (UnknownHostException | SocketException e) {
-			e.printStackTrace();
+		} catch (UnknownHostException | SocketException exception) {
+			System.err.print(new Date() + " " + errorPrefix +
+					"An exception occured whilst creating the client - ");
+			exception.printStackTrace();
 		}
 	}
 	
@@ -74,20 +78,24 @@ public class Client implements Runnable {
 	 * Starts execution of the client.
 	 */
 	public synchronized void start() {
-		thread = new Thread(this, Game.TITLE + " [CLIENT]");
-		thread.start();
 		running = true;
+		thread = new Thread(this, Game.TITLE + " [CLIENT]");
+		
+		thread.start();
 	}
 	
 	/**
 	 * Stops execution of the client.
 	 */
 	public synchronized void stop() {
+		running = false;
+		
 		try {
 			thread.join();
-			running = false;
-		} catch (Exception e) {
-			e.printStackTrace();
+		} catch (InterruptedException exception) {
+			System.err.print(new Date() + " " + errorPrefix +
+					"An exception occured whilst stopping the thread - ");
+			exception.printStackTrace();
 		}
 	}
 
@@ -99,8 +107,10 @@ public class Client implements Runnable {
 			
 			try {
 				socket.receive(packet);
-			} catch (IOException e) {
-				e.printStackTrace();
+			} catch (IOException exception) {
+				System.err.print(new Date() + " " + errorPrefix +
+						"An exception occured whilst receiving a packet - ");
+				exception.printStackTrace();
 			}
 			
 			parsePacket(packet.getData(), packet.getAddress(), packet.getPort());
@@ -119,14 +129,14 @@ public class Client implements Runnable {
 		String message = new String(data).trim();
 		
 		if (message.length() > 4 && message.substring(0, 4).equalsIgnoreCase("Pong")) {
-			System.out.println(infoPrefix + "Pong recieved from SERVER [" +
+			System.out.println(new Date() + " " + infoPrefix + "Pong recieved from SERVER [" +
 					address.getHostAddress() + ":" + port + "].");
 			
 			String[] dataArray = message.substring(4).split(",");
 			boolean canConnect = Integer.parseInt(dataArray[0]) == 1;
 			
 			if (canConnect) {
-				Game.gameState = State.GAME;
+				Menu.menuState = State.GAME;
 				
 				handler.startGame();
 				
@@ -143,15 +153,16 @@ public class Client implements Runnable {
 			
 			switch (type) {
 			case INVALID:
-				System.err.println(errorPrefix + "Invalid packet received from [" +
-						address.getHostAddress() + ":" + port + "]: " + message);
+				System.err.println(new Date() + " " + errorPrefix +
+						"Invalid packet received from [" + address.getHostAddress() + ":" +
+						port + "]: " + message);
 				
 				break;
 			case CONNECT:
 				packet = new Packet00Connect(data);
 				
 				IPlayer player = new IPlayer(((Packet00Connect) packet).getX(),
-						((Packet00Connect) packet).getY(), ID.IPLAYER,
+						((Packet00Connect) packet).getY(),
 						((Packet00Connect) packet).getUsername(),
 						((Packet00Connect) packet).getFillColour(),
 						((Packet00Connect) packet).getOutlineColour(),
@@ -227,10 +238,10 @@ public class Client implements Runnable {
 	 * @param packet - The connect packet associated with the player.
 	 */
 	private void handleConnect(IPlayer player, Packet00Connect packet) {
-		if (!player.spectator) handler.addObject(player);
+		if (!player.spectator) handler.addEntity(player);
 		
-		if (!packet.isAlreadyConnected()) System.out.println(infoPrefix + player.getUsername() +
-				" has joined the game.");
+		if (!packet.isAlreadyConnected()) System.out.println(new Date() + " " + infoPrefix +
+				player.getUsername() + " has joined the game.");
 	}
 
 	/**
@@ -240,21 +251,21 @@ public class Client implements Runnable {
 	private void handleDisconnect(Packet01Disconnect packet) {
 		if (Game.player.getUsername().equalsIgnoreCase(packet.getUsername())) {
 			Game.paused = false;
-			handler.getObjects().clear();
-			Game.gameState = State.MULTIPLAYER;
+			handler.getEntities().clear();
+			Menu.menuState = State.MULTIPLAYER_MENU;
 		} else {
-			synchronized (handler.getObjects()) {
-				for (int i = 0; i < handler.getObjects().size(); i++) {
-					GameObject tempObject = handler.getObjects().get(i);
+			synchronized (handler.getEntities()) {
+				for (int i = 0; i < handler.getEntities().size(); i++) {
+					Entity entity = handler.getEntities().get(i);
 					
-					if (tempObject.getID() == ID.IPLAYER) {
-						IPlayer player = (IPlayer) tempObject;
+					if (entity.getID() == ID.IPLAYER) {
+						IPlayer player = (IPlayer) entity;
 						
 						if (player.getUsername().equals(packet.getUsername())) {
-							if (!player.spectator) handler.removeObject(player);
+							if (!player.spectator) handler.removeEntity(player);
 							
-							System.out.println(infoPrefix + player.getUsername() +
-									" has left the game.");
+							System.out.println(new Date() + " " + infoPrefix +
+									player.getUsername() + " has left the game.");
 							
 							break;
 						}
@@ -269,28 +280,28 @@ public class Client implements Runnable {
 	 * @param packet - The move packet associated with the moving / stationary player.
 	 */
 	private void handlePlayerMove(Packet02PlayerMove packet) {
-		synchronized (handler.getObjects()) {
-			for (int i = 0; i < handler.getObjects().size(); i++) {
-				GameObject tempObject = handler.getObjects().get(i);
+		synchronized (handler.getEntities()) {
+			for (int i = 0; i < handler.getEntities().size(); i++) {
+				Entity entity = handler.getEntities().get(i);
 				
-				if (tempObject.getID() == ID.IPLAYER) {
-					IPlayer player = (IPlayer) tempObject;
+				if (entity.getID() == ID.IPLAYER) {
+					IPlayer player = (IPlayer) entity;
 					
 					if (player.getUsername().equalsIgnoreCase(packet.getUsername())) {
 						if (packet.isPlayerMoving()) {
 							player.setVelX(packet.getVarX());
 							player.setVelY(packet.getVarY());
 							
-							System.out.println(infoPrefix + player.getUsername() +
-									" has moved.");
+							System.out.println(new Date() + " " + infoPrefix +
+									player.getUsername() + " has moved.");
 						} else {
 							player.setVelX(0);
 							player.setVelY(0);
 							player.setX(packet.getVarX());
 							player.setY(packet.getVarY());
 							
-							System.out.println(infoPrefix + player.getUsername() +
-									" has stopped moving.");
+							System.out.println(new Date() + " " + infoPrefix +
+									player.getUsername() + " has stopped moving.");
 						}
 						
 						break;
@@ -305,25 +316,25 @@ public class Client implements Runnable {
 	 * @param packet - The shot packet associated with the player shooting.
 	 */
 	private void handlePlayerShot(Packet03PlayerShot packet) {
-		synchronized (handler.getObjects()) {
-			for (int i = 0; i < handler.getObjects().size(); i++) {
-				GameObject tempObject = handler.getObjects().get(i);
+		synchronized (handler.getEntities()) {
+			for (int i = 0; i < handler.getEntities().size(); i++) {
+				Entity entity = handler.getEntities().get(i);
 				
-				if (tempObject.getID() == ID.IPLAYER) {
-					IPlayer player = (IPlayer) tempObject;
+				if (entity.getID() == ID.IPLAYER) {
+					IPlayer player = (IPlayer) entity;
 					
 					if (player.getUsername().equalsIgnoreCase(packet.getUsername())) {
-						Paintball paintball = new Paintball(packet.getX(), packet.getY(),
-								ID.PAINTBALL, game, handler, player);
+						Paintball paintball = new Paintball(ID.PAINTBALL, packet.getX(),
+								packet.getY(), game, handler, player);
 						
-						handler.addObject(paintball);
+						handler.addEntity(paintball);
 						
 						paintball.setVelX(packet.getVelX());
 						paintball.setVelY(packet.getVelY());
 						
-						AudioManager.getSound("Shot").play(1.0f, 0.10f);
+						AudioManager.getSound("Shot").play(1, Game.sfxVolume);
 						
-						System.out.println(infoPrefix + player.getUsername() +
+						System.out.println(new Date() + " " + infoPrefix + player.getUsername() +
 								" has shot a paintball.");
 						
 						break;
@@ -338,17 +349,17 @@ public class Client implements Runnable {
 	 * @param packet - The damage packet associated with the player damaged.
 	 */
 	private void handleDamageTaken(Packet04Damage packet) {
-		synchronized (handler.getObjects()) {
-			for (int i = 0; i < handler.getObjects().size(); i++) {
-				GameObject tempObject = handler.getObjects().get(i);
+		synchronized (handler.getEntities()) {
+			for (int i = 0; i < handler.getEntities().size(); i++) {
+				Entity entity = handler.getEntities().get(i);
 				
-				if (tempObject.getID() == ID.IPLAYER) {
-					IPlayer player = (IPlayer) tempObject;
+				if (entity.getID() == ID.IPLAYER) {
+					IPlayer player = (IPlayer) entity;
 					
 					if (player.getUsername().equalsIgnoreCase(packet.getUsername())) {
 						player.health -= packet.getDamageTaken();
 						
-						System.out.println(infoPrefix + player.getUsername() +
+						System.out.println(new Date() + " " + infoPrefix + player.getUsername() +
 								" has taken damage.");
 						
 						break;
@@ -363,17 +374,18 @@ public class Client implements Runnable {
 	 * @param packet - The death packet associated with the player who died.
 	 */
 	private void handlePlayerDeath(Packet05PlayerDeath packet) {
-		synchronized (handler.getObjects()) {
-			for (int i = 0; i < handler.getObjects().size(); i++) {
-				GameObject tempObject = handler.getObjects().get(i);
+		synchronized (handler.getEntities()) {
+			for (int i = 0; i < handler.getEntities().size(); i++) {
+				Entity entity = handler.getEntities().get(i);
 				
-				if (tempObject.getID() == ID.IPLAYER) {
-					IPlayer player = (IPlayer) tempObject;
+				if (entity.getID() == ID.IPLAYER) {
+					IPlayer player = (IPlayer) entity;
 					
 					if (player.getUsername().equalsIgnoreCase(packet.getUsername())) {
-						handler.removeObject(player);
+						handler.removeEntity(player);
 						
-						System.out.println(infoPrefix + player.getUsername() + " has died.");
+						System.out.println(new Date() + " " + infoPrefix + player.getUsername() +
+								" has died.");
 						
 						break;
 					}
@@ -389,7 +401,8 @@ public class Client implements Runnable {
 	private void handleLevelUp(Packet06LevelUp packet) {
 		Spawner.level = packet.getLevel();
 		
-		System.out.println(infoPrefix + "The team is now level " + Spawner.level + ".");
+		System.out.println(new Date() + " " + infoPrefix + "The team is now level " +
+				Spawner.level + ".");
 	}
 
 	/**
@@ -398,18 +411,18 @@ public class Client implements Runnable {
 	 */
 	private void handleSpawn(Packet07Spawn packet) {
 		for (int i = 0; i < packet.getEnemyCount(); i++) {
-			synchronized (handler.getObjects()) {
-				for (int j = 0; j < handler.getObjects().size(); j++) {
-					GameObject tempObject = handler.getObjects().get(j);
+			synchronized (handler.getEntities()) {
+				for (int j = 0; j < handler.getEntities().size(); j++) {
+					Entity entity = handler.getEntities().get(j);
 					
-					if (tempObject.getID() == ID.PLAYER || tempObject.getID() == ID.IPLAYER) {
-						Player player = (Player) tempObject;
+					if (entity.getID() == ID.PLAYER || entity.getID() == ID.IPLAYER) {
+						Player player = (Player) entity;
 						
 						if (player.getUsername().equals(packet.getTarget(i))) {
-							IEnemy enemy = new IEnemy(packet.getX(i), packet.getY(i),
-									packet.getID(i), handler, null, packet.getEnemyNumber(i));
+							IEnemy enemy = new IEnemy(packet.getID(i), packet.getX(i),
+									packet.getY(i), handler, null, packet.getEnemyNumber(i));
 							
-							handler.addObject(enemy);
+							handler.addEntity(enemy);
 							
 							enemy.attackTimer = packet.getAttackTimer(i);
 							enemy.shootTimer = packet.getShootTimer(i);
@@ -423,7 +436,7 @@ public class Client implements Runnable {
 			}
 		}
 		
-		System.out.println(infoPrefix + "The next enemy wave has spawned.");
+		System.out.println(new Date() + " " + infoPrefix + "The next enemy wave has spawned.");
 	}
 
 	/**
@@ -431,28 +444,27 @@ public class Client implements Runnable {
 	 * @param packet - The shot packet associated with the enemy shooting.
 	 */
 	private void handleEnemyShot(Packet08EnemyShot packet) {
-		synchronized (handler.getObjects()) {
-			for (int i = 0; i < handler.getObjects().size(); i++) {
-				GameObject tempObject = handler.getObjects().get(i);
+		synchronized (handler.getEntities()) {
+			for (int i = 0; i < handler.getEntities().size(); i++) {
+				Entity entity = handler.getEntities().get(i);
 				
-				if (tempObject.getID() == ID.IENEMY || tempObject.getID() == ID.IMOVINGENEMY ||
-						tempObject.getID() == ID.IBOUNCYENEMY || tempObject.getID() ==
-						ID.IHOMINGENEMY) {
-					IEnemy enemy = (IEnemy) tempObject;
+				if (entity.getID() == ID.IENEMY || entity.getID() == ID.IMOVINGENEMY ||
+						entity.getID() == ID.IBOUNCYENEMY || entity.getID() == ID.IHOMINGENEMY) {
+					IEnemy enemy = (IEnemy) entity;
 					
 					if (enemy.getEnemyNumber() == packet.getEnemyNumber()) {
-						Paintball paintball = new Paintball(packet.getX(), packet.getY(),
-								packet.getID(), game, handler, enemy);
+						Paintball paintball = new Paintball(packet.getID(), packet.getX(),
+								packet.getY(), game, handler, enemy);
 						
-						handler.addObject(paintball);
+						handler.addEntity(paintball);
 						
 						paintball.setVelX(packet.getVelX());
 						paintball.setVelY(packet.getVelY());
 						
-						AudioManager.getSound("Shot").play(1.0f, 0.10f);
+						AudioManager.getSound("Shot").play(1, Game.sfxVolume);
 						
-						System.out.println(infoPrefix + "Enemy " + enemy.getEnemyNumber() +
-								" has shot a paintball.");
+						System.out.println(new Date() + " " + infoPrefix + "Enemy " +
+								enemy.getEnemyNumber() + " has shot a paintball.");
 						
 						break;
 					}
@@ -466,28 +478,26 @@ public class Client implements Runnable {
 	 * @param packet - The target change packet associated with the enemy.
 	 */
 	private void handleTargetChange(Packet09TargetChange packet) {
-		synchronized (handler.getObjects()) {
-			for (int i = 0; i < handler.getObjects().size(); i++) {
-				GameObject tempObject = handler.getObjects().get(i);
+		synchronized (handler.getEntities()) {
+			for (int i = 0; i < handler.getEntities().size(); i++) {
+				Entity entity = handler.getEntities().get(i);
 				
-				if (tempObject.getID() == ID.IENEMY || tempObject.getID() == ID.IMOVINGENEMY ||
-						tempObject.getID() == ID.IBOUNCYENEMY || tempObject.getID() ==
-						ID.IHOMINGENEMY) {
-					IEnemy enemy = (IEnemy) tempObject;
+				if (entity.getID() == ID.IENEMY || entity.getID() == ID.IMOVINGENEMY ||
+						entity.getID() == ID.IBOUNCYENEMY || entity.getID() == ID.IHOMINGENEMY) {
+					IEnemy enemy = (IEnemy) entity;
 					
 					if (enemy.getEnemyNumber() == packet.getEnemyNumber()) {
-						for (int j = 0; j < handler.getObjects().size(); j++) {
-							GameObject tempObject2 = handler.getObjects().get(j);
+						for (int j = 0; j < handler.getEntities().size(); j++) {
+							Entity entity2 = handler.getEntities().get(j);
 							
-							if (tempObject2.getID() == ID.PLAYER || tempObject2.getID() ==
-									ID.IPLAYER) {
-								Player player = (Player) tempObject2;
+							if (entity2.getID() == ID.PLAYER || entity2.getID() == ID.IPLAYER) {
+								Player player = (Player) entity2;
 								
 								if (player.getUsername().equals(packet.getTarget())) {
 									enemy.setTarget(player);
 									
-									System.out.println(infoPrefix + "Enemy " +
-									enemy.getEnemyNumber() + " has changed its target.");
+									System.out.println(new Date() + " " + infoPrefix + "Enemy " +
+											enemy.getEnemyNumber() + " has changed its target.");
 									
 									break;
 								}
@@ -518,8 +528,10 @@ public class Client implements Runnable {
 		
 		try {
 			socket.send(packet);
-		} catch (IOException e) {
-			e.printStackTrace();
+		} catch (IOException exception) {
+			System.err.print(new Date() + " " + errorPrefix +
+					"An exception occured whilst sending a packet - ");
+			exception.printStackTrace();
 		}
 	}
 	
@@ -532,7 +544,7 @@ public class Client implements Runnable {
 	}
 	
 	/**
-	 * Returns the target IP address of the server.
+	 * Gets the target IP address of the server.
 	 * @return The target IP address of the server.
 	 */
 	public InetAddress getTargetIPAddress() {

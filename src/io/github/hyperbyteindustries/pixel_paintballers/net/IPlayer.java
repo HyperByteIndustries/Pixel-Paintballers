@@ -3,8 +3,7 @@ package io.github.hyperbyteindustries.pixel_paintballers.net;
 import java.awt.Color;
 import java.net.InetAddress;
 
-import io.github.hyperbyteindustries.pixel_paintballers.ID;
-import io.github.hyperbyteindustries.pixel_paintballers.Player;
+import io.github.hyperbyteindustries.pixel_paintballers.entities.Player;
 
 /**
  * Represents an online player in the game's multiplayer system.
@@ -29,9 +28,11 @@ public class IPlayer extends Player {
 	 * @param ipAddress - The IP address of the player's system.
 	 * @param port - The port of the player's system.
 	 */
-	public IPlayer(float x, float y, ID id, String username, Color fillColour,
-			Color outlineColour, Color usernameColour, InetAddress ipAddress, int port) {
-		super(x, y, id, null, username, fillColour, outlineColour, usernameColour);
+	public IPlayer(float x, float y, String username, Color fillColour, Color outlineColour,
+			Color usernameColour, InetAddress ipAddress, int port) {
+		super(x, y, null, username, fillColour, outlineColour, usernameColour);
+		
+		id = ID.IPLAYER;
 		
 		this.ipAddress = ipAddress;
 		this.port = port;
@@ -78,7 +79,7 @@ public class IPlayer extends Player {
 	}
 
 	/**
-	 * Returns whether the player is a spectator or not
+	 * Gets whether the player is a spectator or not
 	 * @return <code>true</code> is the player is a spectator, else <code>false</code>.
 	 */
 	public boolean isSpectator() {

@@ -1,6 +1,6 @@
 package io.github.hyperbyteindustries.pixel_paintballers.net.packets;
 
-import io.github.hyperbyteindustries.pixel_paintballers.ID;
+import io.github.hyperbyteindustries.pixel_paintballers.entities.Entity.ID;
 
 /**
  * Represents the enemy spawn packet of the game's multiplayer system.
@@ -12,8 +12,8 @@ import io.github.hyperbyteindustries.pixel_paintballers.ID;
 public class Packet07Spawn extends Packet {
 
 	private int enemyCount;
-	private float[] xcoords, ycoords;
 	private ID[] ids;
+	private float[] xcoords, ycoords;
 	private int[] enemyNumbers;
 	private long[] attackTimers, shootTimers;
 	private String[] targets;
@@ -28,14 +28,14 @@ public class Packet07Spawn extends Packet {
 	 * @param shootTime - The shoot timers for the enemies.
 	 * @param target - The usernames of the enemies' targets.
 	 */
-	public Packet07Spawn(int enemyCount, float[] xcoords, float[] ycoords, ID[] ids,
-			int[] enemyNumbers, long[] attackTimers, long[] shootTimers, String[] targets) {
+	public Packet07Spawn(int enemyCount, ID[] ids, float[] xcoords, float[] ycoords, int[] enemyNumbers, long[] attackTimers,
+			long[] shootTimers, String[] targets) {
 		super("07");
 		
 		this.enemyCount = enemyCount;
+		this.ids = ids;
 		this.xcoords = xcoords;
 		this.ycoords = ycoords;
-		this.ids = ids;
 		this.enemyNumbers = enemyNumbers;
 		this.attackTimers = attackTimers;
 		this.shootTimers = shootTimers;

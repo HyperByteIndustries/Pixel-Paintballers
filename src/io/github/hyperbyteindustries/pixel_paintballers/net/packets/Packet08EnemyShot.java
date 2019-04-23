@@ -1,6 +1,6 @@
 package io.github.hyperbyteindustries.pixel_paintballers.net.packets;
 
-import io.github.hyperbyteindustries.pixel_paintballers.ID;
+import io.github.hyperbyteindustries.pixel_paintballers.entities.Entity.ID;
 
 /**
  * Represents the enemy shot packet of the game's multiplayer system.

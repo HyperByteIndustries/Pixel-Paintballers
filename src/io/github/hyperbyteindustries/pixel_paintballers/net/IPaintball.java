@@ -1,9 +1,8 @@
 package io.github.hyperbyteindustries.pixel_paintballers.net;
 
-import io.github.hyperbyteindustries.pixel_paintballers.GameObject;
-import io.github.hyperbyteindustries.pixel_paintballers.Handler;
-import io.github.hyperbyteindustries.pixel_paintballers.ID;
-import io.github.hyperbyteindustries.pixel_paintballers.Paintball;
+import io.github.hyperbyteindustries.pixel_paintballers.entities.Entity;
+import io.github.hyperbyteindustries.pixel_paintballers.entities.Handler;
+import io.github.hyperbyteindustries.pixel_paintballers.entities.Paintball;
 
 /**
  * Represents a paintball in the game's multiplayer system.
@@ -15,14 +14,14 @@ public class IPaintball extends Paintball {
 
 	/**
 	 * Creates a new paintball.
+	 * @param id - The identification tag of the paintball.
 	 * @param x - The X coordinate of the paintball.
 	 * @param y - The Y coordinate of the paintball.
-	 * @param id - The identification tag of the object.
 	 * @param handler - An instance of the Handler class, used to manage collisions with other
-	 * objects.
+	 * entities, and to remove the paintball after said collision.
 	 * @param shooter - The game object that shot the paintball.
 	 */
-	public IPaintball(float x, float y, ID id, Handler handler, GameObject shooter) {
-		super(x, y, id, null, handler, shooter);
+	public IPaintball(ID id, float x, float y, Handler handler, Entity shooter) {
+		super(id, x, y, null, handler, shooter);
 	}
 }

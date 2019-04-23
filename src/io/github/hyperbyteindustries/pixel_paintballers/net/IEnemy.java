@@ -2,14 +2,15 @@ package io.github.hyperbyteindustries.pixel_paintballers.net;
 
 import static java.awt.Color.WHITE;
 
+import java.awt.FontMetrics;
 import java.awt.Graphics2D;
+import java.awt.geom.Rectangle2D;
 import java.util.LinkedList;
 
-import io.github.hyperbyteindustries.pixel_paintballers.Enemy;
-import io.github.hyperbyteindustries.pixel_paintballers.GameObject;
-import io.github.hyperbyteindustries.pixel_paintballers.Handler;
-import io.github.hyperbyteindustries.pixel_paintballers.ID;
-import io.github.hyperbyteindustries.pixel_paintballers.Player;
+import io.github.hyperbyteindustries.pixel_paintballers.entities.Enemy;
+import io.github.hyperbyteindustries.pixel_paintballers.entities.Entity;
+import io.github.hyperbyteindustries.pixel_paintballers.entities.Handler;
+import io.github.hyperbyteindustries.pixel_paintballers.entities.Player;
 import io.github.hyperbyteindustries.pixel_paintballers.net.packets.Packet08EnemyShot;
 import io.github.hyperbyteindustries.pixel_paintballers.net.packets.Packet09TargetChange;
 
@@ -21,35 +22,41 @@ import io.github.hyperbyteindustries.pixel_paintballers.net.packets.Packet09Targ
  */
 public class IEnemy extends Enemy {
 
-	private Server server;
+	private final Server server;
 	
 	private int enemyNumber;
 	
 	/**
 	 * Creates a new enemy
+	 * @param id - The identification tag of the object.
 	 * @param x - The X coordinate of the enemy.
 	 * @param y - The Y coordinate of the enemy.
-	 * @param id - The identification tag of the object.
 	 * @param handler - An instance of the Handler class, used to create paintballs.
 	 * @param server - An instance of the Server class, used to write packets to clients
 	 * @param enemyNumber - The enemy's number, used to identify an enemy.
 	 */
-	public IEnemy(float x, float y, ID id, Handler handler, Server server, int enemyNumber) {
-		super(x, y, id, null, handler);
+	public IEnemy(ID id, float x, float y, Handler handler, Server server, int enemyNumber) {
+		super(id, x, y, null, handler);
 		
 		this.server = server;
 		this.enemyNumber = enemyNumber;
 	}
 	
-	// See tick() in GameObject.
+	/*
+	 * (non-Javadoc)
+	 * @see io.github.hyperbyteindustries.pixel_paintballers.entities.Enemy#tick()
+	 */
+	/**
+	 * {@inheritDoc}
+	 */
 	public void tick() {
 		x += velX;
 		y += velY;
 		
 		boolean targetConnected = false;
 		
-		for (int i = 0; i < handler.getObjects().size(); i++) {
-			GameObject tempObject = handler.getObjects().get(i);
+		for (int i = 0; i < handler.getEntities().size(); i++) {
+			Entity tempObject = handler.getEntities().get(i);
 			
 			if (tempObject.getID() == ID.PLAYER || tempObject.getID() == ID.IPLAYER) {
 				Player player = (Player) tempObject;
@@ -65,12 +72,11 @@ public class IEnemy extends Enemy {
 		if (!(targetConnected) && !(server == null)) {
 			LinkedList<Player> targets = new LinkedList<Player>();
 			
-			for (int i = 0; i < handler.getObjects().size(); i++) {
-				GameObject tempObject = handler.getObjects().get(i);
+			for (int i = 0; i < handler.getEntities().size(); i++) {
+				Entity tempObject = handler.getEntities().get(i);
 				
-				if (tempObject.getID() == ID.PLAYER || tempObject.getID() == ID.IPLAYER) {
+				if (tempObject.getID() == ID.PLAYER || tempObject.getID() == ID.IPLAYER)
 					targets.add((Player) tempObject);
-				}
 			}
 			
 			target = targets.get(random.nextInt(targets.size()));
@@ -84,8 +90,8 @@ public class IEnemy extends Enemy {
 			float diffX = x - target.getX() - 4, diffY = y - target.getY() - 4,
 					distance = (float) Math.sqrt(diffX*diffX+diffY*diffY);
 			
-			velX = (float) ((-1.0/distance)*diffX);
-			velY = (float) ((-1.0/distance)*diffY);
+			velX = -1/distance*diffX;
+			velY = -1/distance*diffY;
 			
 			if (getBounds().intersects(target.getBounds())) {
 				if (System.currentTimeMillis() - attackTimer >= 1500) {
@@ -103,20 +109,20 @@ public class IEnemy extends Enemy {
 				IPaintball paintball = null;
 				
 				if (id == ID.IENEMY || id == ID.IMOVINGENEMY)
-					paintball = new IPaintball(x+8,y+8, ID.PAINTBALL, handler, this);
+					paintball = new IPaintball(ID.PAINTBALL, x+8,y+8, handler, this);
 				else if (id == ID.IBOUNCYENEMY)
-					paintball = new IPaintball(x+8, y+8, ID.BOUNCYPAINTBALL, handler, this);
+					paintball = new IPaintball(ID.BOUNCYPAINTBALL, x+8, y+8, handler, this);
 				else if (id == ID.IHOMINGENEMY)
-					paintball = new IPaintball(x+8, y+8, ID.HOMINGPAINTBALL, handler, this);
+					paintball = new IPaintball(ID.HOMINGPAINTBALL, x+8, y+8, handler, this);
 				
-				handler.addObject(paintball);
+				handler.addEntity(paintball);
 				
 				float diffX = paintball.getX() - target.getX() - 12,
 						diffY = paintball.getY() - target.getY() - 12,
 						distance = (float) Math.sqrt(diffX*diffX+diffY*diffY);
 				
-				paintball.setVelX((float) (((-1.0/distance)*diffX)*7));
-				paintball.setVelY((float) (((-1.0/distance)*diffY)*7));
+				paintball.setVelX(-1/distance*diffX);
+				paintball.setVelY(-1/distance*diffY);
 				
 				Packet08EnemyShot packet = new Packet08EnemyShot(enemyNumber,
 						target.getUsername(), paintball.getID(), paintball.getX(),
@@ -126,15 +132,25 @@ public class IEnemy extends Enemy {
 		}
 	}
 	
-	// See render(Graphics2D graphics2D) in GameObject.
+	/*
+	 * (non-Javadoc)
+	 * @see io.github.hyperbyteindustries.pixel_paintballers.entities.Enemy#
+	 * render(java.awt.Graphics2D)
+	 */
+	/**
+	 * {@inheritDoc}
+	 */
 	public void render(Graphics2D graphics2D) {
 		super.render(graphics2D);
 		
-		String targetMessage = "Target: " + target.getUsername();
-		
 		graphics2D.setColor(WHITE);
-		graphics2D.drawString(targetMessage, (float) (x-((targetMessage.length()-1)/2*7.5)),
-				y-5);
+		
+		String targetMessage = "Target: " + target.getUsername();
+		FontMetrics metrics = graphics2D.getFontMetrics();
+		Rectangle2D stringBounds = metrics.getStringBounds(targetMessage, graphics2D);
+		
+		graphics2D.drawString(targetMessage,
+				(int) (getBounds().getCenterX()-stringBounds.getWidth()/2), y-5);
 	}
 	
 	/**
@@ -146,7 +162,7 @@ public class IEnemy extends Enemy {
 	}
 	
 	/**
-	 * Returns the enemy number of the enemy.
+	 * Gets the enemy number of the enemy.
 	 * @return The enemy number.
 	 */
 	public int getEnemyNumber() {
