@@ -16,6 +16,11 @@ import static java.awt.Color.YELLOW;
 import static java.awt.Font.BOLD;
 import static java.awt.Font.ITALIC;
 import static java.awt.Font.PLAIN;
+import static java.awt.event.KeyEvent.VK_A;
+import static java.awt.event.KeyEvent.VK_D;
+import static java.awt.event.KeyEvent.VK_R;
+import static java.awt.event.KeyEvent.VK_S;
+import static java.awt.event.KeyEvent.VK_W;
 
 import java.awt.Desktop;
 import java.awt.DisplayMode;
@@ -920,6 +925,8 @@ public class Menu extends MouseAdapter {
 					(KeyInput.reload.edit?"Listening...":"Reload: " +
 							KeyEvent.getKeyText(KeyInput.reload.keyCode)), menuSelect);
 			
+			renderButton(graphics2D, 335, 330, 325, 25, "Reset keybinds", menuSelect);
+			
 			renderButton(graphics2D, Game.WIDTH/2-75, Game.HEIGHT-51, 150, 50, "Back",
 					menuSelect);
 			
@@ -1430,22 +1437,8 @@ public class Menu extends MouseAdapter {
 			
 			break;
 		case OPTIONS:
-			if (mouseOver(mouseX, mouseY, 5, 110, 250, 30)) {
-				GraphicsEnvironment environment =
-						GraphicsEnvironment.getLocalGraphicsEnvironment();
-				
-				if (game.window.fullscreen) {
-					environment.getDefaultScreenDevice().setFullScreenWindow(null);
-					
-					game.window.fullscreen = false;
-				} else {
-					environment.getDefaultScreenDevice().setFullScreenWindow(game.window);
-					environment.getDefaultScreenDevice().
-							setDisplayMode(game.window.fullscreenMode);
-					
-					game.window.fullscreen = true;
-				}
-			} else if (mouseOver(mouseX, mouseY, 260, 110, 325, 30)) {
+			if (mouseOver(mouseX, mouseY, 5, 110, 250, 30)) game.window.toggleFullscreen();
+			else if (mouseOver(mouseX, mouseY, 260, 110, 325, 30)) {
 				for (int i = 0; i < game.window.fullscreenModes.size(); i++) {
 					DisplayMode mode = game.window.fullscreenModes.get(i);
 					
@@ -1483,6 +1476,12 @@ public class Menu extends MouseAdapter {
 			} else if (mouseOver(mouseX, mouseY, 5, 330, 325, 25)) {
 				if (KeyInput.reload.edit) KeyInput.reload.edit = false;
 				else KeyInput.reload.edit = true;
+			} else if (mouseOver(mouseX, mouseY, 335, 330, 325, 25)) {
+				KeyInput.up.keyCode = VK_W;
+				KeyInput.down.keyCode = VK_S;
+				KeyInput.left.keyCode = VK_A;
+				KeyInput.right.keyCode = VK_D;
+				KeyInput.reload.keyCode = VK_R;
 			} else if (mouseOver(mouseX, mouseY, Game.WIDTH/2-75, Game.HEIGHT-51, 150, 50))
 				menuState = State.MAIN_MENU;
 			

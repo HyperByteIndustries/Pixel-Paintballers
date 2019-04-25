@@ -79,7 +79,8 @@ public class Window extends JFrame implements WindowListener {
 		try {
 			setIconImage(ImageIO.read(getClass().getResourceAsStream("/Game Icon.png")));
 		} catch (IOException exception) {
-			System.err.print(new Date() + " " + ERROR_PREFIX + "An exception occured whilst setting the game icon - ");
+			System.err.print(new Date() + " " + ERROR_PREFIX +
+					"An exception occured whilst setting the game icon - ");
 			exception.printStackTrace();
 		}
 		
@@ -168,5 +169,27 @@ public class Window extends JFrame implements WindowListener {
 	 */
 	public void windowOpened(WindowEvent event) {
 		
+	}
+	
+	public void toggleFullscreen() {
+		dispose();
+		
+		setUndecorated(!fullscreen);
+		pack();
+		
+		GraphicsEnvironment environment = GraphicsEnvironment.getLocalGraphicsEnvironment();
+		
+		if (fullscreen) {
+			environment.getDefaultScreenDevice().setFullScreenWindow(null);
+			
+			fullscreen = false;
+		} else {
+			environment.getDefaultScreenDevice().setFullScreenWindow(this);
+			environment.getDefaultScreenDevice().setDisplayMode(fullscreenMode);
+			
+			fullscreen = true;
+		}
+		
+		setVisible(true);
 	}
 }

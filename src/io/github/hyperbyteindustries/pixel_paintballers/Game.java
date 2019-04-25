@@ -80,10 +80,10 @@ public class Game extends Canvas implements Runnable {
 	private Thread thread;
 	
 	private Handler handler;
-	private Menu menu;
-	private HeadsUpDisplay headsUpDisplay;
-	private KeyInput keyInput;
 	private Spawner spawner;
+	private HeadsUpDisplay headsUpDisplay;
+	private Menu menu;
+	private KeyInput keyInput;
 	
 	private long pauseTimer;
 	
@@ -99,10 +99,10 @@ public class Game extends Canvas implements Runnable {
 		player = new Player(WIDTH/2-16, HEIGHT/2-16, this, "Player", RED, WHITE, GRAY);
 		
 		handler = new Handler();
-		menu = new Menu(this, handler);
-		headsUpDisplay = new HeadsUpDisplay(handler);
-		keyInput = new KeyInput(handler);
 		spawner = new Spawner(this, handler);
+		headsUpDisplay = new HeadsUpDisplay(handler);
+		menu = new Menu(this, handler);
+		keyInput = new KeyInput(handler);
 		
 		window = new Window(this);
 
