@@ -1,0 +1,5 @@
+# Telling Git to ignore Eclipse's project files
+.project
+.classpath
+
+/bin/
