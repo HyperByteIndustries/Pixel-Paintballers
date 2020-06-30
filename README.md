@@ -1,5 +1,5 @@
-# Pixel Paintballers
-Pixel Paintballers is a simple action shooter game currently in the final stages of development.
+# Pixel Paintballers (The Legacy Builds)
+Pixel Paintballers is a simple action shooter game which is about to undergo a complete re-write. You can find the active re-write [here](https://HyperByteIndustries.github.io/Pixel-Paintballers)
 
 ## Development
 ### Development staff
@@ -27,18 +27,18 @@ Pixel Paintballers is currently able to run on devices with Java version 8, alth
 
 ### Releases
 Here are all the releases of Pixel Paintballers in order of their latest release date.
-- [v1.1.1](https://github.com/HyperByteIndustries/Pixel-Paintballers/raw/master/Pixel_Paintballers_v1.1.1.zip)
-- [v1.1](https://github.com/HyperByteIndustries/Pixel-Paintballers/raw/master/Pixel_Paintballers_v1.1.zip)
-- [v1.0](https://github.com/HyperByteIndustries/Pixel-Paintballers/raw/master/Pixel_Paintballers_v1.0.zip)
-- [v1.1.1-beta](https://github.com/HyperByteIndustries/Pixel-Paintballers/raw/Beta-releases/Pixel_Paintballers_v1.1.1-beta.zip)
-- [v1.1-beta](https://github.com/HyperByteIndustries/Pixel-Paintballers/raw/Beta-releases/Pixel_Paintballers_v1.1-beta.zip)
-- [v1.0.1-beta](https://github.com/HyperByteIndustries/Pixel-Paintballers/raw/Beta-releases/Pixel_Paintballers_v1.0.1-beta.zip)
-- [v1.0-beta](https://github.com/HyperByteIndustries/Pixel-Paintballers/raw/Beta-releases/Pixel_Paintballers_v1.0-beta.zip)
-- [v1.3.3-alpha](https://github.com/HyperByteIndustries/Pixel-Paintballers/raw/Alpha-releases/Pixel_Paintballers_v1.3.3-alpha.zip)
-- [v1.3.2-alpha](https://github.com/HyperByteIndustries/Pixel-Paintballers/raw/Alpha-releases/Pixel_Paintballers_v1.3.2-alpha.zip)
-- [v1.3.1-alpha](https://github.com/HyperByteIndustries/Pixel-Paintballers/raw/Alpha-releases/Pixel_Paintballers_v1.3.1-alpha.zip)
-- [v1.3-alpha](https://github.com/HyperByteIndustries/Pixel-Paintballers/raw/Alpha-releases/Pixel_Paintballers_v1.3-alpha.zip)
-- [v1.2.1-alpha](https://github.com/HyperByteIndustries/Pixel-Paintballers/raw/Alpha-releases/Pixel_Paintballers_v1.2.1-alpha.zip)
-- [v1.2-alpha](https://github.com/HyperByteIndustries/Pixel-Paintballers/raw/Alpha-releases/Pixel_Paintballers_v1.2-alpha.zip)
-- [v1.1-alpha](https://github.com/HyperByteIndustries/Pixel-Paintballers/raw/Alpha-releases/Pixel_Paintballers.zip)
-- [v1.0-alpha](https://github.com/HyperByteIndustries/Pixel-Paintballers/raw/f290317c3b098f0f54f109834f985460c378c056/Pixel_Paintballers.zip)
+- [v1.1.1](https://github.com/HyperByteIndustries/Pixel-Paintballers-Legacy/raw/master/Pixel_Paintballers_v1.1.1.zip)
+- [v1.1](https://github.com/HyperByteIndustries/Pixel-Paintballers-Legacy/raw/master/Pixel_Paintballers_v1.1.zip)
+- [v1.0](https://github.com/HyperByteIndustries/Pixel-Paintballers-Legacy/raw/master/Pixel_Paintballers_v1.0.zip)
+- [v1.1.1-beta](https://github.com/HyperByteIndustries/Pixel-Paintballers-Legacy/raw/Beta-releases/Pixel_Paintballers_v1.1.1-beta.zip)
+- [v1.1-beta](https://github.com/HyperByteIndustries/Pixel-Paintballers-Legacy/raw/Beta-releases/Pixel_Paintballers_v1.1-beta.zip)
+- [v1.0.1-beta](https://github.com/HyperByteIndustries/Pixel-Paintballers-Legacy/raw/Beta-releases/Pixel_Paintballers_v1.0.1-beta.zip)
+- [v1.0-beta](https://github.com/HyperByteIndustries/Pixel-Paintballers-Legacy/raw/Beta-releases/Pixel_Paintballers_v1.0-beta.zip)
+- [v1.3.3-alpha](https://github.com/HyperByteIndustries/Pixel-Paintballers-Legacy/raw/Alpha-releases/Pixel_Paintballers_v1.3.3-alpha.zip)
+- [v1.3.2-alpha](https://github.com/HyperByteIndustries/Pixel-Paintballers-Legacy/raw/Alpha-releases/Pixel_Paintballers_v1.3.2-alpha.zip)
+- [v1.3.1-alpha](https://github.com/HyperByteIndustries/Pixel-Paintballers-Legacy/raw/Alpha-releases/Pixel_Paintballers_v1.3.1-alpha.zip)
+- [v1.3-alpha](https://github.com/HyperByteIndustries/Pixel-Paintballers-Legacy/raw/Alpha-releases/Pixel_Paintballers_v1.3-alpha.zip)
+- [v1.2.1-alpha](https://github.com/HyperByteIndustries/Pixel-Paintballers-Legacy/raw/Alpha-releases/Pixel_Paintballers_v1.2.1-alpha.zip)
+- [v1.2-alpha](https://github.com/HyperByteIndustries/Pixel-Paintballers-Legacy/raw/Alpha-releases/Pixel_Paintballers_v1.2-alpha.zip)
+- [v1.1-alpha](https://github.com/HyperByteIndustries/Pixel-Paintballers-Legacy/raw/Alpha-releases/Pixel_Paintballers.zip)
+- [v1.0-alpha](https://github.com/HyperByteIndustries/Pixel-Paintballers-Legacy/raw/f290317c3b098f0f54f109834f985460c378c056/Pixel_Paintballers.zip)
